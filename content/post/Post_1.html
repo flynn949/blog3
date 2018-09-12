@@ -18,24 +18,38 @@ tags: ["Stan", "regression"]
 <p>For each mutant, at each concentration, there is a certain number of trials and a certain number of successes. If the experiment were to be repeated many times, would we expect to get the exact same data every time? Of course not, but the numbers should be similar. The number of successes that are observed in any given experiment is stochastically drawn from some distribution. Our first task in defining the model is to identify the most appropriate distribution. In this case, the distribution that makes the most sense is the binomial distribution, which has two parameters: the number of trials, and the probability of success in each trial.</p>
 <p>For each mutant at each concentration: the observed number of successes <span class="math inline">\(Y\)</span> is drawn from a binomial distribution parameterised by the probability of success <span class="math inline">\(p\)</span> and number of trials. The ~ symbol denotes a stochastic relationship.</p>
 <p><span class="math display">\[Y \sim \text{Binomial(trials}\text{, }  p) \]</span></p>
-<p>In the second part of the model, the dependence of <span class="math inline">\(p\)</span> on concentration is defined. This should have a Gaussian shape, which can be parameterised in terms of the three features in which we are interested: the centre position, height and width. Putting this into mathematical notation: the true success probability <span class="math inline">\(p\)</span> for mutant <span class="math inline">\(j\)</span> at concentration <span class="math inline">\(x_i\)</span> is given by a Gaussian curve parameterised by the peak height <span class="math inline">\(h_j\)</span> (in units of success probability), peak centre position <span class="math inline">\(c_j\)</span> (in units of concentration), and its width (standard deviation) <span class="math inline">\(\sigma\)</span> (in units of concentration).</p>
+<p>In the second part of the model, the true success probability <span class="math inline">\(p\)</span> for mutant <span class="math inline">\(j\)</span> at concentration <span class="math inline">\(x_i\)</span> is given by a Gaussian curve parameterised by the peak height <span class="math inline">\(h_j\)</span> (in units of success probability), peak centre position <span class="math inline">\(c_j\)</span> (in units of concentration), and its width (standard deviation) <span class="math inline">\(\sigma\)</span> (in units of concentration).</p>
 <p><span class="math display">\[p_{j,i} = h_j \text{ exp}{\frac{-(x_i-c_j)^2}{2\sigma_j^2}}\]</span></p>
 <div id="bayes-rule" class="section level3">
 <h3>Bayes’ Rule</h3>
-<p>For a given set of parameters, a range of observations can be obtained stochastically from the binomial distribution. The corrolary of this is that for a given set of observations, a range of underlying parameters could have created them. The above model can be used to calculate the likelihood of the observed data for any of a range of candidate parameter values. This is achieved using Bayes’ rule:</p>
+<p>For a given set of parameters, a range of observations can be obtained stochastically from the binomial distribution. The corrolary of this is that for a given set of observations, a range of underlying parameters could have created them. The above model can be used to calculate the likelihood of the observed data for any of a range of candidate parameter values. From this, the probability of any particular set of parameters having created the data can also be assessed. This is achieved using Bayes’ rule:</p>
 <p><span class="math display">\[P(\text{Parameters | Data}) = \frac{P(\text{Data | Parameters}).P(\text{Parameters})}{P(\text{Data})} \]</span> Where:</p>
 <ul>
 <li><span class="math inline">\(P(\text{Parameters | Data})\)</span> is the posterior probability - if we can determine this for all parameters then we will know the probability distribution of all candidate parameters, given what the data at hand are telling us.</li>
 <li><span class="math inline">\(P(\text{Data | Parameters})\)</span> is the likelihood. The above model is critical in calculating this - for a given set of parameters, how likely are the observed data to have been stochastically drawn from the distribution these parameters imply?</li>
 <li><span class="math inline">\(P(\text{Parameters})\)</span> is the prior probability of the candidate parameters. This may have support from previous experiments, or it may have to represent an educated guess.</li>
-<li><span class="math inline">\(P(\text{Data})\)</span> is the marginal likelihood, this can be thought of as the probability of observing the data over all possible parameters. It normalises the posterior probability.</li>
+<li><span class="math inline">\(P(\text{Data})\)</span> is the marginal likelihood, this can be thought of as the probability of observing the data over all possible parameters. It normalises the posterior probability, and can be calculated by integrating over all possible parameter values. Because it is not parameter-dependent, this value is the same no matter what the candidate parameters are. If we wish to compare the probabilities of two sets of parameters, we can take the ratio of their numerators from Bayes’ rule, and do not need the marginal likelihood.</li>
 </ul>
 </div>
 <div id="sampling" class="section level3">
 <h3>Sampling</h3>
 <p>How can Bayes’ rule be applied to the above problem? For relatively simple problems, Bayes’ rule can be applied analytically, and an exact solution for the posterior probability distribution can be found. For more complicated problems like this one, a sampling approach is the only viable option. These methods build up a picture of what the posterior probability distribution looks like, one set of candidate parameters at a time. The challenge in sampling is to efficiently explore the posterior probability distribution.</p>
-<p>There are several sampling algorithms, including the simple Markov chain Monte Carlo (MCMC) method and the more complex and powerful Hamiltonian Monte Carlo method (as implemented by Stan), but they all work by a similar principle. A prior probability distribution is specified, along with a formula for calculating the likelihood. Sampling initiates with a candidate set of parameters. The posterior probablity associated with these parameters is then calculated using Bayes’ rule, the observed data and the specified likelihood formula. Most samplers will typically have some method for then deciding whether to accept this posterior probability, and add it to a growing picture of what the posterior distribution looks like, or to reject it. In the Metropolis-Hastings technique, for example, a random number is drawn from a uniform [0,1] distribution and if that value is less than the candidate posterior probability, then the posterior probability is accepted and added to the growing picture of the posterior distribution, otherwise, it is rejected. Thus, the probability of acceptance is equal to the probablity value itself. In the next iteration, a new set of candidate parameters is put through the same steps, these are typically obtained by adding a random value to the last accepted parameters. In this way, samples are added to the growing picture of the posterior probability distribution at a frequency that is proportional to the probability at their respective place in the distribution. Typically, hundreds or thousands of sampling iterations are required to build a representative picture of the posterior distribution. I found one of the most intuitive and helpful ways to understand this process was in given in <a href="https://stats.stackexchange.com/a/135725">this</a> Stack Exchange answer, which manually implements MCMC sampling in R code.</p>
-<p> </p>
+<p>There are several Markov Chain Monte Carlo (MCMC) sampling algorithms, including Gibbs sampling and Hamiltonian Monte Carlo, but the basic principles of these are pretty much as follows:</p>
+<p>Setup</p>
+<ul>
+<li>A prior probability distribution is specified for each parameter.</li>
+<li>A formula for the likelihood is specified.</li>
+<li>A random (or specified) set of parameters are taken as the initial candidate parameters</li>
+<li>The number of sampling iterations is defined. Depending on the problem, the first several hundred or thousand of these will be discarded, as they have started at some random part of parameter space and have not yet equilibrated to the posterior distribution.</li>
+</ul>
+<p>Sampling</p>
+<ol style="list-style-type: decimal">
+<li>The likelihood of obtaining the observed data given the candidate parameters is calculated and multiplied by the prior probability. This gives the numerator on the right hand side of Bayes’ formula.</li>
+<li>The candidate set of parameters are either accepted or rejected, in some manner that is dependent on their probability.</li>
+<li>A new set of candidate parameters is generated by treating the last accepted set of parameters as a jumping off point. For example, a set of random numbers may be added to these.</li>
+</ol>
+<p>In this way, the sampler explores each part of parameter space in proportion to its probability.</p>
+<p><a href="https://twiecki.github.io/blog/2015/11/10/mcmc-sampling/">Here’s</a> a really great blog post by Thomas Wiecki that explains the whole process really nicely.</p>
 </div>
 </div>
 <div id="simulation" class="section level2">
@@ -440,16 +454,10 @@ fit &lt;- stan(file = &quot;mutant_model.stan&quot;,
 <pre class="r"><code>library(shinystan)
 launch_shinystan(fit)</code></pre>
 <p> </p>
-<p>Now plot the posterior distributions of values of the centre parameter.</p>
-<p>There are only six mutants, so there isn’t a lot to go on for precise estimation of the population centre (true value 70) and scaling parameter (true value 4), however, in this case we aren’t really interested in these values, it is the estimates for each mutant that we are particularly interested in.</p>
-<pre class="r"><code>plot(fit, pars = &quot;mu_centre&quot;)</code></pre>
-<p><img src="/post/Post_1_files/figure-html/plotcentre1-1.png" width="864" /></p>
-<pre class="r"><code>plot(fit, pars = &quot;sigma_centre&quot;)</code></pre>
-<p><img src="/post/Post_1_files/figure-html/plotcentre2-1.png" width="864" /></p>
-<p>The mutant centre values have turned out quite reasonable, in spite of the wide distribution of the population centre value - the scaling paramter and raw values adjust accordingly on each draw so that reasonable estimates are obtained.</p>
+<p>The mutant centre values have turned out quite reasonable.</p>
 <pre class="r"><code>plot(fit, pars = &quot;centre&quot;)</code></pre>
 <p><img src="/post/Post_1_files/figure-html/plot_centre-1.png" width="864" /></p>
-<p>Most pairs of mutants are distinct, however, mutants A and C as well as A and D have partially overlapping distributions, while mutants E and F have completely overlapping distributions. We will need to delve further into the posterior draws to assess these.</p>
+<p>Most pairs of mutants are distinct, however, some are overlapping. We will need to delve further into the posterior draws to assess these.</p>
 <p> </p>
 <hr />
 <p> </p>
@@ -598,27 +606,6 @@ sum(centre_f.all &lt; centre_e.all)/length(centre_f.all)</code></pre>
 <p>Mutant F, which is has a true peak centre identical to mutant E was lower than mutant E in approximately half of the draws, so we would not say that there is evidence they differ.</p>
 <pre class="r"><code>difference_plot(&quot;E&quot;, &quot;F&quot;)</code></pre>
 <p><img src="/post/Post_1_files/figure-html/unnamed-chunk-9-1.png" width="864" /></p>
-<p> </p>
-</div>
-<div id="mutants-a-and-d" class="section level3">
-<h3>Mutants A and D</h3>
-<p>Let’s also have a quick look at mutants A and D. We know that mutant D has a true centre value 0.9 units greater than mutant A.</p>
-<pre class="r"><code>centre_a.all &lt;- list_of_draws$centre[,1]
-centre_d.all &lt;- list_of_draws$centre[,4]
-
-sum(centre_d.all &gt; centre_a.all)/length(centre_a.all)</code></pre>
-<pre><code>## [1] 0.9885</code></pre>
-<p>It is worth noting that the distribution of differences is very much Gaussian, and here I have done a quck fit of a Gaussian curve to this distribution.</p>
-<pre class="r"><code>d_minus_a &lt;- centre_d.all - centre_a.all
-meandiff &lt;- mean(d_minus_a)
-sddiff &lt;- sd(d_minus_a)
-
-gaussian_plot &lt;- function(x){ return(0.89 * exp(-0.5* ( ((x - meandiff)^2)/(sddiff^2)) ))}
-
-difference_plot(&quot;D&quot;, &quot;A&quot;)+
-   stat_function(fun = gaussian_plot, linetype = &quot;dashed&quot;)+
-  scale_x_continuous(limits = c(-1,3))</code></pre>
-<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-11-1.png" width="864" /></p>
 <p> </p>
 <p>So, the numbers are reasonable and the model is looking good, it did a good job with the simulated data. The next step would be to fit it to the actual experimental data.</p>
 <p> </p>
