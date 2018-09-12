@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 2.4.0">
+  <meta name="generator" content="Hugo 0.48" />
+  <meta name="author" content="Flynn Hill">
+
+  
+  
+  
+  
+    
+  
+  <meta name="description" content="The ProblemIn this example, inspired by a real-world problem, several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if we measure a lot of trials over a range of concentrations for a single strain (mutant A, below), we see a bell curve-shaped rise and fall in successes as a function of concentration.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="/post/post_1/">
+
+  
+
+
+  
+
+  
+  
+  
+  <meta name="theme-color" content="#0095eb">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" crossorigin="anonymous">
+        
+      
+    
+
+    
+
+    
+
+  
+
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:400,700%7cRoboto:400,400italic,700%7cRoboto&#43;Mono">
+  
+
+  <link rel="stylesheet" href="/styles.css">
+  
+
+  
+  
+  
+
+  
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Flynn Hill">
+  <link rel="feed" href="/index.xml" type="application/rss+xml" title="Flynn Hill">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="/post/post_1/">
+
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="Flynn Hill">
+  <meta property="og:url" content="/post/post_1/">
+  <meta property="og:title" content="Simulation and Modelling in R and Stan | Flynn Hill">
+  <meta property="og:description" content="The ProblemIn this example, inspired by a real-world problem, several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if we measure a lot of trials over a range of concentrations for a single strain (mutant A, below), we see a bell curve-shaped rise and fall in successes as a function of concentration.">
+  <meta property="og:locale" content="en-us">
+  
+  <meta property="article:published_time" content="2018-08-27T00:00:00&#43;00:00">
+  
+  <meta property="article:modified_time" content="2018-08-27T00:00:00&#43;00:00">
+  
+
+  
+
+  
+
+  <title>Simulation and Modelling in R and Stan | Flynn Hill</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#toc" data-offset="71" >
+
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Flynn Hill</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav ml-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#about">
+            
+            <span>Home</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#posts">
+            
+            <span>Posts</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#publications_selected">
+            
+            <span>Publications</span>
+            
+          </a>
+        </li>
+
+        
+        
+      
+
+      
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+
+
+  <div class="article-container">
+    <h1 itemprop="name">Simulation and Modelling in R and Stan</h1>
+
+    
+
+<div class="article-metadata">
+
+  
+  
+  <span itemscope itemprop="author" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Flynn Hill">
+  </span>
+  
+
+  <span class="article-date">
+    
+    <meta content="2018-08-27 00:00:00 &#43;0000 UTC" itemprop="datePublished">
+    <time datetime="2018-08-27 00:00:00 &#43;0000 UTC" itemprop="dateModified">
+      2018-08-27
+    </time>
+  </span>
+  <span itemscope itemprop="publisher" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Flynn Hill">
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    21 min read
+  </span>
+  
+
+  
+  
+
+  
+
+  
+  
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=Simulation%20and%20Modelling%20in%20R%20and%20Stan&amp;url=%2fpost%2fpost_1%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=%2fpost%2fpost_1%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fpost%2fpost_1%2f&amp;title=Simulation%20and%20Modelling%20in%20R%20and%20Stan"
+         target="_blank" rel="noopener">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=%2fpost%2fpost_1%2f&amp;title=Simulation%20and%20Modelling%20in%20R%20and%20Stan"
+         target="_blank" rel="noopener">
+        <i class="fab fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=Simulation%20and%20Modelling%20in%20R%20and%20Stan&amp;body=%2fpost%2fpost_1%2f">
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+
+    <div class="article-style" itemprop="articleBody">
+      <script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+
+<div id="the-problem" class="section level1">
+<h1>The Problem</h1>
+<p>In this example, inspired by a real-world problem, several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if we measure a lot of trials over a range of concentrations for a single strain (mutant A, below), we see a bell curve-shaped rise and fall in successes as a function of concentration. We do not have the resources to measure this many trials for each mutant, so we tried to measure 20 trials at each concentration for each mutant instead. However, some of these trials failed due to a technical glitch and the number of trials ranges from 10-20. It looks as if each mutant has a characteristic concentration at which successes peak (the ‘centre’), a characteristic fraction of successes at this peak (the ‘height’) and a characteristic width of the response (‘width’). We are particularly interested in the value of the centre parameter, and wish to compare it for different strains, to see if they differ. For this problem, there is no simple statistical test, such as a t-test, that springs to mind. Instead, we will take the approach of fitting a model to the data that is based on our understanding of how the data were generated.</p>
+<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-1-1.png" width="864" /></p>
+<div id="model" class="section level2">
+<h2>Model</h2>
+<p>For each mutant, at each concentration, there is a certain number of trials and a certain number of successes. If we repeated the experiment many times, would we expect to get the exact same data every time? Of course not, but the numbers should be similar. The number of successes that are observed in any given experiment is stochastically drawn from some distribution. Our first task in defining the model is to identify the most appropriate distribution. In this case, the distribution that makes the most sense is the binomial distribution, which has two parameters: the number of trials, and the probability of success in each trial.</p>
+<p>Example: A coin is flipped 10 times and the number of heads is recorded:</p>
+<pre class="r"><code>set.seed(100)
+(n_success &lt;- rbinom(n = 1, size = 10, p = 0.5))</code></pre>
+<pre><code>## [1] 4</code></pre>
+<p>This value was drawn stochastically from the binomial distribution, which tells us the probability of any particular number of heads (successes).</p>
+<pre class="r"><code>plot(dbinom(x = seq(0,10), size = 10, prob = 0.5),type=&quot;h&quot;, ylab = &quot;P&quot;, xlab = &quot;Number of heads&quot;)</code></pre>
+<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-3-1.png" width="384" /></p>
+<p>Thus, there was a probability of 0.21 of obtaining 4 heads.</p>
+<p>Applying this to our model, for each mutant at each concentration: the observed number of successes <span class="math inline">\(Y\)</span> is drawn from a binomial distribution parameterised by the probability of success <span class="math inline">\(p\)</span> and number of trials. The ~ symbol denotes a stochastic relationship.</p>
+<p><span class="math display">\[Y \sim \text{Binomial(trials}\text{, }  p) \]</span></p>
+<p>In the second part of the model, we define how <span class="math inline">\(p\)</span> varies as a function of concentration. We already know that this should have a Gaussian shape, which can be parameterised in terms of the three features in which we are interested: the centre position, height and width. Putting this into mathematical notation: the true success probability <span class="math inline">\(p\)</span> for mutant <span class="math inline">\(j\)</span> at concentration <span class="math inline">\(x_i\)</span> are given by a Gaussian curve parameterised by the peak height <span class="math inline">\(h_j\)</span> (in units of success probability), peak centre position <span class="math inline">\(c_j\)</span> (in units of concentration), and its width (standard deviation) <span class="math inline">\(\sigma\)</span> (in units of concentration).</p>
+<p><span class="math display">\[p_{j,i} = h_j \text{ exp}{\frac{-(x_i-c_j)^2}{2\sigma_j^2}}\]</span></p>
+<div id="bayes-rule" class="section level3">
+<h3>Bayes’ Rule</h3>
+<p>For a given set of parameters, a range of observations can be obtained stochastically from the binomial distribution. The corrolary of this is that for a given set of observations, a range of underlying parameters could have created them. The above model allows us to calculate the likelihood of the observed data for any of a range of candidate parameter values. This is achieved using Bayes’ rule:</p>
+<p><span class="math display">\[P(\text{Parameters | Data}) = \frac{P(\text{Data | Parameters}).P(\text{Parameters})}{P(\text{Data})} \]</span> Where:</p>
+<ul>
+<li><span class="math inline">\(P(\text{Parameters | Data})\)</span> is the posterior probability - if we can determine this for all parameters then we will know the probability distribution of all candidate parameters, given what the data at hand are telling us.</li>
+<li><span class="math inline">\(P(\text{Data | Parameters})\)</span> is the likelihood. The above model is critical in calculating this - for a given set of parameters, how likely are the observed data to have been stochastically drawn from the distribution these parameters imply?</li>
+<li><span class="math inline">\(P(\text{Parameters})\)</span> is the prior probability of the candidate parameters. This may have support from previous experiments, or it may have to represent an educated guess.</li>
+<li><span class="math inline">\(P(\text{Data})\)</span> is the marginal likelihood, this can be thought of as the probability of observing the data over all possible parameters. It normalises the posterior probability.</li>
+</ul>
+</div>
+<div id="sampling" class="section level3">
+<h3>Sampling</h3>
+<p>How can Bayes’ rule be applied to the above problem? For relatively simple problems, Bayes’ rule can be applied analytically, and an exact solution for the posterior probability distribution can be found. For more complicated problems like this one, a sampling approach is the only viable option. These methods build up a picture of what the posterior probability distribution looks like, one set of candidate parameters at a time. The challenge in sampling is to efficiently explore the posterior probability distribution.</p>
+<p>There are several popular sampling algorithms, including the simple Markov chain Monte Carlo (MCMC) method and the more complex and powerful Hamiltonian Monte Carlo method (as implemented by Stan), but they all work by a similar principle. A prior probability distribution is specified, along with a formula for calculating the likelihood. Sampling initiates with a candidate set of parameters. The posterior probablity associated with these parameters is then calculated using Bayes’ rule, the observed data and the specified likelihood formula. Most samplers will typically have some method for then deciding whether to accept this posterior probability, and add it to a growing picture of what the posterior distribution looks like, or to reject it. In the Metropolis-Hastings technique, a random number is drawn from a uniform [0,1] distribution and if that value is less than the candidate posterior probability, then the posterior probability is accepted and added to the growing picture of the posterior distribution, otherwise, it is rejected. In the next iteration, a new set of candidate parameters is put through the same steps, these are typically obtained by adding a random value to the last accepted parameters. In this way, samples are added to the growing picture of the posterior probability distribution at a frequency that is proportional to the probability at their respective place in the distribution. Typically, hundreds or thousands of sampling iterations are required to build a representative picture of the posterior distribution. I found one of the most intuitive and helpful ways to understand this process was in given in <a href="https://stats.stackexchange.com/a/135725">this</a> Stack Exchange answer, which manually implements MCMC sampling in R code.</p>
+<p> </p>
+</div>
+</div>
+<div id="simulation" class="section level2">
+<h2>Simulation</h2>
+<p>A great way to proceed is by simulating some fake data based on this model, and fitting it with a corresponding regression model. In this way, we check the model forwards and backwards - it should simulate data that look like our experimental data, and the regression model should then fit it well. In this way, we gain a deeper appreciation for how the model works, and can much more readily spot flaws in our thinking.</p>
+<p>In this simulation, six mutant strains will be generated, each with its own height, centre and width parameters. These parameters will each be treated as if they were drawn from common distributions. We start by defining the population parameters for height, centre and width. A scaling value is also defined for each of these parameters. Individual mutant deviations from the population central value are then drawn from a unit normal distribution, multiplied by the scaling value and added to the population central value to give the true parameter value. This mirrors the ‘non-centred’ parameterisation that will be used in fitting the model, explained in the ‘Parameters block’ section.</p>
+<p>The height value is a probability, and therefore ranges between 0 and 1. To draw this from a Gaussian distribution, we start off by drawing height values as log odds, which do not have upper and lower bounds, before transforming these to the probability scale.</p>
+<pre class="r"><code># Give each mutant a name.
+n_mutants &lt;- 6
+mutants &lt;- LETTERS[1:n_mutants]  
+
+# Population-level intercepts
+pop_height_logodds &lt;- 0
+pop_centre &lt;- 70
+pop_width &lt;- 1.5  
+
+#Population scaling parameters
+group_scale_height_logodds &lt;- 1
+group_scale_centre &lt;- 4
+group_scale_width &lt;- 0.5</code></pre>
+<p> </p>
+<div id="random-parameter-draw" class="section level3">
+<h3>Random parameter draw</h3>
+<p>True height and centre parameters for each mutant are now drawn from Gaussian distributions with the population centres and group standard deviations as given above. A random seed is specified to make this reproducible. The height values are in log-odds units, and are transformed to probability using the invlogit function. We can now make a table of the key parameters for each mutant. Note that mutants E and F have the same centre, while mutants B, C and E have the same height value.</p>
+<pre class="r"><code>#invlogit function for converting log odds to probability
+invlogit &lt;- function(x){exp(x)/(1+exp(x))}
+
+#set random seed for reproducibility
+set.seed(100)
+
+height_raw_logodds &lt;- rnorm(n = n_mutants, mean = 0, sd = 1)
+centre_raw &lt;- rnorm(n = n_mutants, mean = 0, sd = 1)
+width_raw &lt;- rnorm(n = n_mutants, mean = 0, sd = 1)
+
+mutant_height_logodds &lt;- pop_height_logodds + group_scale_height_logodds * height_raw_logodds
+mutant_centre &lt;- pop_centre + group_scale_centre * centre_raw
+mutant_width &lt;- pop_width + group_scale_width * width_raw
+
+# Transform these parameters from log-odds to probability
+mutant_height_p &lt;- invlogit(mutant_height_logodds)
+
+
+# Data summary
+mutant.frame &lt;- data.frame(&quot;mutant&quot; = mutants, 
+                           &quot;height_logodds&quot; = mutant_height_logodds,   
+                           &quot;height_p&quot; = mutant_height_p,
+                           &quot;centre&quot; = mutant_centre, 
+                           &quot;width&quot; = mutant_width)
+
+kable(mutant.frame, format = &quot;html&quot;, digits = 1)%&gt;%
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;, &quot;condensed&quot;))</code></pre>
+<table class="table table-striped table-hover table-condensed" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+mutant
+</th>
+<th style="text-align:right;">
+height_logodds
+</th>
+<th style="text-align:right;">
+height_p
+</th>
+<th style="text-align:right;">
+centre
+</th>
+<th style="text-align:right;">
+width
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:right;">
+-0.5
+</td>
+<td style="text-align:right;">
+0.4
+</td>
+<td style="text-align:right;">
+67.7
+</td>
+<td style="text-align:right;">
+1.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:right;">
+0.1
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:right;">
+72.9
+</td>
+<td style="text-align:right;">
+1.9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:right;">
+-0.1
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:right;">
+66.7
+</td>
+<td style="text-align:right;">
+1.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:right;">
+0.9
+</td>
+<td style="text-align:right;">
+0.7
+</td>
+<td style="text-align:right;">
+68.6
+</td>
+<td style="text-align:right;">
+1.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+E
+</td>
+<td style="text-align:right;">
+0.1
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:right;">
+70.4
+</td>
+<td style="text-align:right;">
+1.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+F
+</td>
+<td style="text-align:right;">
+0.3
+</td>
+<td style="text-align:right;">
+0.6
+</td>
+<td style="text-align:right;">
+70.4
+</td>
+<td style="text-align:right;">
+1.8
+</td>
+</tr>
+</tbody>
+</table>
+<p> </p>
+</div>
+<div id="predictor-variable-and-number-of-trials" class="section level3">
+<h3>Predictor variable and number of trials</h3>
+<p>The range over which we will measure in our simulated experiment, and the number of trials for each mutant at each concentration.</p>
+<pre class="r"><code># Predictor variable
+conc_range &lt;- 10
+conc_interval &lt;- 1
+conc &lt;- seq(pop_centre-conc_range, pop_centre + conc_range, conc_interval)
+
+# Maximum number of repeats/trials
+max_trials = 10
+
+#Probability of max trials
+prob_trials = 0.95 #A high value to simulate a situation where there is an intended number of trials, but some have failed for technical reasons.</code></pre>
+<p> </p>
+</div>
+<div id="probability-of-success" class="section level3">
+<h3>Probability of success</h3>
+<p>The Gaussian function is defined and a probability matrix describing the probability of success for each mutant at each tested concentration is calculated, given the parameters height, centre, and width for each mutant.</p>
+<pre class="r"><code>gaussian &lt;- function(height,centre,width,x){
+  return(height * exp(-0.5* ( ((x - centre)^2)/(width^2)) ))
+}
+
+probability.matrix &lt;- matrix(data = NA, 
+                             nrow = length(conc), 
+                             ncol = n_mutants, 
+                             dimnames = list(conc, mutants))
+
+for (j in 1:n_mutants){
+  for (i in 1:length(conc)){
+    probability.matrix[i,j] &lt;- gaussian(mutant_height_p[j], 
+                                        mutant_centre[j], 
+                                        mutant_width[j], 
+                                        conc[i])
+    
+  }
+}</code></pre>
+</div>
+<div id="experiment-simulation" class="section level3">
+<h3>Experiment simulation</h3>
+<p>For each mutant, at each concentration, the number of trials can vary. Here this is achieved by drawing the number of trials from a binomial distribution (to simulate random technical failures), but that is not crucial to the model.</p>
+<p>An experiment is now simulated by drawing from a binomial distribution for each mutant-concentration combination, parameterised the corresponding values from the probabilities matrix and number of trials matrix.</p>
+<pre class="r"><code>n_trials.matrix &lt;- matrix(data = rbinom(n = length(conc)*n_mutants, 
+                                        size = max_trials, 
+                                        prob = prob_trials),  
+                          nrow = length(conc), 
+                          ncol = n_mutants, 
+                          dimnames = list(conc, mutants))
+
+# Simulate experiments - get the number of successes given the probability from the above matrix and the number of trials.
+successes.matrix &lt;- matrix(data = NA, 
+                           nrow = length(conc), 
+                           ncol = n_mutants, 
+                           dimnames = list(conc, mutants))
+
+for (j in 1:n_mutants){
+  for (i in 1:length(conc)){
+    successes.matrix[i,j] &lt;- rbinom(1, 
+                                    prob =  probability.matrix[i,j], 
+                                    size = n_trials.matrix[i,j])
+    
+  }
+}</code></pre>
+<p> </p>
+</div>
+<div id="reshape-data" class="section level3">
+<h3>Reshape data</h3>
+<p>We now make use of the tidyverse set of packages, tidyr in particular. Data are reformatted from a wide format in which each mutant has its own column to <a href="https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html">tidy format</a>, which is easier to work with. In this long table format we have a single column to specify the mutant, and single columns for concentration, number of trials and number of successes. For convenience, we also tack on columns with the true mutant parameters (these values are simply repeated in each row for the same mutant). If you look at the ggplot function below, you will see the advantage that tidy format confers - we can now describe the plot for all mutants at once, rather than having to add layers for each mutant.</p>
+<pre class="r"><code>library(reshape2)
+
+# Use the melt function from reshape2, this is similar to tidyr&#39;s gather, but it also works on matrices and arrays.
+# This converts data from wide to long format.
+n_trials.frame &lt;- melt(n_trials.matrix)
+colnames(n_trials.frame) &lt;- c(&quot;conc&quot;, &quot;mutant&quot;, &quot;n_trials&quot;)
+
+prob.frame &lt;- melt(probability.matrix)
+colnames(prob.frame) &lt;- c(&quot;conc&quot;, &quot;mutant&quot;, &quot;probability&quot;)
+
+successes.frame &lt;- melt(successes.matrix)
+colnames(successes.frame) &lt;- c(&quot;conc&quot;, &quot;mutant&quot;, &quot;successes&quot;)
+
+detach(package:reshape2)
+
+# Combine
+experiment_data &lt;- left_join(successes.frame, n_trials.frame) %&gt;%
+  left_join(prob.frame) %&gt;%
+  left_join(mutant.frame)
+
+#Trim away the zero readings.
+experiment_data &lt;- experiment_data %&gt;%
+  filter(conc &gt; centre - 4*width &amp; conc &lt; centre + 4*width)</code></pre>
+<p> </p>
+<p>And this is how our simulated measurements look:</p>
+<pre class="r"><code># Plot
+ggplot(experiment_data)+
+  aes(x = conc, y = successes/n_trials, group = mutant)+
+  geom_vline(data = mutant.frame, aes(xintercept = centre), linetype = &quot;dashed&quot;)+
+  geom_line(aes(y = n_trials/max_trials), linetype = &quot;dashed&quot;, colour = &quot;grey&quot;)+
+  geom_line(aes(y = probability), colour = &quot;blue&quot;)+
+  geom_point(size = 1)+
+  theme_bw(14)+
+  facet_wrap(~mutant,ncol=2)+
+  labs(x = &quot;Concentration&quot;, caption = paste0(&quot;Horizontal dashed line represents number of trials as fraction of maximum trials (&quot;, max_trials, &quot;).\nVertical dashed line shows the true centre.\nBlue curve shows the true probability.&quot;))</code></pre>
+<p><img src="/post/Post_1_files/figure-html/plot_simulation-1.png" width="864" /></p>
+<p> </p>
+<hr />
+<p> </p>
+</div>
+</div>
+<div id="stan-model" class="section level2">
+<h2>Stan model</h2>
+<p>Here we are using the tidy format data as the input. The mutants are named by an index rather than letter. All input data must be packaged together in a list.</p>
+<pre class="r"><code>mlist &lt;- data.frame(&quot;mutant&quot; = mutants, mutant_num = seq(1:n_mutants))
+
+experiment_data &lt;- experiment_data %&gt;% left_join(mlist)
+
+dat_allmutants = list(
+  J = n_mutants,
+  N = nrow(experiment_data),
+  mutant = experiment_data$mutant_num,
+  x = experiment_data$conc,
+  n_trials = experiment_data$n_trials,
+  y = experiment_data$successes
+)</code></pre>
+<p> </p>
+<p>The stan model is stored in a separate .stan file, however, it is also possible to provide it as a string. It is split into blocks as follows, shown individually for convenience. See the Stan manual for more information.</p>
+<div id="data-block" class="section level3">
+<h3>Data block</h3>
+<pre class="cpp"><code>data {
+  int&lt;lower=1&gt; J; //number of mutants
+  int&lt;lower=1&gt; N; //Number of observations
+  int&lt;lower=1,upper=J&gt; mutant[N]; //mutant for observation n
+  vector[N] x; //concentration for observation n
+  int&lt;lower=0&gt; n_trials[N]; //number of trials for observation n
+  int&lt;lower=0&gt; y[N]; //Number of survivors for observation n
+}
+</code></pre>
+<p>Values in the data block should match what we have put in our data list. The choice of type for each variable in the data block is crucial, and the Stan manual is very helpful in this area. Having said that, I am still a bit hazy on the choice between vectors and arrays. With vectors, I believe it should be possible to express the for loop that calculates psurvive in the model block as a single vectorised line of code, and that should improve the speed of the model (not that speed is an issue in this particular case), however, I am uncertain how to achieve this.</p>
+</div>
+<div id="parameters-block" class="section level3">
+<h3>Parameters block</h3>
+<pre class="cpp"><code>parameters {
+  real mu_centre;
+  real&lt;lower=0&gt; sigma_centre;
+  vector[J] centre_raw;
+
+  real mu_heightlogodds;
+  real&lt;lower=0&gt; sigma_heightlogodds;
+  vector[J] heightlogodds_raw;
+
+  real&lt;lower=0&gt; mu_width_squared;
+  real&lt;lower=0&gt; sigma_width_squared;
+  vector[J] width_raw_squared;
+}</code></pre>
+<p>These are the parameters to be estimated by the regression fit. The parameters for each mutant are loosely treated as coming from common distributions. A population centre value is estimated, along with a scaling value. Individual mutant deviations are then drawn from centred unit normals. The mutant parameter is then given in the transformed parameters block as the mutant deviation times the scaling factor plus the population centre value.</p>
+<p>Although I have used the word ‘centre’ a lot, this is actually the ‘non-centred’ parameterisation. The Stan manual does a good job of explaining this, but here’s my attempt: In the centred parameterisation, individual mutant parameters are drawn directly from a distribution with an estimated population centre and standard deviation. The problem with the centred parameterisation is that the population centre, standard deviation and individual mutant values are highly correlated. When there is a large change in the population centre value, the individual mutant values must be sampled from the low probability region in the far reaches of the prior in order to compensate. The advantage of the non-centred parametrisation is that it places less constraint on the individual mutant values, which are sampled from the unit normal no matter where the population centre value is placed. If there were many mutants, the centred parameterisation can be more efficient, as the population centre is more accurately determined and will be consistent through draws. Because we are dealing with only a small number of mutants, the non-centred paramterisation works best.</p>
+<p>Note that because the width parameter only appears as its square in the gaussian formula, it is simplified to width_squared here.</p>
+</div>
+<div id="transformed-parameters-block" class="section level3">
+<h3>Transformed parameters block</h3>
+<pre class="cpp"><code>transformed parameters {
+  vector[J] height;
+  vector[J] centre;
+  vector[J] heightlogodds;
+  vector&lt;lower=0&gt;[J] width_squared;
+
+  centre = mu_centre + sigma_centre*centre_raw;
+
+  heightlogodds = mu_heightlogodds + sigma_heightlogodds * heightlogodds_raw;
+
+  height = inv_logit(heightlogodds);
+
+  width_squared = mu_width_squared + sigma_width_squared * width_raw_squared;
+}</code></pre>
+<p>Here, individual centre, height and width_squared values for each mutant are calculated as the population centre value plus the individual mutant’s deviation times the scaling factor.</p>
+</div>
+<div id="model-block" class="section level3">
+<h3>Model block</h3>
+<pre class="cpp"><code>model {
+  vector[N] psurvive;
+  for (n in 1:N)
+    psurvive[n] = height[mutant[n]] * exp( -0.5* ( ((x[n] - centre[mutant[n]])^2) / (width_squared[mutant[n]]) ) );
+
+  mu_centre ~ normal(65,20); 
+  sigma_centre ~ cauchy(0,10);
+  centre_raw ~ normal(0,1);
+
+  mu_heightlogodds ~ normal(0.5,2);
+  sigma_heightlogodds ~ cauchy(0,2);
+  heightlogodds_raw ~ normal(0,1);
+
+  mu_width_squared ~ cauchy(0,5);
+  sigma_width_squared ~ cauchy(0,3);
+  width_raw_squared ~ normal(0,1);
+
+  y ~ binomial(n_trials, psurvive);
+}</code></pre>
+<p>Here, prior probability distributions are specified for each parameter, as well as the likelihood. The likelihood is given by ‘y ~ binomial(n_trials, psurvive)’ in conjunction with the loop that gives psurvive values at each mutant/concentration combination.</p>
+</div>
+<div id="generated-quantities-block" class="section level3">
+<h3>Generated quantities block</h3>
+<pre class="cpp"><code>generated quantities {
+
+  vector&lt;lower=0&gt;[J] width;
+  width = sqrt(width_squared);
+}</code></pre>
+<p>Here, the width is output as the square root of the width_squared parameter. This, along with anything else that we might put in this block, is output purely for convenience, and is not used in the model.</p>
+<p> </p>
+<hr />
+<p> </p>
+</div>
+<div id="run-the-model" class="section level3">
+<h3>Run the model</h3>
+<p>In this case, the model is very fast. The slowest parts are compiling the model, and finding initial values that do not conflict with the parameter restrictions (e.g. non-negative values of width_squared). But it still only takes about 20 seconds in total, including 4.5 seconds of actual sampling. If this had been too much of a problem, it is possible to specify initial values (different values must be supplied to each chain). In my experience, having two or three grouping variables and <span class="math inline">\(10^4\)</span>-<span class="math inline">\(10^5\)</span> observations means that the model could take hours or tens of hours to fit.</p>
+<pre class="r"><code>post_warmup &lt;- 2000
+warmup_draws &lt;- 1000
+n_chains &lt;- 4
+
+fit &lt;- stan(file = &quot;mutant_model.stan&quot;, 
+            model_name = &quot;example&quot;,
+            data = dat_allmutants, 
+            iter = post_warmup + warmup_draws, 
+            warmup = warmup_draws, 
+            chains = n_chains, 
+            cores = 4,
+            verbose = FALSE)</code></pre>
+<p> </p>
+<p>I am not going to devote the space here to investigating how well the model ran - convergence etc., but I will recommend that Shinystan is an excellent package for exploring these issues.</p>
+<pre class="r"><code>library(shinystan)
+launch_shinystan(fit)</code></pre>
+<p> </p>
+<p>Now plot the posterior distributions of values of the centre parameter.</p>
+<p>There are only six mutants, so there isn’t a lot to go on for precise estimation of the population centre (true value 70) and scaling parameter (true value 4), however, in this case we aren’t really interested in these values, it is the estimates for each mutant that we are particularly interested in.</p>
+<pre class="r"><code>plot(fit, pars = &quot;mu_centre&quot;)</code></pre>
+<p><img src="/post/Post_1_files/figure-html/plotcentre1-1.png" width="864" /></p>
+<pre class="r"><code>plot(fit, pars = &quot;sigma_centre&quot;)</code></pre>
+<p><img src="/post/Post_1_files/figure-html/plotcentre2-1.png" width="864" /></p>
+<p>The mutant centre values have turned out quite reasonable, in spite of the wide distribution of the population centre value - the scaling paramter and raw values adjust accordingly on each draw so that reasonable estimates are obtained.</p>
+<pre class="r"><code>plot(fit, pars = &quot;centre&quot;)</code></pre>
+<p><img src="/post/Post_1_files/figure-html/plot_centre-1.png" width="864" /></p>
+<p>Most pairs of mutants are distinct, however, mutants A and C as well as A and D have partially overlapping distributions, while mutants E and F have completely overlapping distributions. We will need to delve further into the posterior draws to assess these.</p>
+<p> </p>
+<hr />
+<p> </p>
+</div>
+</div>
+<div id="posterior-draws" class="section level2">
+<h2>Posterior draws</h2>
+<p>Extract some example posterior draws (note that these start from the first post-warmup draw) and calculate the corresponding probability curves given by the parameters in each draw. To get nice looking curves we will sample concentrations at finer intervals than we did in our experiment. Note that the package Bayesplot can do all of this (including supplying a custom function of the parameters, such as the gaussian), but for the sake of learning I have gone through this manually.</p>
+<pre class="r"><code>n_draws &lt;- 200
+
+draws &lt;- paste0(&quot;draw_&quot;, 1:n_draws)
+
+list_of_draws &lt;- extract(fit, pars = c(&quot;centre&quot;, &quot;height&quot;, &quot;width&quot;))
+
+centrevals &lt;- as.data.frame(list_of_draws$centre[1:n_draws,])
+colnames(centrevals) &lt;- mutants
+
+widthvals &lt;- as.data.frame(list_of_draws$width[1:n_draws,])
+colnames(widthvals) &lt;- mutants
+
+heightvals &lt;- as.data.frame(list_of_draws$height[1:n_draws,])
+colnames(heightvals) &lt;- mutants
+
+conc_detailed &lt;- seq(60,80,0.1)
+
+#Create a 3D array of draw-mutant-concentration, filled with the probability of success.
+curves &lt;- array(NA, dim=c(n_draws, n_mutants, length(conc_detailed)), 
+                dimnames = list(draws, mutants, conc_detailed))
+for (i in 1:n_draws){
+  for (j in 1:n_mutants){
+    for (k in 1:length(conc_detailed)){
+      curves[i,j,k] &lt;- gaussian(height = heightvals[i,j], 
+                                centre = centrevals[i,j], 
+                                width = widthvals[i,j], 
+                                x = conc_detailed[k]) 
+    }
+  }
+}
+
+#Turn the array into a data frame in tidy format - the fastest way is to use the melt function from reshape2 (unfortunately tidyr&#39;s &#39;gather&#39; does not work on arrays)
+library(reshape2)
+curves_c &lt;- melt(curves)
+detach(package:reshape2)
+
+colnames(curves_c) &lt;- c(&quot;draw&quot;, &quot;mutant&quot;, &quot;conc&quot;, &quot;prob&quot;)</code></pre>
+<p> </p>
+<p>Here are some functions to plot the posterior draws.</p>
+<pre class="r"><code># A function from stack exchange by akrun that gives comma separated lists, with an &#39;and&#39; before the final item.
+fPaste &lt;- function(vec) sub(&quot;,\\s+([^,]+)$&quot;, &quot; and \\1&quot;, toString(vec)) 
+
+# A function to plot some draws in separate facets
+
+compare_mutants_plot &lt;- function(mutantlist, draws_to_plot=12, centre_draws = centrevals, curvedata = curves_c){
+  
+  centrepositions &lt;- centre_draws[1:draws_to_plot,] %&gt;%
+  mutate(draw = draws[1:draws_to_plot]) %&gt;%
+  gather(mutant, centre,-draw)
+  
+  outplot &lt;- curvedata %&gt;%
+  filter(mutant %in% mutantlist) %&gt;%
+  filter(draw %in% draws[1:draws_to_plot]) %&gt;%
+  ggplot()+
+  aes(x = conc, y = prob, group = mutant, colour = mutant)+
+  geom_line()+
+  geom_vline(data = centrepositions %&gt;% 
+               filter(mutant %in% mutantlist), 
+             aes(xintercept = centre, colour = mutant))+
+  facet_wrap(~draw)+
+  scale_colour_manual(values = c(&quot;blue&quot;, &quot;darkorange&quot;))+
+  labs(title = paste0(&quot;Fitted curves for mutants &quot;, fPaste(mutantlist), &quot;: &quot;, draws_to_plot, &quot; posterior draws&quot;),
+       x = &quot;Concentration&quot;, 
+       y = &quot;Probability of success&quot;)+
+  theme(legend.position = &quot;bottom&quot;)
+  
+  return(outplot)
+}
+
+# A function to overlay many draws
+
+overlay_mutants_plot &lt;- function(mutantlist, draws_to_plot=200, curvedata = curves_c){
+  outplot &lt;- curvedata %&gt;%
+    filter(mutant %in% mutantlist) %&gt;%
+  ggplot()+
+    aes(x = conc, y = prob, group = interaction(mutant, draw), colour = mutant)+
+    geom_line(alpha = 0.3)+
+    scale_colour_manual(values = c(&quot;blue&quot;, &quot;darkorange&quot;))+
+    labs(title = paste0(&quot;Fitted curves for mutants &quot;, fPaste(mutantlist), &quot;: &quot;, draws_to_plot, &quot; posterior draws&quot;), 
+         x = &quot;Concentration&quot;, 
+         y = &quot;Probability of success&quot;)+
+    theme(legend.position = &quot;bottom&quot;)
+  return(outplot)
+}
+
+# A function to plot the distribution of differences between centre values
+difference_plot &lt;- function(first_mutant = &quot;A&quot;, second_mutant = &quot;C&quot;, parameter = &quot;centre&quot;, drawlist = list_of_draws){
+  
+  first = match(first_mutant, mutants)
+  second = match(second_mutant, mutants)
+  
+  first_mutant_draws &lt;- drawlist[[parameter]][,first]
+  second_mutant_draws &lt;- drawlist[[parameter]][,second]
+  
+  outplot &lt;- data.frame(&quot;difference&quot; = first_mutant_draws - second_mutant_draws) %&gt;%
+  ggplot()+
+  aes(x = difference)+
+  stat_density(geom = &quot;line&quot;, colour = &quot;blue&quot;)+
+    labs(title = paste0(&quot;Distribution of differences of mutants &quot;, first_mutant, &quot; and &quot;, second_mutant, &quot; &quot;, parameter, &quot; values: &quot;, post_warmup*n_chains, &quot; posterior draws&quot;), 
+         x = &quot;Difference&quot;)
+  
+  return(outplot)
+  }</code></pre>
+<p> </p>
+<div id="mutants-a-and-c" class="section level3">
+<h3>Mutants A and C</h3>
+<p>Notably, from the plot above we can see that mutants A and C have partially overlapping distributions. Does this mean our model is implying that A and C could possibly share the same (or a very very close) value for centre? Not necessarily - to be able to make a statement about this we need to make comparisons within draws only. Let’s get a quick idea of how these look:</p>
+<pre class="r"><code>compare_mutants_plot(c(&quot;A&quot;, &quot;C&quot;), 12)</code></pre>
+<p><img src="/post/Post_1_files/figure-html/a_c_facet-1.png" width="864" /></p>
+<p>But that was just a few draws, here are many more:</p>
+<pre class="r"><code>overlay_mutants_plot(c(&quot;A&quot;, &quot;C&quot;))</code></pre>
+<p><img src="/post/Post_1_files/figure-html/a_c_overlay-1.png" width="864" /></p>
+<p>But this is still only a subset of the draws. We have done thousands more post-warmup draws, let’s compare across all of them. Mutant A appears to have a slightly higher peak centre value. In what fraction of draws is the peak centre of mutant A at a higher concentration than the peak centre of mutant C?</p>
+<pre class="r"><code>centre_a.all &lt;- list_of_draws$centre[,1]
+centre_c.all &lt;- list_of_draws$centre[,3]
+
+sum(centre_a.all &gt; centre_c.all)/length(centre_a.all)</code></pre>
+<pre><code>## [1] 0.97125</code></pre>
+<p>97.1% of them. So, while we can see that they have very close centre values, mutant A probably has a greater centre value than mutant C. Indeed, we know that the true centre value for mutant A is 1.0 concentration units greater than that of C. We can go one better still, and plot the distribution of their differences in all draws.</p>
+<pre class="r"><code>difference_plot(&quot;A&quot;, &quot;C&quot;)</code></pre>
+<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-10-1.png" width="864" /></p>
+<p>The median difference is 0.9, a slight underestimate. Looking at the experimental data, there is one concentration point for mutant A to the left of its peak centre value at which an unusually high number of trials were successful, given the underlying probability. This would have the effect of dragging the estimated peak centre to the left. So we are within a regime where we get pretty good estimates, but are of course subject to stochasticity and a bit more data would help. The important point here is that we now have in hand a probability distribution for the difference between these values, rather than a single maximum likelihood estimation, which given the stochastic relationship between paramaters and observations is vastly preferable.</p>
+<p> </p>
+</div>
+<div id="mutants-e-and-f" class="section level3">
+<h3>Mutants E and F</h3>
+<p>What about mutants E and F? The distributions for their centre values are entirely overlapping, and we know that their true centre values are identical.</p>
+<pre class="r"><code>compare_mutants_plot(c(&quot;E&quot;, &quot;F&quot;), 12)</code></pre>
+<p><img src="/post/Post_1_files/figure-html/e_f_facet-1.png" width="864" /></p>
+<pre class="r"><code>overlay_mutants_plot(c(&quot;E&quot;, &quot;F&quot;))</code></pre>
+<p><img src="/post/Post_1_files/figure-html/e_f_overlay-1.png" width="864" /></p>
+<p>In what fraction of draws is the peak centre of mutant F at a lower concentration than the peak centre of mutant E?</p>
+<pre class="r"><code>centre_e.all &lt;- list_of_draws$centre[,5]
+centre_f.all &lt;- list_of_draws$centre[,6]
+
+sum(centre_f.all &lt; centre_e.all)/length(centre_f.all)</code></pre>
+<pre><code>## [1] 0.439125</code></pre>
+<p>Mutant F, which is has a true peak centre identical to mutant E was lower than mutant E in approximately half of the draws, so we would not say that there is evidence they differ.</p>
+<pre class="r"><code>difference_plot(&quot;E&quot;, &quot;F&quot;)</code></pre>
+<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-11-1.png" width="864" /></p>
+<p> </p>
+</div>
+<div id="mutants-a-and-d" class="section level3">
+<h3>Mutants A and D</h3>
+<p>Let’as also have a quick look at mutants A and D. We know that mutant D has a true centre value 0.9 units greater than mutant A.</p>
+<pre class="r"><code>centre_a.all &lt;- list_of_draws$centre[,1]
+centre_d.all &lt;- list_of_draws$centre[,4]
+
+sum(centre_d.all &gt; centre_a.all)/length(centre_a.all)</code></pre>
+<pre><code>## [1] 0.9885</code></pre>
+<p>It is worth noting that the distribution of differences is very much Gaussian, and here I have done a quck fit of a Gaussian curve to this distribution.</p>
+<pre class="r"><code>d_minus_a &lt;- centre_d.all - centre_a.all
+meandiff &lt;- mean(d_minus_a)
+sddiff &lt;- sd(d_minus_a)
+
+gaussian_plot &lt;- function(x){ return(0.89 * exp(-0.5* ( ((x - meandiff)^2)/(sddiff^2)) ))}
+
+difference_plot(&quot;D&quot;, &quot;A&quot;)+
+   stat_function(fun = gaussian_plot, linetype = &quot;dashed&quot;)+
+  scale_x_continuous(limits = c(-1,3))</code></pre>
+<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-13-1.png" width="864" /></p>
+<p> </p>
+<p>So, the numbers are reasonable and the model is looking good, it did a good job with the simulated data. The next step would be to fit it to the actual experimental data.</p>
+<p> </p>
+<hr />
+<p> </p>
+</div>
+</div>
+</div>
+
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/stan/">Stan</a>
+  
+  <a class="badge badge-light" href="/tags/regression/">regression</a>
+  
+</div>
+
+
+
+
+    
+    
+
+    
+
+    
+
+
+  </div>
+</article>
+
+<div class="container">
+  <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    &copy; 2018 &middot; 
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" id="back_to_top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+</div>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+        
+      
+
+      
+      
+    
+
+    <script src="/js/hugo-academic.js"></script>
+    
+
+    
+    
+
+    
+    
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+
+  </body>
+</html>
+

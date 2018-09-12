@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Regression on Flynn Hill</title>
+    <link>/tags/regression/</link>
+    <description>Recent content in Regression on Flynn Hill</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Mon, 27 Aug 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/regression/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Simulation and Modelling in R and Stan</title>
+      <link>/post/post_1/</link>
+      <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/post_1/</guid>
+      <description>The ProblemIn this example, inspired by a real-world problem, several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if we measure a lot of trials over a range of concentrations for a single strain (mutant A, below), we see a bell curve-shaped rise and fall in successes as a function of concentration.</description>
+    </item>
+    
+  </channel>
+</rss>
