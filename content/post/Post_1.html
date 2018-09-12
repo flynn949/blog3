@@ -10,22 +10,12 @@ tags: ["Stan", "regression"]
 <script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
 
 
-<div id="the-problem" class="section level1">
-<h1>The Problem</h1>
-<p>In this example, inspired by a real-world problem, several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if we measure a lot of trials over a range of concentrations for a single strain (mutant A, below), we see a bell curve-shaped rise and fall in successes as a function of concentration. We do not have the resources to measure this many trials for each mutant, so we tried to measure 20 trials at each concentration for each mutant instead. However, some of these trials failed due to a technical glitch and the number of trials ranges from 10-20. It looks as if each mutant has a characteristic concentration at which successes peak (the ‘centre’), a characteristic fraction of successes at this peak (the ‘height’) and a characteristic width of the response (‘width’). We are particularly interested in the value of the centre parameter, and wish to compare it for different strains, to see if they differ. For this problem, there is no simple statistical test, such as a t-test, that springs to mind. Instead, we will take the approach of fitting a model to the data that is based on our understanding of how the data were generated.</p>
+<p>In this example, inspired by a real-world problem (with details changed to protect future Nobel prize winners, so try not to read too much into it), several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if we measure a lot of trials over a range of concentrations for a single strain (mutant A, below), we see a bell curve-shaped rise and fall in successes as a function of concentration. We do not have the resources to measure this many trials for each mutant, so we tried to measure 20 trials at each concentration for each mutant instead. However, some of these trials failed due to a technical glitch and the number of trials ranges from 10-20. It looks as if each mutant has a characteristic concentration at which successes peak (the ‘centre’), a characteristic fraction of successes at this peak (the ‘height’) and a characteristic width of the response (‘width’). We are particularly interested in the value of the centre parameter, and wish to compare it for different strains, to see if they differ. For this problem, there is no simple statistical test, such as a t-test, that springs to mind. Instead, we will take the approach of fitting a model to the data that is based on our understanding of how the data were generated.</p>
 <p><img src="/post/Post_1_files/figure-html/unnamed-chunk-1-1.png" width="864" /></p>
 <div id="model" class="section level2">
 <h2>Model</h2>
 <p>For each mutant, at each concentration, there is a certain number of trials and a certain number of successes. If we repeated the experiment many times, would we expect to get the exact same data every time? Of course not, but the numbers should be similar. The number of successes that are observed in any given experiment is stochastically drawn from some distribution. Our first task in defining the model is to identify the most appropriate distribution. In this case, the distribution that makes the most sense is the binomial distribution, which has two parameters: the number of trials, and the probability of success in each trial.</p>
-<p>Example: A coin is flipped 10 times and the number of heads is recorded:</p>
-<pre class="r"><code>set.seed(100)
-(n_success &lt;- rbinom(n = 1, size = 10, p = 0.5))</code></pre>
-<pre><code>## [1] 4</code></pre>
-<p>This value was drawn stochastically from the binomial distribution, which tells us the probability of any particular number of heads (successes).</p>
-<pre class="r"><code>plot(dbinom(x = seq(0,10), size = 10, prob = 0.5),type=&quot;h&quot;, ylab = &quot;P&quot;, xlab = &quot;Number of heads&quot;)</code></pre>
-<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-3-1.png" width="384" /></p>
-<p>Thus, there was a probability of 0.21 of obtaining 4 heads.</p>
-<p>Applying this to our model, for each mutant at each concentration: the observed number of successes <span class="math inline">\(Y\)</span> is drawn from a binomial distribution parameterised by the probability of success <span class="math inline">\(p\)</span> and number of trials. The ~ symbol denotes a stochastic relationship.</p>
+<p>For each mutant at each concentration: the observed number of successes <span class="math inline">\(Y\)</span> is drawn from a binomial distribution parameterised by the probability of success <span class="math inline">\(p\)</span> and number of trials. The ~ symbol denotes a stochastic relationship.</p>
 <p><span class="math display">\[Y \sim \text{Binomial(trials}\text{, }  p) \]</span></p>
 <p>In the second part of the model, we define how <span class="math inline">\(p\)</span> varies as a function of concentration. We already know that this should have a Gaussian shape, which can be parameterised in terms of the three features in which we are interested: the centre position, height and width. Putting this into mathematical notation: the true success probability <span class="math inline">\(p\)</span> for mutant <span class="math inline">\(j\)</span> at concentration <span class="math inline">\(x_i\)</span> are given by a Gaussian curve parameterised by the peak height <span class="math inline">\(h_j\)</span> (in units of success probability), peak centre position <span class="math inline">\(c_j\)</span> (in units of concentration), and its width (standard deviation) <span class="math inline">\(\sigma\)</span> (in units of concentration).</p>
 <p><span class="math display">\[p_{j,i} = h_j \text{ exp}{\frac{-(x_i-c_j)^2}{2\sigma_j^2}}\]</span></p>
@@ -50,8 +40,6 @@ tags: ["Stan", "regression"]
 <div id="simulation" class="section level2">
 <h2>Simulation</h2>
 <p>A great way to proceed is by simulating some fake data based on this model, and fitting it with a corresponding regression model. In this way, we check the model forwards and backwards - it should simulate data that look like our experimental data, and the regression model should then fit it well. In this way, we gain a deeper appreciation for how the model works, and can much more readily spot flaws in our thinking.</p>
-<p>In this simulation, six mutant strains will be generated, each with its own height, centre and width parameters. These parameters will each be treated as if they were drawn from common distributions. We start by defining the population parameters for height, centre and width. A scaling value is also defined for each of these parameters. Individual mutant deviations from the population central value are then drawn from a unit normal distribution, multiplied by the scaling value and added to the population central value to give the true parameter value. This mirrors the ‘non-centred’ parameterisation that will be used in fitting the model, explained in the ‘Parameters block’ section.</p>
-<p>The height value is a probability, and therefore ranges between 0 and 1. To draw this from a Gaussian distribution, we start off by drawing height values as log odds, which do not have upper and lower bounds, before transforming these to the probability scale.</p>
 <pre class="r"><code># Give each mutant a name.
 n_mutants &lt;- 6
 mutants &lt;- LETTERS[1:n_mutants]  
@@ -376,8 +364,7 @@ dat_allmutants = list(
   real&lt;lower=0&gt; sigma_width_squared;
   vector[J] width_raw_squared;
 }</code></pre>
-<p>These are the parameters to be estimated by the regression fit. The parameters for each mutant are loosely treated as coming from common distributions. A population centre value is estimated, along with a scaling value. Individual mutant deviations are then drawn from centred unit normals. The mutant parameter is then given in the transformed parameters block as the mutant deviation times the scaling factor plus the population centre value.</p>
-<p>Although I have used the word ‘centre’ a lot, this is actually the ‘non-centred’ parameterisation. The Stan manual does a good job of explaining this, but here’s my attempt: In the centred parameterisation, individual mutant parameters are drawn directly from a distribution with an estimated population centre and standard deviation. The problem with the centred parameterisation is that the population centre, standard deviation and individual mutant values are highly correlated. When there is a large change in the population centre value, the individual mutant values must be sampled from the low probability region in the far reaches of the prior in order to compensate. The advantage of the non-centred parametrisation is that it places less constraint on the individual mutant values, which are sampled from the unit normal no matter where the population centre value is placed. If there were many mutants, the centred parameterisation can be more efficient, as the population centre is more accurately determined and will be consistent through draws. Because we are dealing with only a small number of mutants, the non-centred paramterisation works best.</p>
+<p>These are the parameters to be estimated by the regression fit. The parameters for each mutant are loosely treated as coming from common distributions. A population centre value is estimated, along with a scaling value. Individual mutant deviations are then drawn from centred unit normals. The mutant parameter is then given in the transformed parameters block as the mutant deviation times the scaling factor plus the population centre value. This is the non-centred parameterisation, which helps to avoid sampling problems when there are only a few members in the group. By contrast, in the centred parameterisation, individual mutant parameters would be drawn directly from a distribution with an estimated population centre and standard deviation.</p>
 <p>Note that because the width parameter only appears as its square in the gaussian formula, it is simplified to width_squared here.</p>
 </div>
 <div id="transformed-parameters-block" class="section level3">
@@ -591,7 +578,7 @@ sum(centre_a.all &gt; centre_c.all)/length(centre_a.all)</code></pre>
 <pre><code>## [1] 0.97125</code></pre>
 <p>97.1% of them. So, while we can see that they have very close centre values, mutant A probably has a greater centre value than mutant C. Indeed, we know that the true centre value for mutant A is 1.0 concentration units greater than that of C. We can go one better still, and plot the distribution of their differences in all draws.</p>
 <pre class="r"><code>difference_plot(&quot;A&quot;, &quot;C&quot;)</code></pre>
-<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-10-1.png" width="864" /></p>
+<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-8-1.png" width="864" /></p>
 <p>The median difference is 0.9, a slight underestimate. Looking at the experimental data, there is one concentration point for mutant A to the left of its peak centre value at which an unusually high number of trials were successful, given the underlying probability. This would have the effect of dragging the estimated peak centre to the left. So we are within a regime where we get pretty good estimates, but are of course subject to stochasticity and a bit more data would help. The important point here is that we now have in hand a probability distribution for the difference between these values, rather than a single maximum likelihood estimation, which given the stochastic relationship between paramaters and observations is vastly preferable.</p>
 <p> </p>
 </div>
@@ -610,12 +597,12 @@ sum(centre_f.all &lt; centre_e.all)/length(centre_f.all)</code></pre>
 <pre><code>## [1] 0.439125</code></pre>
 <p>Mutant F, which is has a true peak centre identical to mutant E was lower than mutant E in approximately half of the draws, so we would not say that there is evidence they differ.</p>
 <pre class="r"><code>difference_plot(&quot;E&quot;, &quot;F&quot;)</code></pre>
-<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-11-1.png" width="864" /></p>
+<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-9-1.png" width="864" /></p>
 <p> </p>
 </div>
 <div id="mutants-a-and-d" class="section level3">
 <h3>Mutants A and D</h3>
-<p>Let’as also have a quick look at mutants A and D. We know that mutant D has a true centre value 0.9 units greater than mutant A.</p>
+<p>Let’s also have a quick look at mutants A and D. We know that mutant D has a true centre value 0.9 units greater than mutant A.</p>
 <pre class="r"><code>centre_a.all &lt;- list_of_draws$centre[,1]
 centre_d.all &lt;- list_of_draws$centre[,4]
 
@@ -631,12 +618,11 @@ gaussian_plot &lt;- function(x){ return(0.89 * exp(-0.5* ( ((x - meandiff)^2)/(s
 difference_plot(&quot;D&quot;, &quot;A&quot;)+
    stat_function(fun = gaussian_plot, linetype = &quot;dashed&quot;)+
   scale_x_continuous(limits = c(-1,3))</code></pre>
-<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-13-1.png" width="864" /></p>
+<p><img src="/post/Post_1_files/figure-html/unnamed-chunk-11-1.png" width="864" /></p>
 <p> </p>
 <p>So, the numbers are reasonable and the model is looking good, it did a good job with the simulated data. The next step would be to fit it to the actual experimental data.</p>
 <p> </p>
 <hr />
 <p> </p>
-</div>
 </div>
 </div>
