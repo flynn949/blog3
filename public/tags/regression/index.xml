@@ -18,7 +18,7 @@
       <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
       
       <guid>/post/post_1/</guid>
-      <description>In this example, inspired by a real-world problem (with details changed to protect future Nobel prize winners, so try not to read too much into it), several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if we measure a lot of trials over a range of concentrations for a single strain (mutant A, below), we see a bell curve-shaped rise and fall in successes as a function of concentration.</description>
+      <description>In this example, inspired by a real-world problem (with details changed to protect future Nobel prize winners, so try not to read too much into it), several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if a lot of trials are measured of a range of concentrations for a single strain (mutant A, below), there is a bell curve-shaped rise and fall in successes as a function of concentration.</description>
     </item>
     
   </channel>
