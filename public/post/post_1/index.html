@@ -15,7 +15,7 @@
   
     
   
-  <meta name="description" content="In this example, inspired by a real-world problem (with details changed to protect future Nobel prize winners, so try not to read too much into it), several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if we measure a lot of trials over a range of concentrations for a single strain (mutant A, below), we see a bell curve-shaped rise and fall in successes as a function of concentration.">
+  <meta name="description" content="In this example, inspired by a real-world problem (with details changed to protect future Nobel prize winners, so try not to read too much into it), several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if a lot of trials are measured of a range of concentrations for a single strain (mutant A, below), there is a bell curve-shaped rise and fall in successes as a function of concentration.">
 
   
   <link rel="alternate" hreflang="en-us" href="/post/post_1/">
@@ -89,7 +89,7 @@
   <meta property="og:site_name" content="Flynn Hill">
   <meta property="og:url" content="/post/post_1/">
   <meta property="og:title" content="Simulation and Modelling in R and Stan | Flynn Hill">
-  <meta property="og:description" content="In this example, inspired by a real-world problem (with details changed to protect future Nobel prize winners, so try not to read too much into it), several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if we measure a lot of trials over a range of concentrations for a single strain (mutant A, below), we see a bell curve-shaped rise and fall in successes as a function of concentration.">
+  <meta property="og:description" content="In this example, inspired by a real-world problem (with details changed to protect future Nobel prize winners, so try not to read too much into it), several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if a lot of trials are measured of a range of concentrations for a single strain (mutant A, below), there is a bell curve-shaped rise and fall in successes as a function of concentration.">
   <meta property="og:locale" content="en-us">
   
   <meta property="article:published_time" content="2018-08-27T00:00:00&#43;00:00">
@@ -285,18 +285,18 @@
       <script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
 
 
-<p>In this example, inspired by a real-world problem (with details changed to protect future Nobel prize winners, so try not to read too much into it), several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if we measure a lot of trials over a range of concentrations for a single strain (mutant A, below), we see a bell curve-shaped rise and fall in successes as a function of concentration. We do not have the resources to measure this many trials for each mutant, so we tried to measure 20 trials at each concentration for each mutant instead. However, some of these trials failed due to a technical glitch and the number of trials ranges from 10-20. It looks as if each mutant has a characteristic concentration at which successes peak (the ‘centre’), a characteristic fraction of successes at this peak (the ‘height’) and a characteristic width of the response (‘width’). We are particularly interested in the value of the centre parameter, and wish to compare it for different strains, to see if they differ. For this problem, there is no simple statistical test, such as a t-test, that springs to mind. Instead, we will take the approach of fitting a model to the data that is based on our understanding of how the data were generated.</p>
+<p>In this example, inspired by a real-world problem (with details changed to protect future Nobel prize winners, so try not to read too much into it), several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if a lot of trials are measured of a range of concentrations for a single strain (mutant A, below), there is a bell curve-shaped rise and fall in successes as a function of concentration. Resources are insufficient to measure this many trials for each mutant, so 20 trials at each concentration for each mutant instead. However, some of these trials failed due to a technical glitch and the number of trials ranges from 10-20. It looks as if each mutant has a characteristic concentration at which successes peak (the ‘centre’), a characteristic fraction of successes at this peak (the ‘height’) and a characteristic width of the response (‘width’). Of particular interest is the centre parameter, and its value for different strains. For this type of problem, there is no simple statistical test, such as a t-test, that springs to mind. Instead, I will take the approach of fitting a model to the data that is based on an understanding of how the data were generated. A good approach to take for this problem is Bayesian inference, which goes a step further than simply finding a single set of most likely parameters, by finding the probability distribution for a wide range of possibile underlying paramters. For this, I use the probabilistic programming language Stan.</p>
 <p><img src="/post/Post_1_files/figure-html/unnamed-chunk-1-1.png" width="864" /></p>
 <div id="model" class="section level2">
 <h2>Model</h2>
-<p>For each mutant, at each concentration, there is a certain number of trials and a certain number of successes. If we repeated the experiment many times, would we expect to get the exact same data every time? Of course not, but the numbers should be similar. The number of successes that are observed in any given experiment is stochastically drawn from some distribution. Our first task in defining the model is to identify the most appropriate distribution. In this case, the distribution that makes the most sense is the binomial distribution, which has two parameters: the number of trials, and the probability of success in each trial.</p>
+<p>For each mutant, at each concentration, there is a certain number of trials and a certain number of successes. If the experiment were to be repeated many times, would we expect to get the exact same data every time? Of course not, but the numbers should be similar. The number of successes that are observed in any given experiment is stochastically drawn from some distribution. Our first task in defining the model is to identify the most appropriate distribution. In this case, the distribution that makes the most sense is the binomial distribution, which has two parameters: the number of trials, and the probability of success in each trial.</p>
 <p>For each mutant at each concentration: the observed number of successes <span class="math inline">\(Y\)</span> is drawn from a binomial distribution parameterised by the probability of success <span class="math inline">\(p\)</span> and number of trials. The ~ symbol denotes a stochastic relationship.</p>
 <p><span class="math display">\[Y \sim \text{Binomial(trials}\text{, }  p) \]</span></p>
-<p>In the second part of the model, we define how <span class="math inline">\(p\)</span> varies as a function of concentration. We already know that this should have a Gaussian shape, which can be parameterised in terms of the three features in which we are interested: the centre position, height and width. Putting this into mathematical notation: the true success probability <span class="math inline">\(p\)</span> for mutant <span class="math inline">\(j\)</span> at concentration <span class="math inline">\(x_i\)</span> are given by a Gaussian curve parameterised by the peak height <span class="math inline">\(h_j\)</span> (in units of success probability), peak centre position <span class="math inline">\(c_j\)</span> (in units of concentration), and its width (standard deviation) <span class="math inline">\(\sigma\)</span> (in units of concentration).</p>
+<p>In the second part of the model, the dependence of <span class="math inline">\(p\)</span> on concentration is defined. This should have a Gaussian shape, which can be parameterised in terms of the three features in which we are interested: the centre position, height and width. Putting this into mathematical notation: the true success probability <span class="math inline">\(p\)</span> for mutant <span class="math inline">\(j\)</span> at concentration <span class="math inline">\(x_i\)</span> is given by a Gaussian curve parameterised by the peak height <span class="math inline">\(h_j\)</span> (in units of success probability), peak centre position <span class="math inline">\(c_j\)</span> (in units of concentration), and its width (standard deviation) <span class="math inline">\(\sigma\)</span> (in units of concentration).</p>
 <p><span class="math display">\[p_{j,i} = h_j \text{ exp}{\frac{-(x_i-c_j)^2}{2\sigma_j^2}}\]</span></p>
 <div id="bayes-rule" class="section level3">
 <h3>Bayes’ Rule</h3>
-<p>For a given set of parameters, a range of observations can be obtained stochastically from the binomial distribution. The corrolary of this is that for a given set of observations, a range of underlying parameters could have created them. The above model allows us to calculate the likelihood of the observed data for any of a range of candidate parameter values. This is achieved using Bayes’ rule:</p>
+<p>For a given set of parameters, a range of observations can be obtained stochastically from the binomial distribution. The corrolary of this is that for a given set of observations, a range of underlying parameters could have created them. The above model can be used to calculate the likelihood of the observed data for any of a range of candidate parameter values. This is achieved using Bayes’ rule:</p>
 <p><span class="math display">\[P(\text{Parameters | Data}) = \frac{P(\text{Data | Parameters}).P(\text{Parameters})}{P(\text{Data})} \]</span> Where:</p>
 <ul>
 <li><span class="math inline">\(P(\text{Parameters | Data})\)</span> is the posterior probability - if we can determine this for all parameters then we will know the probability distribution of all candidate parameters, given what the data at hand are telling us.</li>
@@ -308,13 +308,13 @@
 <div id="sampling" class="section level3">
 <h3>Sampling</h3>
 <p>How can Bayes’ rule be applied to the above problem? For relatively simple problems, Bayes’ rule can be applied analytically, and an exact solution for the posterior probability distribution can be found. For more complicated problems like this one, a sampling approach is the only viable option. These methods build up a picture of what the posterior probability distribution looks like, one set of candidate parameters at a time. The challenge in sampling is to efficiently explore the posterior probability distribution.</p>
-<p>There are several popular sampling algorithms, including the simple Markov chain Monte Carlo (MCMC) method and the more complex and powerful Hamiltonian Monte Carlo method (as implemented by Stan), but they all work by a similar principle. A prior probability distribution is specified, along with a formula for calculating the likelihood. Sampling initiates with a candidate set of parameters. The posterior probablity associated with these parameters is then calculated using Bayes’ rule, the observed data and the specified likelihood formula. Most samplers will typically have some method for then deciding whether to accept this posterior probability, and add it to a growing picture of what the posterior distribution looks like, or to reject it. In the Metropolis-Hastings technique, a random number is drawn from a uniform [0,1] distribution and if that value is less than the candidate posterior probability, then the posterior probability is accepted and added to the growing picture of the posterior distribution, otherwise, it is rejected. In the next iteration, a new set of candidate parameters is put through the same steps, these are typically obtained by adding a random value to the last accepted parameters. In this way, samples are added to the growing picture of the posterior probability distribution at a frequency that is proportional to the probability at their respective place in the distribution. Typically, hundreds or thousands of sampling iterations are required to build a representative picture of the posterior distribution. I found one of the most intuitive and helpful ways to understand this process was in given in <a href="https://stats.stackexchange.com/a/135725">this</a> Stack Exchange answer, which manually implements MCMC sampling in R code.</p>
+<p>There are several sampling algorithms, including the simple Markov chain Monte Carlo (MCMC) method and the more complex and powerful Hamiltonian Monte Carlo method (as implemented by Stan), but they all work by a similar principle. A prior probability distribution is specified, along with a formula for calculating the likelihood. Sampling initiates with a candidate set of parameters. The posterior probablity associated with these parameters is then calculated using Bayes’ rule, the observed data and the specified likelihood formula. Most samplers will typically have some method for then deciding whether to accept this posterior probability, and add it to a growing picture of what the posterior distribution looks like, or to reject it. In the Metropolis-Hastings technique, for example, a random number is drawn from a uniform [0,1] distribution and if that value is less than the candidate posterior probability, then the posterior probability is accepted and added to the growing picture of the posterior distribution, otherwise, it is rejected. Thus, the probability of acceptance is equal to the probablity value itself. In the next iteration, a new set of candidate parameters is put through the same steps, these are typically obtained by adding a random value to the last accepted parameters. In this way, samples are added to the growing picture of the posterior probability distribution at a frequency that is proportional to the probability at their respective place in the distribution. Typically, hundreds or thousands of sampling iterations are required to build a representative picture of the posterior distribution. I found one of the most intuitive and helpful ways to understand this process was in given in <a href="https://stats.stackexchange.com/a/135725">this</a> Stack Exchange answer, which manually implements MCMC sampling in R code.</p>
 <p> </p>
 </div>
 </div>
 <div id="simulation" class="section level2">
 <h2>Simulation</h2>
-<p>A great way to proceed is by simulating some fake data based on this model, and fitting it with a corresponding regression model. In this way, we check the model forwards and backwards - it should simulate data that look like our experimental data, and the regression model should then fit it well. In this way, we gain a deeper appreciation for how the model works, and can much more readily spot flaws in our thinking.</p>
+<p>A great way to proceed is by simulating data based on this model, and then fitting it with the corresponding regression model. In this way, we gain a deeper appreciation for how the model works, and can much more readily spot flaws in our thinking.</p>
 <pre class="r"><code># Give each mutant a name.
 n_mutants &lt;- 6
 mutants &lt;- LETTERS[1:n_mutants]  
@@ -488,7 +488,6 @@ F
 </div>
 <div id="predictor-variable-and-number-of-trials" class="section level3">
 <h3>Predictor variable and number of trials</h3>
-<p>The range over which we will measure in our simulated experiment, and the number of trials for each mutant at each concentration.</p>
 <pre class="r"><code># Predictor variable
 conc_range &lt;- 10
 conc_interval &lt;- 1
@@ -552,7 +551,7 @@ for (j in 1:n_mutants){
 </div>
 <div id="reshape-data" class="section level3">
 <h3>Reshape data</h3>
-<p>We now make use of the tidyverse set of packages, tidyr in particular. Data are reformatted from a wide format in which each mutant has its own column to <a href="https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html">tidy format</a>, which is easier to work with. In this long table format we have a single column to specify the mutant, and single columns for concentration, number of trials and number of successes. For convenience, we also tack on columns with the true mutant parameters (these values are simply repeated in each row for the same mutant). If you look at the ggplot function below, you will see the advantage that tidy format confers - we can now describe the plot for all mutants at once, rather than having to add layers for each mutant.</p>
+<p>We now make use of the tidyverse set of packages. Data are reformatted from a wide format in which each mutant has its own column to <a href="https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html">tidy format</a>, which is easier to work with. In this long table format we have a single column to specify the mutant, and single columns for concentration, number of trials and number of successes. For convenience, we also tack on columns with the true mutant parameters (these values are simply repeated in each row for the same mutant). If you look at the ggplot function below, you will see the advantage that tidy format confers - we can now describe the plot for all mutants at once, rather than having to add layers for each mutant.</p>
 <pre class="r"><code>library(reshape2)
 
 # Use the melt function from reshape2, this is similar to tidyr&#39;s gather, but it also works on matrices and arrays.
@@ -596,7 +595,7 @@ ggplot(experiment_data)+
 </div>
 <div id="stan-model" class="section level2">
 <h2>Stan model</h2>
-<p>Here we are using the tidy format data as the input. The mutants are named by an index rather than letter. All input data must be packaged together in a list.</p>
+<p>Here I use the tidy format data as the input. The mutants are named by an index rather than letter. All input data must be packaged together in a list.</p>
 <pre class="r"><code>mlist &lt;- data.frame(&quot;mutant&quot; = mutants, mutant_num = seq(1:n_mutants))
 
 experiment_data &lt;- experiment_data %&gt;% left_join(mlist)
@@ -622,7 +621,7 @@ dat_allmutants = list(
   int&lt;lower=0&gt; y[N]; //Number of survivors for observation n
 }
 </code></pre>
-<p>Values in the data block should match what we have put in our data list. The choice of type for each variable in the data block is crucial, and the Stan manual is very helpful in this area. Having said that, I am still a bit hazy on the choice between vectors and arrays. With vectors, I believe it should be possible to express the for loop that calculates psurvive in the model block as a single vectorised line of code, and that should improve the speed of the model (not that speed is an issue in this particular case), however, I am uncertain how to achieve this.</p>
+<p>Values in the data block should match what we have put in our data list. The choice of type for each variable in the data block is crucial, and the Stan manual is very helpful in this area.</p>
 </div>
 <div id="parameters-block" class="section level3">
 <h3>Parameters block</h3>
@@ -681,7 +680,7 @@ dat_allmutants = list(
 
   y ~ binomial(n_trials, psurvive);
 }</code></pre>
-<p>Here, prior probability distributions are specified for each parameter, as well as the likelihood. The likelihood is given by ‘y ~ binomial(n_trials, psurvive)’ in conjunction with the loop that gives psurvive values at each mutant/concentration combination.</p>
+<p>Prior probability distributions are specified for each parameter, as well as the likelihood. The likelihood is given by ‘y ~ binomial(n_trials, psurvive)’ in conjunction with the loop that gives psurvive values at each mutant/concentration combination.</p>
 </div>
 <div id="generated-quantities-block" class="section level3">
 <h3>Generated quantities block</h3>
@@ -690,7 +689,7 @@ dat_allmutants = list(
   vector&lt;lower=0&gt;[J] width;
   width = sqrt(width_squared);
 }</code></pre>
-<p>Here, the width is output as the square root of the width_squared parameter. This, along with anything else that we might put in this block, is output purely for convenience, and is not used in the model.</p>
+<p>Here, the width is output as the square root of the width_squared parameter. This, along with anything else that we might put in this block, is output purely for convenience, and is not part of the fitting process.</p>
 <p> </p>
 <hr />
 <p> </p>
