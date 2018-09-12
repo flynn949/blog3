@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "1712424029",
+    "hash" : "0",
     "id" : "B5B7CC74",
-    "lastKnownWriteTime" : 1536743970,
-    "last_content_update" : 1536743970729,
+    "lastKnownWriteTime" : 1536745176,
+    "last_content_update" : 1536745176247,
     "path" : "~/blog3/content/post/Post_1.Rmd",
     "project_path" : "content/post/Post_1.Rmd",
     "properties" : {
-        "cursorPosition" : "17,1191",
-        "scrollLine" : "0"
+        "cursorPosition" : "748,3",
+        "scrollLine" : "725"
     },
     "relative_order" : 3,
     "source_on_save" : false,
