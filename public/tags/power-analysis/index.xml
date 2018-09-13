@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Power analysis on Flynn R Hill</title>
+    <link>/tags/power-analysis/</link>
+    <description>Recent content in Power analysis on Flynn R Hill</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Thu, 13 Sep 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/power-analysis/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Quantifying an educational effect</title>
+      <link>/post/outcomespost/</link>
+      <pubDate>Thu, 13 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/outcomespost/</guid>
+      <description>The problemSay we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer.</description>
+    </item>
+    
+  </channel>
+</rss>

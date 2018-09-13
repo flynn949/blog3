@@ -11,6 +11,126 @@
     <atom:link href="/" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Quantifying an educational effect</title>
+      <link>/post/outcomespost/</link>
+      <pubDate>Thu, 13 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/outcomespost/</guid>
+      <description>&lt;div id=&#34;the-problem&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;The problem&lt;/h2&gt;
+&lt;p&gt;Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. The approach we will take is to simulate data to understand what kind of model is needed, and then fit it. Separately, we will do a power analysis to see what our prospects of being able to identify an effect are. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!&lt;/p&gt;
+&lt;p&gt;Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post, and pretty much only used vectors - no data frames!&lt;/p&gt;
+&lt;div id=&#34;simulation&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Simulation&lt;/h3&gt;
+&lt;p&gt;Start with the basic parameters.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(42)
+n_students &amp;lt;- 500
+n_tutoring &amp;lt;- 50&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Generate a reasonable looking distribution of first-session marks. This should be bounded by zero and 100. One way to do this is to make the distribution in the log odds (logit) scale (which is unbounded), and then transform back to the marks scale. This will require functions for transforming to and from the logit scale.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;invlogit &amp;lt;- function(x){1/(1+exp(-x))}
+
+logit &amp;lt;- function(x){log(x/(1-x))}
+
+first_session_marks &amp;lt;- sort(100*invlogit(rnorm(n_students, logit(60/100), 0.7)))
+
+hist(first_session_marks)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Now we start calling students to offer them tutoring, starting from those with the lowest first session marks. Strictly speaking, the simulation does not really need to mimic the reality to this level of detail, but I find that a more detailed simulation approach can often prove useful down the track, especially if the model becomes more complex. It also helps us to avoid making too many (overly-) simplifying assumptions. Here, the probability of a student accepting tutoring is 0.8 - first_session_mark/100, i.e. students with lower marks are more likely to accept tutoring.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;n_tutoring_places_accepted &amp;lt;- 0
+tutored &amp;lt;- rep(0, n_students)
+i &amp;lt;- 1
+while (n_tutoring_places_accepted &amp;lt; n_tutoring &amp;amp; i &amp;lt; n_students) {
+ rval &amp;lt;- runif(1) 
+ if (rval &amp;lt; 0.8 - first_session_marks[i]/100){
+   tutored[[i]] &amp;lt;- 1
+   n_tutoring_places_accepted &amp;lt;- n_tutoring_places_accepted + 1
+ }
+ i &amp;lt;- i + 1
+}
+
+sum(tutored)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 50&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now we simulate second session marks. These should be tightly correlated to first session marks, and will be reasonably similar. In this model, we will include an intercept term that adds a small value to the first session mark, a slope term that scales the first session mark, and another interept term associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student &lt;span class=&#34;math inline&#34;&gt;\(i\)&lt;/span&gt; we have:&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{first_session_mark}_i + \beta_2\text{Tutored}_i \]&lt;/span&gt; Define the parameters, and generate the second session marks according to the model:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;beta_0 &amp;lt;- 2
+beta_1 &amp;lt;- 0.9
+beta_2 &amp;lt;- 3
+sigma &amp;lt;- 5
+
+second_session_marks.mu &amp;lt;- beta_0 + beta_1*first_session_marks + beta_2*tutored
+second_session_marks &amp;lt;- rnorm(n_students, second_session_marks.mu, sigma)
+
+
+hist(second_session_marks)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Plot the first and second session marks, coloured by whether tutoring was accepted.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;tutored.f &amp;lt;- factor(tutored, levels = c(0,1))
+plot(first_session_marks, second_session_marks, col = tutored.f)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-5-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;We can see that the students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, we fit a regression model that looks just like the one used to create the data.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;regression_model &amp;lt;- lm(second_session_marks ~ 1 + first_session_marks + tutored)
+summary(regression_model)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## 
+## Call:
+## lm(formula = second_session_marks ~ 1 + first_session_marks + 
+##     tutored)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -16.7165  -3.6281   0.1935   3.5529  17.6140 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(&amp;gt;|t|)    
+## (Intercept)          1.58472    1.12579   1.408  0.15986    
+## first_session_marks  0.90359    0.01796  50.305  &amp;lt; 2e-16 ***
+## tutored              2.50125    0.89768   2.786  0.00553 ** 
+## ---
+## Signif. codes:  0 &amp;#39;***&amp;#39; 0.001 &amp;#39;**&amp;#39; 0.01 &amp;#39;*&amp;#39; 0.05 &amp;#39;.&amp;#39; 0.1 &amp;#39; &amp;#39; 1
+## 
+## Residual standard error: 5.147 on 497 degrees of freedom
+## Multiple R-squared:  0.8683, Adjusted R-squared:  0.8677 
+## F-statistic:  1638 on 2 and 497 DF,  p-value: &amp;lt; 2.2e-16&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt; &lt;/p&gt;
+&lt;p&gt;The model has retrieved the simuation parameters quite nicely - no surprise, they are a lot less noisy than real data, all relevant variables have been included, and the effect size is appreciable and consistent.&lt;/p&gt;
+&lt;p&gt; &lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;power-analysis-by-simulation&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Power analysis by simulation&lt;/h3&gt;
+&lt;p&gt;A simplified version of the above simulation will be used to calculate the power by simulation. This uses a simpler model for which students receive tutoring - for the bottom 100 students, each has a 50% chance of accepting tutoring (up to a maximum of 50 tutoring places). We can use this to find the power for an estimated effect size, or to find the minimum effect size needed to achieve a given power. By replicating the above simulation thousands of times, we can quantify the fraction for which the p-value of the beta_3 coefficient was below the significance level.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;power_simulation &amp;lt;- function(n_tutored = 50, n_untutored = 450, beta3, sigma_secondsession, beta0 = 2, beta1 = 0.9){
+  nstudents &amp;lt;- n_tutored + n_untutored 
+  first_session &amp;lt;- sort(100*invlogit(rnorm(nstudents, logit(60/100), 0.7)))  
+  second_session &amp;lt;- beta0 + beta1*first_session + rnorm(nstudents, 0, sigma_secondsession)
+  tutored.indices &amp;lt;- sample(seq(1,n_tutored*2), n_tutored)
+  tutored &amp;lt;- rep(0, nstudents)
+  tutored[tutored.indices] &amp;lt;- 1
+  second_session[tutored.indices] &amp;lt;- second_session[tutored.indices] + beta3
+  lmod &amp;lt;- summary(lm(second_session ~ first_session + tutored))
+  return(lmod$coefficients[3,4]) #The pvalue for the beta3 estimate.
+}
+
+
+pvals &amp;lt;- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, beta3 = 2.4, sigma_secondsession = 5))
+
+mean(pvals &amp;lt;= 0.05)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 0.7948&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;So, we have a calculated power of 0.7948. It is also interesting to look at the distribution of these p-values, in the logit scale.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;hist(logit(pvals),breaks = 50)
+abline(v = logit(0.05), col = &amp;quot;red&amp;quot;) #The vertical line is at p = 0.05&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Why is the distribution shaped in this particular way? I don’t know - this is something I will need to read more about.&lt;/p&gt;
+&lt;p&gt; &lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;concluding-remark&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Concluding remark&lt;/h3&gt;
+&lt;p&gt;Going into a power analysis it is common to have a personal bias to thinking our effect size will be greater than it really is, and that the data are less noisy than they really are. Without going too much into the whys and wherefores of power analysis and null hypothesis significance testing, &lt;a href=&#34;http://www.stat.columbia.edu/~gelman/research/published/PPS551642_REV2.pdf&#34;&gt;it is good practice&lt;/a&gt; to use a conservative estimate of the effect size based on external information (e.g. prior studies).&lt;/p&gt;
+&lt;p&gt; &lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Simulation and Modelling in R and Stan</title>
       <link>/post/post_1/</link>
       <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>

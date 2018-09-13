@@ -1,0 +1,157 @@
+---
+title: "Quantifying an educational effect"
+author: "Flynn Hill"
+date: 2018-09-13
+output: blogdown::html_page
+tags: ["regression", "statistics", "power analysis"]
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The problem
+
+Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. The approach we will take is to simulate data to understand what kind of model is needed, and then fit it. Separately, we will do a power analysis to see what our prospects of being able to identify an effect are. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!
+
+Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post, and pretty much only used vectors - no data frames!
+
+### Simulation
+
+Start with the basic parameters.
+
+```{r}
+set.seed(42)
+n_students <- 500
+n_tutoring <- 50
+```
+
+
+Generate a reasonable looking distribution of first-session marks. This should be bounded by zero and 100. One way to do this is to make the distribution in the log odds (logit) scale (which is unbounded), and then transform back to the marks scale. This will require functions for transforming to and from the logit scale.
+
+```{r}
+
+invlogit <- function(x){1/(1+exp(-x))}
+
+logit <- function(x){log(x/(1-x))}
+
+first_session_marks <- sort(100*invlogit(rnorm(n_students, logit(60/100), 0.7)))
+
+hist(first_session_marks)
+
+
+
+```
+
+Now we start calling students to offer them tutoring, starting from those with the lowest first session marks. Strictly speaking, the simulation does not really need to mimic the reality to this level of detail, but I find that a more detailed simulation approach can often prove useful down the track, especially if the model becomes more complex. It also helps us to avoid making too many (overly-) simplifying assumptions. Here, the probability of a student accepting tutoring is 0.8 - first_session_mark/100, i.e. students with lower marks are more likely to accept tutoring.
+
+```{r}
+
+n_tutoring_places_accepted <- 0
+tutored <- rep(0, n_students)
+i <- 1
+while (n_tutoring_places_accepted < n_tutoring & i < n_students) {
+ rval <- runif(1) 
+ if (rval < 0.8 - first_session_marks[i]/100){
+   tutored[[i]] <- 1
+   n_tutoring_places_accepted <- n_tutoring_places_accepted + 1
+ }
+ i <- i + 1
+}
+
+sum(tutored)
+
+```
+
+Now we simulate second session marks. These should be tightly correlated to first session marks, and will be reasonably similar. In this model, we will include an intercept term that adds a small value to the first session mark, a slope term that scales the first session mark, and another interept term associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student $i$ we have:
+
+$$\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{first_session_mark}_i + \beta_2\text{Tutored}_i $$
+Define the parameters, and generate the second session marks according to the model:
+
+```{r}
+beta_0 <- 2
+beta_1 <- 0.9
+beta_2 <- 3
+sigma <- 5
+
+second_session_marks.mu <- beta_0 + beta_1*first_session_marks + beta_2*tutored
+second_session_marks <- rnorm(n_students, second_session_marks.mu, sigma)
+
+
+hist(second_session_marks)
+
+```
+
+Plot the first and second session marks, coloured by whether tutoring was accepted.
+
+```{r}
+
+tutored.f <- factor(tutored, levels = c(0,1))
+plot(first_session_marks, second_session_marks, col = tutored.f)
+
+```
+
+We can see that the students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, we fit a regression model that looks just like the one used to create the data.
+
+
+```{r}
+regression_model <- lm(second_session_marks ~ 1 + first_session_marks + tutored)
+summary(regression_model)
+```
+
+\  
+
+
+The model has retrieved the simuation parameters quite nicely - no surprise, they are a lot less noisy than real data, all relevant variables have been included, and the effect size is appreciable and consistent.
+
+
+\  
+
+### Power analysis by simulation
+
+A simplified version of the above simulation will be used to calculate the power by simulation. This uses a simpler model for which students receive tutoring - for the bottom 100 students, each has a 50% chance of accepting tutoring (up to a maximum of 50 tutoring places). We can use this to find the power for an estimated effect size, or to find the minimum effect size needed to achieve a given power. By replicating the above simulation thousands of times, we can quantify the fraction for which the p-value of the beta_3 coefficient was below the significance level.
+
+
+
+```{r}
+
+power_simulation <- function(n_tutored = 50, n_untutored = 450, beta3, sigma_secondsession, beta0 = 2, beta1 = 0.9){
+  nstudents <- n_tutored + n_untutored 
+  first_session <- sort(100*invlogit(rnorm(nstudents, logit(60/100), 0.7)))  
+  second_session <- beta0 + beta1*first_session + rnorm(nstudents, 0, sigma_secondsession)
+  tutored.indices <- sample(seq(1,n_tutored*2), n_tutored)
+  tutored <- rep(0, nstudents)
+  tutored[tutored.indices] <- 1
+  second_session[tutored.indices] <- second_session[tutored.indices] + beta3
+  lmod <- summary(lm(second_session ~ first_session + tutored))
+  return(lmod$coefficients[3,4]) #The pvalue for the beta3 estimate.
+}
+
+
+pvals <- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, beta3 = 2.4, sigma_secondsession = 5))
+
+mean(pvals <= 0.05)
+
+
+```
+
+
+So, we have a calculated power of `r mean(pvals <= 0.05)`. It is also interesting to look at the distribution of these p-values, in the logit scale.
+
+```{r}
+hist(logit(pvals),breaks = 50)
+abline(v = logit(0.05), col = "red") #The vertical line is at p = 0.05
+```
+
+Why is the distribution shaped in this particular way? I don't know - this is something I will need to read more about.
+
+\ 
+
+### Concluding remark
+
+
+Going into a power analysis it is common to have a personal bias to thinking our effect size will be greater than it really is, and that the data are less noisy than they really are. Without going too much into the whys and wherefores of power analysis and null hypothesis significance testing, [it is good practice](http://www.stat.columbia.edu/~gelman/research/published/PPS551642_REV2.pdf) to use a conservative estimate of the effect size based on external information (e.g. prior studies).
+
+
+\  
+

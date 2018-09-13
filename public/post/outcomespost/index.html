@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 2.4.0">
+  <meta name="generator" content="Hugo 0.48" />
+  <meta name="author" content="Flynn Hill">
+
+  
+  
+  
+  
+    
+  
+  <meta name="description" content="The problemSay we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="/post/outcomespost/">
+
+  
+
+
+  
+
+  
+  
+  
+  <meta name="theme-color" content="#0095eb">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" crossorigin="anonymous">
+        
+      
+    
+
+    
+
+    
+
+  
+
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:400,700%7cRoboto:400,400italic,700%7cRoboto&#43;Mono">
+  
+
+  <link rel="stylesheet" href="/styles.css">
+  
+
+  
+  
+  
+
+  
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Flynn R Hill">
+  <link rel="feed" href="/index.xml" type="application/rss+xml" title="Flynn R Hill">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="/post/outcomespost/">
+
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="Flynn R Hill">
+  <meta property="og:url" content="/post/outcomespost/">
+  <meta property="og:title" content="Quantifying an educational effect | Flynn R Hill">
+  <meta property="og:description" content="The problemSay we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer.">
+  <meta property="og:locale" content="en-us">
+  
+  <meta property="article:published_time" content="2018-09-13T00:00:00&#43;00:00">
+  
+  <meta property="article:modified_time" content="2018-09-13T00:00:00&#43;00:00">
+  
+
+  
+
+  
+
+  <title>Quantifying an educational effect | Flynn R Hill</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#toc" data-offset="71" >
+
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Flynn R Hill</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav ml-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#about">
+            
+            <span>Home</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#posts">
+            
+            <span>Posts</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#publications_selected">
+            
+            <span>Publications</span>
+            
+          </a>
+        </li>
+
+        
+        
+      
+
+      
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+
+
+  <div class="article-container">
+    <h1 itemprop="name">Quantifying an educational effect</h1>
+
+    
+
+<div class="article-metadata">
+
+  
+  
+  <span itemscope itemprop="author" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Flynn Hill">
+  </span>
+  
+
+  <span class="article-date">
+    
+    <meta content="2018-09-13 00:00:00 &#43;0000 UTC" itemprop="datePublished">
+    <time datetime="2018-09-13 00:00:00 &#43;0000 UTC" itemprop="dateModified">
+      2018-09-13
+    </time>
+  </span>
+  <span itemscope itemprop="publisher" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Flynn Hill">
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    6 min read
+  </span>
+  
+
+  
+  
+
+  
+
+  
+  
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=Quantifying%20an%20educational%20effect&amp;url=%2fpost%2foutcomespost%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=%2fpost%2foutcomespost%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fpost%2foutcomespost%2f&amp;title=Quantifying%20an%20educational%20effect"
+         target="_blank" rel="noopener">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=%2fpost%2foutcomespost%2f&amp;title=Quantifying%20an%20educational%20effect"
+         target="_blank" rel="noopener">
+        <i class="fab fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=Quantifying%20an%20educational%20effect&amp;body=%2fpost%2foutcomespost%2f">
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+
+    <div class="article-style" itemprop="articleBody">
+      <div id="the-problem" class="section level2">
+<h2>The problem</h2>
+<p>Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. The approach we will take is to simulate data to understand what kind of model is needed, and then fit it. Separately, we will do a power analysis to see what our prospects of being able to identify an effect are. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!</p>
+<p>Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post, and pretty much only used vectors - no data frames!</p>
+<div id="simulation" class="section level3">
+<h3>Simulation</h3>
+<p>Start with the basic parameters.</p>
+<pre class="r"><code>set.seed(42)
+n_students &lt;- 500
+n_tutoring &lt;- 50</code></pre>
+<p>Generate a reasonable looking distribution of first-session marks. This should be bounded by zero and 100. One way to do this is to make the distribution in the log odds (logit) scale (which is unbounded), and then transform back to the marks scale. This will require functions for transforming to and from the logit scale.</p>
+<pre class="r"><code>invlogit &lt;- function(x){1/(1+exp(-x))}
+
+logit &lt;- function(x){log(x/(1-x))}
+
+first_session_marks &lt;- sort(100*invlogit(rnorm(n_students, logit(60/100), 0.7)))
+
+hist(first_session_marks)</code></pre>
+<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Now we start calling students to offer them tutoring, starting from those with the lowest first session marks. Strictly speaking, the simulation does not really need to mimic the reality to this level of detail, but I find that a more detailed simulation approach can often prove useful down the track, especially if the model becomes more complex. It also helps us to avoid making too many (overly-) simplifying assumptions. Here, the probability of a student accepting tutoring is 0.8 - first_session_mark/100, i.e. students with lower marks are more likely to accept tutoring.</p>
+<pre class="r"><code>n_tutoring_places_accepted &lt;- 0
+tutored &lt;- rep(0, n_students)
+i &lt;- 1
+while (n_tutoring_places_accepted &lt; n_tutoring &amp; i &lt; n_students) {
+ rval &lt;- runif(1) 
+ if (rval &lt; 0.8 - first_session_marks[i]/100){
+   tutored[[i]] &lt;- 1
+   n_tutoring_places_accepted &lt;- n_tutoring_places_accepted + 1
+ }
+ i &lt;- i + 1
+}
+
+sum(tutored)</code></pre>
+<pre><code>## [1] 50</code></pre>
+<p>Now we simulate second session marks. These should be tightly correlated to first session marks, and will be reasonably similar. In this model, we will include an intercept term that adds a small value to the first session mark, a slope term that scales the first session mark, and another interept term associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student <span class="math inline">\(i\)</span> we have:</p>
+<p><span class="math display">\[\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{first_session_mark}_i + \beta_2\text{Tutored}_i \]</span> Define the parameters, and generate the second session marks according to the model:</p>
+<pre class="r"><code>beta_0 &lt;- 2
+beta_1 &lt;- 0.9
+beta_2 &lt;- 3
+sigma &lt;- 5
+
+second_session_marks.mu &lt;- beta_0 + beta_1*first_session_marks + beta_2*tutored
+second_session_marks &lt;- rnorm(n_students, second_session_marks.mu, sigma)
+
+
+hist(second_session_marks)</code></pre>
+<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>Plot the first and second session marks, coloured by whether tutoring was accepted.</p>
+<pre class="r"><code>tutored.f &lt;- factor(tutored, levels = c(0,1))
+plot(first_session_marks, second_session_marks, col = tutored.f)</code></pre>
+<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>We can see that the students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, we fit a regression model that looks just like the one used to create the data.</p>
+<pre class="r"><code>regression_model &lt;- lm(second_session_marks ~ 1 + first_session_marks + tutored)
+summary(regression_model)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = second_session_marks ~ 1 + first_session_marks + 
+##     tutored)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -16.7165  -3.6281   0.1935   3.5529  17.6140 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)          1.58472    1.12579   1.408  0.15986    
+## first_session_marks  0.90359    0.01796  50.305  &lt; 2e-16 ***
+## tutored              2.50125    0.89768   2.786  0.00553 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 5.147 on 497 degrees of freedom
+## Multiple R-squared:  0.8683, Adjusted R-squared:  0.8677 
+## F-statistic:  1638 on 2 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p> </p>
+<p>The model has retrieved the simuation parameters quite nicely - no surprise, they are a lot less noisy than real data, all relevant variables have been included, and the effect size is appreciable and consistent.</p>
+<p> </p>
+</div>
+<div id="power-analysis-by-simulation" class="section level3">
+<h3>Power analysis by simulation</h3>
+<p>A simplified version of the above simulation will be used to calculate the power by simulation. This uses a simpler model for which students receive tutoring - for the bottom 100 students, each has a 50% chance of accepting tutoring (up to a maximum of 50 tutoring places). We can use this to find the power for an estimated effect size, or to find the minimum effect size needed to achieve a given power. By replicating the above simulation thousands of times, we can quantify the fraction for which the p-value of the beta_3 coefficient was below the significance level.</p>
+<pre class="r"><code>power_simulation &lt;- function(n_tutored = 50, n_untutored = 450, beta3, sigma_secondsession, beta0 = 2, beta1 = 0.9){
+  nstudents &lt;- n_tutored + n_untutored 
+  first_session &lt;- sort(100*invlogit(rnorm(nstudents, logit(60/100), 0.7)))  
+  second_session &lt;- beta0 + beta1*first_session + rnorm(nstudents, 0, sigma_secondsession)
+  tutored.indices &lt;- sample(seq(1,n_tutored*2), n_tutored)
+  tutored &lt;- rep(0, nstudents)
+  tutored[tutored.indices] &lt;- 1
+  second_session[tutored.indices] &lt;- second_session[tutored.indices] + beta3
+  lmod &lt;- summary(lm(second_session ~ first_session + tutored))
+  return(lmod$coefficients[3,4]) #The pvalue for the beta3 estimate.
+}
+
+
+pvals &lt;- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, beta3 = 2.4, sigma_secondsession = 5))
+
+mean(pvals &lt;= 0.05)</code></pre>
+<pre><code>## [1] 0.7948</code></pre>
+<p>So, we have a calculated power of 0.7948. It is also interesting to look at the distribution of these p-values, in the logit scale.</p>
+<pre class="r"><code>hist(logit(pvals),breaks = 50)
+abline(v = logit(0.05), col = &quot;red&quot;) #The vertical line is at p = 0.05</code></pre>
+<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>Why is the distribution shaped in this particular way? I don’t know - this is something I will need to read more about.</p>
+<p> </p>
+</div>
+<div id="concluding-remark" class="section level3">
+<h3>Concluding remark</h3>
+<p>Going into a power analysis it is common to have a personal bias to thinking our effect size will be greater than it really is, and that the data are less noisy than they really are. Without going too much into the whys and wherefores of power analysis and null hypothesis significance testing, <a href="http://www.stat.columbia.edu/~gelman/research/published/PPS551642_REV2.pdf">it is good practice</a> to use a conservative estimate of the effect size based on external information (e.g. prior studies).</p>
+<p> </p>
+</div>
+</div>
+
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/regression/">regression</a>
+  
+  <a class="badge badge-light" href="/tags/statistics/">statistics</a>
+  
+  <a class="badge badge-light" href="/tags/power-analysis/">power analysis</a>
+  
+</div>
+
+
+
+
+    
+    
+    <div class="article-widget">
+      <div class="hr-light"></div>
+      <h3>Related</h3>
+      <ul>
+        
+        <li><a href="/post/post_1/">Simulation and Modelling in R and Stan</a></li>
+        
+      </ul>
+    </div>
+    
+
+    
+
+    
+
+
+  </div>
+</article>
+
+<div class="container">
+  <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    &copy; 2018 &middot; 
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" id="back_to_top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+</div>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        CommonHTML: { linebreaks: { automatic: true } },
+        tex2jax: { inlineMath: [ ['$', '$'], ['\\(','\\)'] ], displayMath: [ ['$$','$$'], ['\\[', '\\]'] ], processEscapes: false },
+        TeX: { noUndefined: { attributes: { mathcolor: 'red', mathbackground: '#FFEEEE', mathsize: '90%' } } },
+        messageStyle: 'none'
+      });
+    </script>
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+        
+      
+
+      
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous" async></script>
+      
+    
+
+    <script src="/js/hugo-academic.js"></script>
+    
+
+    
+    
+
+    
+    
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+
+  </body>
+</html>
+
