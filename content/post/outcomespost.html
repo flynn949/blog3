@@ -8,8 +8,6 @@ tags: ["regression", "statistics", "power analysis"]
 
 
 
-<div id="the-problem" class="section level2">
-<h2>The problem</h2>
 <p>Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. The approach we will take is to simulate data to understand what kind of model is needed, and then fit it. Separately, we will do a power analysis to see what our prospects of being able to identify an effect are. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!</p>
 <p>Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post, and pretty much only used vectors - no data frames!</p>
 <div id="simulation" class="section level3">
@@ -117,5 +115,4 @@ abline(v = logit(0.05), col = &quot;red&quot;) #The vertical line is at p = 0.05
 <h3>Concluding remark</h3>
 <p>Going into a power analysis it is common to have a personal bias to thinking our effect size will be greater than it really is, and that the data are less noisy than they really are. Without going too much into the whys and wherefores of power analysis and null hypothesis significance testing, <a href="http://www.stat.columbia.edu/~gelman/research/published/PPS551642_REV2.pdf">it is good practice</a> to use a conservative estimate of the effect size based on external information (e.g. prior studies).</p>
 <p> </p>
-</div>
 </div>
