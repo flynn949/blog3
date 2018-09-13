@@ -15,7 +15,7 @@
   
     
   
-  <meta name="description" content="Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer.">
+  <meta name="description" content="In this post, I will run through a very simple experiment simulation, and demonstrate a way to do power analysis by using this simulation. Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer.">
 
   
   <link rel="alternate" hreflang="en-us" href="/post/outcomespost/">
@@ -89,7 +89,7 @@
   <meta property="og:site_name" content="Flynn R Hill">
   <meta property="og:url" content="/post/outcomespost/">
   <meta property="og:title" content="Quantifying an educational effect | Flynn R Hill">
-  <meta property="og:description" content="Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer.">
+  <meta property="og:description" content="In this post, I will run through a very simple experiment simulation, and demonstrate a way to do power analysis by using this simulation. Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer.">
   <meta property="og:locale" content="en-us">
   
   <meta property="article:published_time" content="2018-09-13T00:00:00&#43;00:00">
@@ -282,7 +282,7 @@
 
 
     <div class="article-style" itemprop="articleBody">
-      <p>Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!</p>
+      <p>In this post, I will run through a very simple experiment simulation, and demonstrate a way to do power analysis by using this simulation. Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!</p>
 <p>Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post, and pretty much only used vectors - no data frames!</p>
 <div id="simulation" class="section level3">
 <h3>Simulation</h3>
@@ -360,8 +360,8 @@ summary(regression_model)</code></pre>
 </div>
 <div id="power-analysis-by-simulation" class="section level3">
 <h3>Power analysis by simulation</h3>
-<p>A good idea before doing a study like this is to calculte its power - the probability of rejecting the null hypothesis when the null hypothesis is false (at a given significance level). This calculation can either help us to decide how many study subjects are needed to reach a desired power level, or if we are unable to increase the number of study subjects it can at least give us a realistic appreciation for the power of our study.</p>
-<p>This uses a simpler model for which students receive tutoring - for the bottom 100 students, each has a 50% chance of accepting tutoring (up to a maximum of 50 tutoring places). We can use this to find the power for an estimated effect size, or to find the minimum effect size needed to achieve a given power. By replicating the above simulation thousands of times, we can quantify the fraction for which the p-value of the beta_3 coefficient was below the significance level.</p>
+<p>A good idea before doing a study like this is to calculate its power - the probability of rejecting the null hypothesis when the null hypothesis is false (at a given significance level). This calculation can either help us to decide how many study subjects are needed to reach a desired power level, or if we are unable to increase the number of study subjects it can at least give us a realistic appreciation for the power of our study. There is a nice illustration of the concept of power in <a href="http://rpsychologist.com/d3/NHST/">this post</a> by Kristoffer Magnusson.</p>
+<p>The simulation below uses a simpler model for which students receive tutoring - for the bottom 100 students, each has a 50% chance of accepting tutoring (up to a maximum of 50 tutoring places). We can use this to find the power for an estimated effect size, or to find the minimum effect size needed to achieve a given power. By replicating the above simulation thousands of times, we can quantify the fraction for which the p-value of the beta_3 coefficient was below the significance level. It is important to note that the effect size here is measured in units of marks, whereas effect sizes are often put into standard units by dividing by the standard deviation.</p>
 <pre class="r"><code>power_simulation &lt;- function(n_tutored = 50, n_untutored = 450, beta3, sigma_secondsession, beta0 = 2, beta1 = 0.9){
   nstudents &lt;- n_tutored + n_untutored 
   first_session &lt;- sort(100*invlogit(rnorm(nstudents, logit(60/100), 0.7)))  
@@ -386,8 +386,8 @@ abline(v = logit(0.05), col = &quot;red&quot;) #The vertical line is at p = 0.05
 <p>Why is the distribution shaped in this particular way? I don’t know - I will have to read up on this.</p>
 <p> </p>
 </div>
-<div id="concluding-remark" class="section level3">
-<h3>Concluding remark</h3>
+<div id="concluding-remarks" class="section level3">
+<h3>Concluding remarks</h3>
 <p>Going into a power analysis it is common to have a personal bias to thinking our effect size will be greater than it really is, and that the data are less noisy than they really are. Without going too much into the whys and wherefores of power analysis and null hypothesis significance testing, <a href="http://www.stat.columbia.edu/~gelman/research/published/PPS551642_REV2.pdf">it is good practice</a> to use a conservative estimate of the effect size based on external information (e.g. prior studies).</p>
 <p> </p>
 </div>
