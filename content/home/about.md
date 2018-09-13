@@ -33,7 +33,4 @@ weight = 5
 
 # About me
 
-I received my PhD in biochemistry from the School of Chemistry at the University of Wollongong, Australia, where I worked with [Nick Dixon](https://scholars.uow.edu.au/display/nick_dixon) and [Moeava Tehei](https://scholars.uow.edu.au/display/moeava_tehei), using X-ray and neutron scattering to study protein structure and dynamics. Following this, I became a postdoc in the field of single-molecule biophysics in the lab of [Antoine van Oijen](https://smah.uow.edu.au/chem/contacts/UOW187214.html), first in the Netherlands, and later back in Wollongong when the lab migrated there. 
-
-After facing the problem of having to process tens of thousands of trajectories of motion of DNA polymerases, I developed a particular interest in data analysis. This eventually led to my current job as Education Data Analyst in the Learning Analytics unit at UOW. In this role, I analyse student learning data to answer questions about course design and the student experience. Recently, I developed a model to predict students' academic performance. Currently, I am interested in learning about probablistic programming, and will write some posts on this topic and other areas of statistics that I am learning about.
-
+I have a background in biochemistry and single molecule biophysics, but I recently traded in my pipettes for a keyboard, and am now working in the field of learning analytics. In this blog, I will share R notebooks in which I go through example problems from biology, education and anything else that could be interesting. One of my goals is to blog as I learn about new topics in statistics and data analysis, so please be warned that I am not always writing from a position of expertise, and if you spot any mistakes please let me know.
