@@ -225,7 +225,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    6 min read
+    5 min read
   </span>
   
 
@@ -282,7 +282,7 @@
 
 
     <div class="article-style" itemprop="articleBody">
-      <p>Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. The approach we will take is to simulate data to understand what kind of model is needed, and then fit it. Separately, we will do a power analysis to see what our prospects of being able to identify an effect are. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!</p>
+      <p>Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!</p>
 <p>Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post, and pretty much only used vectors - no data frames!</p>
 <div id="simulation" class="section level3">
 <h3>Simulation</h3>
@@ -299,7 +299,7 @@ first_session_marks &lt;- sort(100*invlogit(rnorm(n_students, logit(60/100), 0.7
 
 hist(first_session_marks)</code></pre>
 <p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
-<p>Now we start calling students to offer them tutoring, starting from those with the lowest first session marks. Strictly speaking, the simulation does not really need to mimic the reality to this level of detail, but I find that a more detailed simulation approach can often prove useful down the track, especially if the model becomes more complex. It also helps us to avoid making too many (overly-) simplifying assumptions. Here, the probability of a student accepting tutoring is 0.8 - first_session_mark/100, i.e. students with lower marks are more likely to accept tutoring.</p>
+<p>Now we start calling students to offer them tutoring, starting from those with the lowest first session marks. Here, the probability of a student accepting tutoring is 0.8 - first_session_mark/100, i.e. students with lower marks are more likely to accept tutoring.</p>
 <pre class="r"><code>n_tutoring_places_accepted &lt;- 0
 tutored &lt;- rep(0, n_students)
 i &lt;- 1
@@ -314,8 +314,8 @@ while (n_tutoring_places_accepted &lt; n_tutoring &amp; i &lt; n_students) {
 
 sum(tutored)</code></pre>
 <pre><code>## [1] 50</code></pre>
-<p>Now we simulate second session marks. These should be tightly correlated to first session marks, and will be reasonably similar. In this model, we will include an intercept term that adds a small value to the first session mark, a slope term that scales the first session mark, and another interept term associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student <span class="math inline">\(i\)</span> we have:</p>
-<p><span class="math display">\[\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{first_session_mark}_i + \beta_2\text{Tutored}_i \]</span> Define the parameters, and generate the second session marks according to the model:</p>
+<p>Now simulate second session marks. These should be tightly correlated to first session marks, and will be reasonably similar. In this model,there is an intercept term that adds a small value to the first session mark, a slope term that scales the first session mark, and another interept term for the effect associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student <span class="math inline">\(i\)</span> we have:</p>
+<p><span class="math display">\[\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{first_session_mark}_i + \beta_2\text{Tutored}_i \]</span> Define the parameters, and generate the second session marks according to the model.</p>
 <pre class="r"><code>beta_0 &lt;- 2
 beta_1 &lt;- 0.9
 beta_2 &lt;- 3
@@ -331,7 +331,7 @@ hist(second_session_marks)</code></pre>
 <pre class="r"><code>tutored.f &lt;- factor(tutored, levels = c(0,1))
 plot(first_session_marks, second_session_marks, col = tutored.f)</code></pre>
 <p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
-<p>We can see that the students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, we fit a regression model that looks just like the one used to create the data.</p>
+<p>Students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, fit a regression model that looks just like the one used to create the data.</p>
 <pre class="r"><code>regression_model &lt;- lm(second_session_marks ~ 1 + first_session_marks + tutored)
 summary(regression_model)</code></pre>
 <pre><code>## 
@@ -382,7 +382,7 @@ mean(pvals &lt;= 0.05)</code></pre>
 <pre class="r"><code>hist(logit(pvals),breaks = 50)
 abline(v = logit(0.05), col = &quot;red&quot;) #The vertical line is at p = 0.05</code></pre>
 <p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
-<p>Why is the distribution shaped in this particular way? I don’t know - this is something I will need to read more about.</p>
+<p>Why is the distribution shaped in this particular way? I don’t know - I will have to read up on this.</p>
 <p> </p>
 </div>
 <div id="concluding-remark" class="section level3">
