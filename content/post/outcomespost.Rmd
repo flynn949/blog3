@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 In this post, I will run through a very simple experiment simulation, and demonstrate a way to do power analysis by using this simulation. Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!
 
-Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post, and pretty much only used vectors - no data frames!
+Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post.
 
 ### Simulation
 
@@ -25,19 +25,34 @@ n_tutoring <- 50
 ```
 
 
-Generate a reasonable looking distribution of first-session marks. This should be bounded by zero and 100. One way to do this is to make the distribution in the log odds (logit) scale (which is unbounded), and then transform back to the marks scale. This will require functions for transforming to and from the logit scale.
+Start with a latent parameter - let's call it aptitude - which for simplicity's sake will be the only thing (besides a bit of luck) that determines students' marks. As a latent variable, the most appropriate scale for this would be a standard normal, but for convenience we will also put it on the same scale as marks.
+
+```{r}
+meanmark <- 60.0
+marks_sd <- 12.0
+
+
+aptitude <- rnorm(n_students, 0.0, 1.0)
+students <- data.frame(aptitude)
+
+```
+
+
+
+Generate a reasonable looking distribution of first-session marks, based on students' aptitude, plus or minus a little bit of luck. 
 
 ```{r}
 
-invlogit <- function(x){1/(1+exp(-x))}
+luck <- 2
 
-logit <- function(x){log(x/(1-x))}
+students$first_session_marks <- rnorm(n_students, students$aptitude*marks_sd + meanmark, luck)
 
-first_session_marks <- sort(100*invlogit(rnorm(n_students, logit(60/100), 0.7)))
+#It is possible for soem values to fall off the scale.
+students$first_session_marks[students$first_session_marks > 100] <- 100
+students$first_session_marks[students$first_session_marks < 0] <- 0
 
-hist(first_session_marks)
 
-
+hist(students$first_session_marks, breaks = 15)
 
 ```
 
@@ -45,38 +60,46 @@ Now we start calling students to offer them tutoring, starting from those with t
 
 ```{r}
 
+students <- students[order(students$first_session_marks),]
+
 n_tutoring_places_accepted <- 0
 tutored <- rep(0, n_students)
 i <- 1
 while (n_tutoring_places_accepted < n_tutoring & i < n_students) {
  rval <- runif(1) 
- if (rval < 0.8 - first_session_marks[i]/100){
+ if (rval < 0.8 - students$first_session_marks[i]/100){
    tutored[[i]] <- 1
    n_tutoring_places_accepted <- n_tutoring_places_accepted + 1
  }
  i <- i + 1
 }
 
+students$tutored <- tutored
+
 sum(tutored)
 
 ```
 
-Now simulate second session marks. These should be tightly correlated to first session marks, and will be reasonably similar. In this model,there is an intercept term that adds a small value to the first session mark, a slope term that scales the first session mark, and another interept term for the effect associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student $i$ we have:
+Now simulate second session marks. These will also be based on students' underlying aptitude, and will be similar to the first session marks, but because the courses have changed, there may be a different overall mean and scaling of marks with respect to to aptitude. To keep things simple (and unrealistic), students' underlying aptitude has not changed. In this model,there is an intercept term that adds a small value to the aptitude, a slope term that scales the mark with respect to aptitude, and another interept term for the effect associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student $i$ we have:
 
-$$\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{first_session_mark}_i + \beta_2\text{Tutored}_i $$
-Define the parameters, and generate the second session marks according to the model.
+$$\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{aptitude}_i + \beta_2\text{Tutored}_i $$
+Define the parameters, and generate the second session marks according to the model. Here, we have very ambitiously assumed that tutoring increases students marks (or perhaps their aptitude) by 3 points.
 
 ```{r}
-beta_0 <- 2
+beta_0 <- 58 #This is the mean mark in second session for untutored students
 beta_1 <- 0.9
 beta_2 <- 3
-sigma <- 5
+sigma <- 2 #Luck in second session.
 
-second_session_marks.mu <- beta_0 + beta_1*first_session_marks + beta_2*tutored
-second_session_marks <- rnorm(n_students, second_session_marks.mu, sigma)
+students$second_session_marks.mu <- beta_0 + beta_1*students$aptitude*marks_sd + beta_2*students$tutored
+students$second_session_marks <- rnorm(n_students, students$second_session_marks.mu, sigma)
+
+#Once again, it is possible that some values could have fallen off the scale, and this is one simple way to fix that:
+students$second_session_marks[students$second_session_marks > 100] <- 100
+students$second_session_marks[students$second_session_marks < 0] <- 0
 
 
-hist(second_session_marks)
+hist(students$second_session_marks, breaks = 15)
 
 ```
 
@@ -84,22 +107,22 @@ Plot the first and second session marks, coloured by whether tutoring was accept
 
 ```{r}
 
-tutored.f <- factor(tutored, levels = c(0,1))
-plot(first_session_marks, second_session_marks, col = tutored.f)
+plot(students$first_session_marks, students$second_session_marks, col = factor(students$tutored, levels = c(0,1)))
 
 ```
 
 Students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, fit a regression model that looks just like the one used to create the data.
 
 ```{r}
-regression_model <- lm(second_session_marks ~ 1 + first_session_marks + tutored)
+regression_model <- lm(second_session_marks ~ 1 + first_session_marks + tutored, data = students)
 summary(regression_model)
 ```
 
 \  
 
+Note that we are now regressing against first session marks as a measure of the underlying aptitude from which the marks were drawn. Nonetheless, the model has retrieved fairly reasonable estimates for the coefficients - no surprise, they are a less noisy than real data, all relevant variables have been included, and the effect size is appreciable and consistent.
 
-The model has retrieved the simuation parameters quite nicely - no surprise, they are a lot less noisy than real data, all relevant variables have been included, and the effect size is appreciable and consistent.
+An interesting point to note here is that some of the students who were offered tutoring may have received that offer because they were unlucky in first session and got marks a bit lower than what would be expected for their aptitude. In the second session, these students could be expected to get better marks regardless of being tutored - this is called regression to the mean.
 
 
 \  
@@ -116,20 +139,27 @@ The simulation below uses a simpler model to decide which students receive tutor
 
 ```{r}
 
-power_simulation <- function(n_tutored = 50, n_untutored = 450, beta3, sigma_secondsession, beta0 = 2, beta1 = 0.9){
+invlogit <- function(x){1/(1+exp(-x))}
+
+logit <- function(x){log(x/(1-x))}
+
+power_simulation <- function(n_tutored = 50, n_untutored = 450, beta3, sigma_secondsession, beta0 = 58, beta1 = 0.9){
   nstudents <- n_tutored + n_untutored 
-  first_session <- sort(100*invlogit(rnorm(nstudents, logit(60/100), 0.7)))  
-  second_session <- beta0 + beta1*first_session + rnorm(nstudents, 0, sigma_secondsession)
+  aptitude <- sort(rnorm(nstudents, 0, 1))
+  aptitude_markscale <- meanmark + aptitude*marks_sd
+  first_session <- rnorm(nstudents, aptitude_markscale, 2)
+  second_session <- beta0 + beta1*aptitude*marks_sd + rnorm(nstudents, 0, sigma_secondsession)
   tutored.indices <- sample(seq(1,n_tutored*2), n_tutored)
   tutored <- rep(0, nstudents)
   tutored[tutored.indices] <- 1
+  #second_session <- second_session[order(first_session)]
   second_session[tutored.indices] <- second_session[tutored.indices] + beta3
   lmod <- summary(lm(second_session ~ first_session + tutored))
   return(lmod$coefficients[3,4]) #The pvalue for the beta3 estimate.
 }
 
 
-pvals <- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, beta3 = 2.4, sigma_secondsession = 5))
+pvals <- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, beta3 = 2.4, sigma_secondsession = 2))
 
 mean(pvals <= 0.05)
 

@@ -17,106 +17,131 @@
       
       <guid>/post/outcomespost/</guid>
       <description>&lt;p&gt;In this post, I will run through a very simple experiment simulation, and demonstrate a way to do power analysis by using this simulation. Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!&lt;/p&gt;
-&lt;p&gt;Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post, and pretty much only used vectors - no data frames!&lt;/p&gt;
+&lt;p&gt;Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post.&lt;/p&gt;
 &lt;div id=&#34;simulation&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;Simulation&lt;/h3&gt;
 &lt;p&gt;Start with the basic parameters.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(42)
 n_students &amp;lt;- 500
 n_tutoring &amp;lt;- 50&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Generate a reasonable looking distribution of first-session marks. This should be bounded by zero and 100. One way to do this is to make the distribution in the log odds (logit) scale (which is unbounded), and then transform back to the marks scale. This will require functions for transforming to and from the logit scale.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;invlogit &amp;lt;- function(x){1/(1+exp(-x))}
+&lt;p&gt;Start with a latent parameter - let’s call it aptitude - which for simplicity’s sake will be the only thing (besides a bit of luck) that determines students’ marks. As a latent variable, the most appropriate scale for this would be a standard normal, but for convenience we will also put it on the same scale as marks.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;meanmark &amp;lt;- 60.0
+marks_sd &amp;lt;- 12.0
 
-logit &amp;lt;- function(x){log(x/(1-x))}
 
-first_session_marks &amp;lt;- sort(100*invlogit(rnorm(n_students, logit(60/100), 0.7)))
+aptitude &amp;lt;- rnorm(n_students, 0.0, 1.0)
+students &amp;lt;- data.frame(aptitude)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Generate a reasonable looking distribution of first-session marks, based on students’ aptitude, plus or minus a little bit of luck.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;luck &amp;lt;- 2
 
-hist(first_session_marks)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+students$first_session_marks &amp;lt;- rnorm(n_students, students$aptitude*marks_sd + meanmark, luck)
+
+#It is possible for soem values to fall off the scale.
+students$first_session_marks[students$first_session_marks &amp;gt; 100] &amp;lt;- 100
+students$first_session_marks[students$first_session_marks &amp;lt; 0] &amp;lt;- 0
+
+
+hist(students$first_session_marks, breaks = 15)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Now we start calling students to offer them tutoring, starting from those with the lowest first session marks. Here, the probability of a student accepting tutoring is 0.8 - first_session_mark/100, i.e. students with lower marks are more likely to accept tutoring.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;n_tutoring_places_accepted &amp;lt;- 0
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;students &amp;lt;- students[order(students$first_session_marks),]
+
+n_tutoring_places_accepted &amp;lt;- 0
 tutored &amp;lt;- rep(0, n_students)
 i &amp;lt;- 1
 while (n_tutoring_places_accepted &amp;lt; n_tutoring &amp;amp; i &amp;lt; n_students) {
  rval &amp;lt;- runif(1) 
- if (rval &amp;lt; 0.8 - first_session_marks[i]/100){
+ if (rval &amp;lt; 0.8 - students$first_session_marks[i]/100){
    tutored[[i]] &amp;lt;- 1
    n_tutoring_places_accepted &amp;lt;- n_tutoring_places_accepted + 1
  }
  i &amp;lt;- i + 1
 }
 
+students$tutored &amp;lt;- tutored
+
 sum(tutored)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 50&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Now simulate second session marks. These should be tightly correlated to first session marks, and will be reasonably similar. In this model,there is an intercept term that adds a small value to the first session mark, a slope term that scales the first session mark, and another interept term for the effect associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student &lt;span class=&#34;math inline&#34;&gt;\(i\)&lt;/span&gt; we have:&lt;/p&gt;
-&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{first_session_mark}_i + \beta_2\text{Tutored}_i \]&lt;/span&gt; Define the parameters, and generate the second session marks according to the model.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;beta_0 &amp;lt;- 2
+&lt;p&gt;Now simulate second session marks. These will also be based on students’ underlying aptitude, and will be similar to the first session marks, but because the courses have changed, there may be a different overall mean and scaling of marks with respect to to aptitude. To keep things simple (and unrealistic), students’ underlying aptitude has not changed. In this model,there is an intercept term that adds a small value to the aptitude, a slope term that scales the mark with respect to aptitude, and another interept term for the effect associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student &lt;span class=&#34;math inline&#34;&gt;\(i\)&lt;/span&gt; we have:&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{aptitude}_i + \beta_2\text{Tutored}_i \]&lt;/span&gt; Define the parameters, and generate the second session marks according to the model. Here, we have very ambitiously assumed that tutoring increases students marks (or perhaps their aptitude) by 3 points.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;beta_0 &amp;lt;- 58 #This is the mean mark in second session for untutored students
 beta_1 &amp;lt;- 0.9
 beta_2 &amp;lt;- 3
-sigma &amp;lt;- 5
+sigma &amp;lt;- 2 #Luck in second session.
 
-second_session_marks.mu &amp;lt;- beta_0 + beta_1*first_session_marks + beta_2*tutored
-second_session_marks &amp;lt;- rnorm(n_students, second_session_marks.mu, sigma)
+students$second_session_marks.mu &amp;lt;- beta_0 + beta_1*students$aptitude*marks_sd + beta_2*students$tutored
+students$second_session_marks &amp;lt;- rnorm(n_students, students$second_session_marks.mu, sigma)
+
+#Once again, it is possible that some values could have fallen off the scale, and this is one simple way to fix that:
+students$second_session_marks[students$second_session_marks &amp;gt; 100] &amp;lt;- 100
+students$second_session_marks[students$second_session_marks &amp;lt; 0] &amp;lt;- 0
 
 
-hist(second_session_marks)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
-&lt;p&gt;Plot the first and second session marks, coloured by whether tutoring was accepted.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;tutored.f &amp;lt;- factor(tutored, levels = c(0,1))
-plot(first_session_marks, second_session_marks, col = tutored.f)&lt;/code&gt;&lt;/pre&gt;
+hist(students$second_session_marks, breaks = 15)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-5-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Plot the first and second session marks, coloured by whether tutoring was accepted.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;plot(students$first_session_marks, students$second_session_marks, col = factor(students$tutored, levels = c(0,1)))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, fit a regression model that looks just like the one used to create the data.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;regression_model &amp;lt;- lm(second_session_marks ~ 1 + first_session_marks + tutored)
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;regression_model &amp;lt;- lm(second_session_marks ~ 1 + first_session_marks + tutored, data = students)
 summary(regression_model)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## 
 ## Call:
 ## lm(formula = second_session_marks ~ 1 + first_session_marks + 
-##     tutored)
+##     tutored, data = students)
 ## 
 ## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -16.7165  -3.6281   0.1935   3.5529  17.6140 
+##     Min      1Q  Median      3Q     Max 
+## -9.6009 -1.8214 -0.0217  1.9152  6.8597 
 ## 
 ## Coefficients:
 ##                     Estimate Std. Error t value Pr(&amp;gt;|t|)    
-## (Intercept)          1.58472    1.12579   1.408  0.15986    
-## first_session_marks  0.90359    0.01796  50.305  &amp;lt; 2e-16 ***
-## tutored              2.50125    0.89768   2.786  0.00553 ** 
+## (Intercept)          5.12799    0.70304   7.294 1.20e-12 ***
+## first_session_marks  0.88062    0.01129  77.996  &amp;lt; 2e-16 ***
+## tutored              3.19887    0.44480   7.192 2.37e-12 ***
 ## ---
 ## Signif. codes:  0 &amp;#39;***&amp;#39; 0.001 &amp;#39;**&amp;#39; 0.01 &amp;#39;*&amp;#39; 0.05 &amp;#39;.&amp;#39; 0.1 &amp;#39; &amp;#39; 1
 ## 
-## Residual standard error: 5.147 on 497 degrees of freedom
-## Multiple R-squared:  0.8683, Adjusted R-squared:  0.8677 
-## F-statistic:  1638 on 2 and 497 DF,  p-value: &amp;lt; 2.2e-16&lt;/code&gt;&lt;/pre&gt;
+## Residual standard error: 2.717 on 497 degrees of freedom
+## Multiple R-squared:  0.9323, Adjusted R-squared:  0.932 
+## F-statistic:  3421 on 2 and 497 DF,  p-value: &amp;lt; 2.2e-16&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt; &lt;/p&gt;
-&lt;p&gt;The model has retrieved the simuation parameters quite nicely - no surprise, they are a lot less noisy than real data, all relevant variables have been included, and the effect size is appreciable and consistent.&lt;/p&gt;
+&lt;p&gt;Note that we are now regressing against first session marks as a measure of the underlying aptitude from which the marks were drawn. Nonetheless, the model has retrieved fairly reasonable estimates for the coefficients - no surprise, they are a less noisy than real data, all relevant variables have been included, and the effect size is appreciable and consistent.&lt;/p&gt;
+&lt;p&gt;An interesting point to note here is that some of the students who were offered tutoring may have received that offer because they were unlucky in first session and got marks a bit lower than what would be expected for their aptitude. In the second session, these students could be expected to get better marks regardless of being tutored - this is called regression to the mean.&lt;/p&gt;
 &lt;p&gt; &lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;power-analysis-by-simulation&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;Power analysis by simulation&lt;/h3&gt;
 &lt;p&gt;A good idea before doing a study like this is to calculate its power - the probability of rejecting the null hypothesis when the null hypothesis is false (at a given significance level). This calculation can either help us to decide how many study subjects are needed to reach a desired power level, or if we are unable to increase the number of study subjects it can at least give us a realistic appreciation for the power of our study. There is a nice illustration of the concept of power in &lt;a href=&#34;http://rpsychologist.com/d3/NHST/&#34;&gt;this post&lt;/a&gt; by Kristoffer Magnusson.&lt;/p&gt;
 &lt;p&gt;The simulation below uses a simpler model to decide which students receive tutoring - for the bottom 100 students, each has a 50% chance of accepting tutoring (up to a maximum of 50 tutoring places). We can use this to find the power for an estimated effect size, or to find the minimum effect size needed to achieve a given power. By replicating the above simulation thousands of times, we can quantify the fraction for which the p-value of the beta_3 coefficient was below the significance level. It is important to note that the effect size here is measured in units of marks, whereas effect sizes are often put into standard units by dividing by the standard deviation.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;power_simulation &amp;lt;- function(n_tutored = 50, n_untutored = 450, beta3, sigma_secondsession, beta0 = 2, beta1 = 0.9){
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;invlogit &amp;lt;- function(x){1/(1+exp(-x))}
+
+logit &amp;lt;- function(x){log(x/(1-x))}
+
+power_simulation &amp;lt;- function(n_tutored = 50, n_untutored = 450, beta3, sigma_secondsession, beta0 = 58, beta1 = 0.9){
   nstudents &amp;lt;- n_tutored + n_untutored 
-  first_session &amp;lt;- sort(100*invlogit(rnorm(nstudents, logit(60/100), 0.7)))  
-  second_session &amp;lt;- beta0 + beta1*first_session + rnorm(nstudents, 0, sigma_secondsession)
+  aptitude &amp;lt;- sort(rnorm(nstudents, 0, 1))
+  aptitude_markscale &amp;lt;- meanmark + aptitude*marks_sd
+  first_session &amp;lt;- rnorm(nstudents, aptitude_markscale, 2)
+  second_session &amp;lt;- beta0 + beta1*aptitude*marks_sd + rnorm(nstudents, 0, sigma_secondsession)
   tutored.indices &amp;lt;- sample(seq(1,n_tutored*2), n_tutored)
   tutored &amp;lt;- rep(0, nstudents)
   tutored[tutored.indices] &amp;lt;- 1
+  #second_session &amp;lt;- second_session[order(first_session)]
   second_session[tutored.indices] &amp;lt;- second_session[tutored.indices] + beta3
   lmod &amp;lt;- summary(lm(second_session ~ first_session + tutored))
   return(lmod$coefficients[3,4]) #The pvalue for the beta3 estimate.
 }
 
 
-pvals &amp;lt;- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, beta3 = 2.4, sigma_secondsession = 5))
+pvals &amp;lt;- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, beta3 = 2.4, sigma_secondsession = 2))
 
 mean(pvals &amp;lt;= 0.05)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 0.7948&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;So, we have a calculated power of 0.8. It is also interesting to look at the distribution of these p-values, in the logit scale.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 0.9835&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;So, we have a calculated power of 1. It is also interesting to look at the distribution of these p-values, in the logit scale.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;hist(logit(pvals),breaks = 50)
 abline(v = logit(0.05), col = &amp;quot;red&amp;quot;) #The vertical line is at p = 0.05&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Why is the distribution shaped in this particular way? I don’t know - I will have to read up on this.&lt;/p&gt;
 &lt;p&gt; &lt;/p&gt;
 &lt;/div&gt;
