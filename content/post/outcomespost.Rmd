@@ -143,23 +143,22 @@ invlogit <- function(x){1/(1+exp(-x))}
 
 logit <- function(x){log(x/(1-x))}
 
-power_simulation <- function(n_tutored = 50, n_untutored = 450, beta3, sigma_secondsession, beta0 = 58, beta1 = 0.9){
+power_simulation <- function(n_tutored = 50, n_untutored = 450, tutoring_effect, sigma_secondsession, beta0 = 58, beta1 = 0.9, marks_sd = 12){
   nstudents <- n_tutored + n_untutored 
   aptitude <- sort(rnorm(nstudents, 0, 1))
-  aptitude_markscale <- meanmark + aptitude*marks_sd
-  first_session <- rnorm(nstudents, aptitude_markscale, 2)
-  second_session <- beta0 + beta1*aptitude*marks_sd + rnorm(nstudents, 0, sigma_secondsession)
+  students <- data.frame(aptitude)
+  students$first_session <- rnorm(nstudents, students$aptitude*marks_sd + 60, 2)
+  students <- students[order(students$first_session),]
   tutored.indices <- sample(seq(1,n_tutored*2), n_tutored)
   tutored <- rep(0, nstudents)
   tutored[tutored.indices] <- 1
-  #second_session <- second_session[order(first_session)]
-  second_session[tutored.indices] <- second_session[tutored.indices] + beta3
-  lmod <- summary(lm(second_session ~ first_session + tutored))
-  return(lmod$coefficients[3,4]) #The pvalue for the beta3 estimate.
+  students$tutored <- tutored
+  students$second_session <- rnorm(nstudents, beta0 + beta1*aptitude*marks_sd + tutoring_effect*students$tutored, sigma_secondsession)
+  lmod <- summary(lm(second_session ~ first_session + tutored, data = students))
+  return(lmod$coefficients[3,4]) #The pvalue for the tutoring_effect estimate.
 }
 
-
-pvals <- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, beta3 = 2.4, sigma_secondsession = 2))
+pvals <- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, tutoring_effect = 1, sigma_secondsession = 2))
 
 mean(pvals <= 0.05)
 
@@ -167,7 +166,7 @@ mean(pvals <= 0.05)
 ```
 
 
-So, we have a calculated power of `r round(mean(pvals <= 0.05),1)`. It is also interesting to look at the distribution of these p-values, in the logit scale.
+So, we have a calculated power of `r round(mean(pvals <= 0.05),1)` for an effect of +1 mark. It is also interesting to look at the distribution of these p-values, in the logit scale.
 
 ```{r}
 hist(logit(pvals),breaks = 50)
