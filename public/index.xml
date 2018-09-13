@@ -82,13 +82,13 @@ hist(students$second_session_marks, breaks = 15)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Plot the first and second session marks, coloured by whether tutoring was accepted.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;plot(students$first_session_marks, students$second_session_marks, col = factor(students$tutored, levels = c(0,1)))&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
-&lt;p&gt;Students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, fit a regression model that looks just like the one used to create the data.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;regression_model &amp;lt;- lm(second_session_marks ~ 1 + first_session_marks + tutored, data = students)
+&lt;p&gt;Students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, fit a linear regression, with a term for the tutoring effect. Students who were tutored have a value of 1 for the variable ‘tutored’, while those who weren’t tutored have a value of 0, so any coefficient on this variable is essentially an intercept term.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;regression_model &amp;lt;- lm(second_session_marks ~ first_session_marks + tutored, data = students)
 summary(regression_model)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## 
 ## Call:
-## lm(formula = second_session_marks ~ 1 + first_session_marks + 
-##     tutored, data = students)
+## lm(formula = second_session_marks ~ first_session_marks + tutored, 
+##     data = students)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 

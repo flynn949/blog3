@@ -111,10 +111,10 @@ plot(students$first_session_marks, students$second_session_marks, col = factor(s
 
 ```
 
-Students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, fit a regression model that looks just like the one used to create the data.
+Students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, fit a linear regression, with a term for the tutoring effect. Students who were tutored have a value of 1 for the variable 'tutored', while those who weren't tutored have a value of 0, so any coefficient on this variable is essentially an intercept term.
 
 ```{r}
-regression_model <- lm(second_session_marks ~ 1 + first_session_marks + tutored, data = students)
+regression_model <- lm(second_session_marks ~ first_session_marks + tutored, data = students)
 summary(regression_model)
 ```
 
