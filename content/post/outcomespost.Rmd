@@ -106,7 +106,10 @@ The model has retrieved the simuation parameters quite nicely - no surprise, the
 
 ### Power analysis by simulation
 
-A simplified version of the above simulation will be used to calculate the power by simulation. This uses a simpler model for which students receive tutoring - for the bottom 100 students, each has a 50% chance of accepting tutoring (up to a maximum of 50 tutoring places). We can use this to find the power for an estimated effect size, or to find the minimum effect size needed to achieve a given power. By replicating the above simulation thousands of times, we can quantify the fraction for which the p-value of the beta_3 coefficient was below the significance level.
+A good idea before doing a study like this is to calculte its power - the probability of rejecting the null hypothesis when teh null hypothesis is false (at a given significance level). This calculation can either help us to decide how many study subjects are needed to reach a desired power level, or if we are unable to increase the number of study subjects it can at least give us a realistic appreciation for the power of our study.
+
+
+This uses a simpler model for which students receive tutoring - for the bottom 100 students, each has a 50% chance of accepting tutoring (up to a maximum of 50 tutoring places). We can use this to find the power for an estimated effect size, or to find the minimum effect size needed to achieve a given power. By replicating the above simulation thousands of times, we can quantify the fraction for which the p-value of the beta_3 coefficient was below the significance level.
 
 
 
