@@ -47,7 +47,7 @@ luck <- 2
 
 students$first_session_marks <- rnorm(n_students, students$aptitude*marks_sd + meanmark, luck)
 
-#It is possible for soem values to fall off the scale.
+#It is possible for some values to fall off the scale.
 students$first_session_marks[students$first_session_marks > 100] <- 100
 students$first_session_marks[students$first_session_marks < 0] <- 0
 
@@ -80,7 +80,7 @@ sum(tutored)
 
 ```
 
-Now simulate second session marks. These will also be based on students' underlying aptitude, and will be similar to the first session marks, but because the courses have changed, there may be a different overall mean and scaling of marks with respect to to aptitude. To keep things simple (and unrealistic), students' underlying aptitude has not changed. In this model,there is an intercept term that adds a small value to the aptitude, a slope term that scales the mark with respect to aptitude, and another interept term for the effect associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student $i$ we have:
+Now simulate second session marks. These will also be based on students' underlying aptitude, and will be similar to the first session marks, but because the courses have changed there may be a different overall mean and scaling of marks with respect to to aptitude. To keep things simple (and unrealistic), students' underlying aptitude has not changed. In this model, there is an intercept term that gives the average (untutored) mark, a slope term that scales the mark with respect to aptitude, and another interept term for the effect associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student $i$ we have:
 
 $$\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{aptitude}_i + \beta_2\text{Tutored}_i $$
 Define the parameters, and generate the second session marks according to the model. Here, we have very ambitiously assumed that tutoring increases students marks (or perhaps their aptitude) by 3 points.
