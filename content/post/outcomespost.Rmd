@@ -83,7 +83,7 @@ sum(tutored)
 Now simulate second session marks. These will also be based on students' underlying aptitude, and will be similar to the first session marks, but because the courses have changed there may be a different overall mean and scaling of marks with respect to to aptitude. To keep things simple (and unrealistic), students' underlying aptitude has not changed. In this model, there is an intercept term that gives the average (untutored) mark, a slope term that scales the mark with respect to aptitude, and another interept term for the effect associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student $i$ we have:
 
 $$\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{aptitude}_i + \beta_2\text{Tutored}_i $$
-Define the parameters, and generate the second session marks according to the model. Here, we have very ambitiously assumed that tutoring increases students marks (or perhaps their aptitude) by 3 points.
+Define the parameters, and generate the second session marks according to the model. Here, we have very ambitiously assumed that tutoring increases students marks (to say nothing of whether it changes their aptitude) by 3 points.
 
 ```{r}
 beta_0 <- 58 #This is the mean mark in second session for untutored students
@@ -133,7 +133,7 @@ A good idea before doing a study like this is to calculate its power - the proba
 
 
 
-The simulation below uses a simpler model to decide which students receive tutoring - for the bottom 100 students, each has a 50% chance of accepting tutoring (up to a maximum of 50 tutoring places). We can use this to find the power for an estimated effect size, or to find the minimum effect size needed to achieve a given power. By replicating the above simulation thousands of times, we can quantify the fraction for which the p-value of the beta_3 coefficient was below the significance level. It is important to note that the effect size here is measured in units of marks, whereas effect sizes are often put into standard units by dividing by the standard deviation.
+We can use this simulation to find the power for an estimated effect size, or to find the minimum effect size needed to achieve a given power. By replicating the above simulation thousands of times, we can quantify the fraction for which the p-value of the beta_3 coefficient was below the significance level. It is important to note that the effect size here is measured in units of marks, whereas effect sizes are often put into standard units by dividing by the standard deviation. The power simulation uses a simpler model to decide which students receive tutoring - for the bottom 100 students, each has a 50% chance of accepting tutoring (up to a maximum of 50 tutoring places). This mimics a situation in which we have no model for who is more likely to accept tutoring. The results of this power analysis could therefore mislead us.
 
 
 
