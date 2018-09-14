@@ -139,7 +139,7 @@ We can use this simulation to find the power for an estimated effect size, or to
 
 ```{r}
 
-power_simulation <- function(n_tutored = 50, n_untutored = 450, tutoring_effect, sigma_secondsession, beta0 = 58, beta1 = 0.9, marks_sd = 12){
+power_simulation <- function(n_tutored = 50, n_untutored = 450, tutoring_effect, sigma_secondsession, beta0 = 58, beta1 = 0.9, marks_sd = 12, method = "pval"){
   #Assign aptitude scores and generate first session marks
   nstudents <- n_tutored + n_untutored 
   aptitude <- rnorm(nstudents, 0, 1)
@@ -152,21 +152,31 @@ power_simulation <- function(n_tutored = 50, n_untutored = 450, tutoring_effect,
   tutored[tutored.indices] <- 1
   students$tutored <- tutored
   #Generate second session marks from aptitude, with a bump in marks for those who were tutored
-  students$second_session <- rnorm(nstudents, beta0 + beta1*aptitude*marks_sd + tutoring_effect*students$tutored, sigma_secondsession)
+  students$second_session <- rnorm(nstudents, beta0 + beta1*students$aptitude*marks_sd + tutoring_effect*students$tutored, sigma_secondsession)
   #Fit  a linear regression to get the p-value on the tutoring effect estimate.
   lmod <- summary(lm(second_session ~ first_session + tutored, data = students))
-  return(lmod$coefficients[3,4]) #The pvalue for the tutoring_effect estimate.
+  if (method == "pval"){return(lmod$coefficients[3,4]) #The pvalue for the tutoring_effect estimate.
+    #An option to return the coefficient value only if it is significant.
+  } else if (method == "coeff" & lmod$coefficients[3,4] < 0.05){return(lmod$coefficients[3,1])
+  } else if (method == "coeff" & lmod$coefficients[3,4] >= 0.05){return(NA)}
 }
 
 pvals <- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, tutoring_effect = 1, sigma_secondsession = 2))
 
-mean(pvals <= 0.05)
+mean(pvals < 0.05)
 
 
 ```
 
 
-So, we have a calculated power of `r round(mean(pvals <= 0.05),1)` when there is an effect of +1 mark. Note that it is *possible* some of the p-values below 0.05 are actually associated with simulations where the tutoring effect was negative. Many could also be associated with simulations where the tutoring effect estimate, though statistically significant, may be very small, all it  needs to be is consistent and nonzero to get a small p-value. 
+So, we have a calculated power of `r round(mean(pvals <= 0.05),1)` when there is an effect of +1 mark. The histogram below shows values of the coefficent for all simulations in which the p-value was below 0.05. Estimates range between 1 and 2 marks. In a noisier simulation, or one with a smaller effect size, the tutoring estimate could possibly even come out as both negative *and* statistically significant.
+
+```{r}
+tutoring_effects <- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, tutoring_effect = 1, sigma_secondsession = 2, method = "coeff"))
+
+hist(tutoring_effects)
+```
+
 
 \ 
 

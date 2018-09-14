@@ -114,7 +114,7 @@ summary(regression_model)&lt;/code&gt;&lt;/pre&gt;
 &lt;h3&gt;Power analysis by simulation&lt;/h3&gt;
 &lt;p&gt;A good idea before doing a study like this is to calculate its power - the probability of rejecting the null hypothesis when the null hypothesis is false (at a given significance level). This calculation can either help us to decide how many study subjects are needed to reach a desired power level, or if we are unable to increase the number of study subjects it can at least give us a realistic appreciation for the power of our study. There is a nice illustration of the concept of power in &lt;a href=&#34;http://rpsychologist.com/d3/NHST/&#34;&gt;this post&lt;/a&gt; by Kristoffer Magnusson.&lt;/p&gt;
 &lt;p&gt;We can use this simulation to find the power for an estimated effect size, or to find the minimum effect size needed to achieve a given power. By replicating the above simulation thousands of times, we can quantify the fraction for which the p-value of the tutoring effect coefficient was below the significance level. It is important to note that the effect size here is measured in units of marks, whereas effect sizes are often put into standard units by dividing by the standard deviation. The power simulation uses a simpler model to decide which students receive tutoring - for the bottom 100 students, each has a 50% chance of accepting tutoring (up to a maximum of 50 tutoring places). This mimics a situation in which we have no model for who is more likely to accept tutoring. The results of this power analysis could therefore mislead us.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;power_simulation &amp;lt;- function(n_tutored = 50, n_untutored = 450, tutoring_effect, sigma_secondsession, beta0 = 58, beta1 = 0.9, marks_sd = 12){
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;power_simulation &amp;lt;- function(n_tutored = 50, n_untutored = 450, tutoring_effect, sigma_secondsession, beta0 = 58, beta1 = 0.9, marks_sd = 12, method = &amp;quot;pval&amp;quot;){
   #Assign aptitude scores and generate first session marks
   nstudents &amp;lt;- n_tutored + n_untutored 
   aptitude &amp;lt;- rnorm(nstudents, 0, 1)
@@ -127,17 +127,24 @@ summary(regression_model)&lt;/code&gt;&lt;/pre&gt;
   tutored[tutored.indices] &amp;lt;- 1
   students$tutored &amp;lt;- tutored
   #Generate second session marks from aptitude, with a bump in marks for those who were tutored
-  students$second_session &amp;lt;- rnorm(nstudents, beta0 + beta1*aptitude*marks_sd + tutoring_effect*students$tutored, sigma_secondsession)
+  students$second_session &amp;lt;- rnorm(nstudents, beta0 + beta1*students$aptitude*marks_sd + tutoring_effect*students$tutored, sigma_secondsession)
   #Fit  a linear regression to get the p-value on the tutoring effect estimate.
   lmod &amp;lt;- summary(lm(second_session ~ first_session + tutored, data = students))
-  return(lmod$coefficients[3,4]) #The pvalue for the tutoring_effect estimate.
+  if (method == &amp;quot;pval&amp;quot;){return(lmod$coefficients[3,4]) #The pvalue for the tutoring_effect estimate.
+    #An option to return the coefficient value only if it is significant.
+  } else if (method == &amp;quot;coeff&amp;quot; &amp;amp; lmod$coefficients[3,4] &amp;lt; 0.05){return(lmod$coefficients[3,1])
+  } else if (method == &amp;quot;coeff&amp;quot; &amp;amp; lmod$coefficients[3,4] &amp;gt;= 0.05){return(NA)}
 }
 
 pvals &amp;lt;- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, tutoring_effect = 1, sigma_secondsession = 2))
 
-mean(pvals &amp;lt;= 0.05)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 0.0825&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;So, we have a calculated power of 0.1 when there is an effect of +1 mark. Note that it is &lt;em&gt;possible&lt;/em&gt; some of the p-values below 0.05 are actually associated with simulations where the tutoring effect was negative. Many could also be associated with simulations where the tutoring effect estimate, though statistically significant, may be very small, all it needs to be is consistent and nonzero to get a small p-value.&lt;/p&gt;
+mean(pvals &amp;lt; 0.05)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 0.6001&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;So, we have a calculated power of 0.6 when there is an effect of +1 mark. The histogram below shows values of the coefficent for all simulations in which the p-value was below 0.05. Estimates range between 1 and 2 marks. In a noisier simulation, or one with a smaller effect size, the tutoring estimate could possibly even come out as both negative &lt;em&gt;and&lt;/em&gt; statistically significant.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;tutoring_effects &amp;lt;- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, tutoring_effect = 1, sigma_secondsession = 2, method = &amp;quot;coeff&amp;quot;))
+
+hist(tutoring_effects)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt; &lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;concluding-remarks&#34; class=&#34;section level3&#34;&gt;
