@@ -225,7 +225,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    8 min read
+    9 min read
   </span>
   
 
@@ -405,12 +405,19 @@ summary(regression_model)</code></pre>
   } else if (method == &quot;coeff&quot; &amp; lmod$coefficients[3,4] &gt;= 0.05){return(NA)}
 }
 
-pvals &lt;- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, tutoring_effect = 1, sigma_secondsession = 2))
+pvals &lt;- replicate(10000, power_simulation(n_tutored = 50, 
+                                           n_untutored = 450, 
+                                           tutoring_effect = 1, 
+                                           sigma_secondsession = 2))
 
 mean(pvals &lt; 0.05)</code></pre>
 <pre><code>## [1] 0.6001</code></pre>
-<p>So, we have a calculated power of 0.6 when there is an effect of +1 mark. The histogram below shows values of the coefficent for all simulations in which the p-value was below 0.05. Estimates range between 1 and 2 marks. In a noisier simulation, or one with a smaller effect size, the tutoring estimate could possibly even come out as both negative <em>and</em> statistically significant.</p>
-<pre class="r"><code>tutoring_effects &lt;- replicate(10000, power_simulation(n_tutored = 50, n_untutored = 450, tutoring_effect = 1, sigma_secondsession = 2, method = &quot;coeff&quot;))
+<p>So, we have a calculated power of 0.6 when there is an effect of +1 mark. The histogram below shows values of the coefficent for all simulations in which the p-value was below 0.05. Surprisingly, the true value of 1 is at the lower end of the range here. Selecting for only the statistically significant values has selected for those with inflated estimates, and the regression to the mean problem mentioned earlier is probably also making a contribution. Estimates range between 1 and 2 marks. In a noisier simulation, or one with a smaller effect size, the tutoring estimate could possibly even come out as both negative <em>and</em> statistically significant.</p>
+<pre class="r"><code>tutoring_effects &lt;- replicate(10000, power_simulation(n_tutored = 50, 
+                                                      n_untutored = 450, 
+                                                      tutoring_effect = 1, 
+                                                      sigma_secondsession = 2, 
+                                                      method = &quot;coeff&quot;))
 
 hist(tutoring_effects)</code></pre>
 <p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
