@@ -172,7 +172,7 @@ mean(pvals < 0.05)
 ```
 
 
-So, we have a calculated power of `r round(mean(pvals <= 0.05),1)` when there is an effect of +1 mark. The histogram below shows values of the coefficent for all simulations in which the p-value was below 0.05. Surprisingly, the true value of 1 is at the lower end of the range here. Selecting for only the statistically significant values has selected for those with inflated estimates, and the regression to the mean problem mentioned earlier is probably also making a contribution. Estimates range between 1 and 2 marks. In a noisier simulation, or one with a smaller effect size, the tutoring estimate could possibly even come out as both negative *and* statistically significant. 
+So, we have a calculated power of `r round(mean(pvals <= 0.05),1)` when there is an effect of +1 mark. The histogram below shows values of the coefficent for all simulations in which the p-value was below 0.05. Surprisingly, the true value of 1 is at the lower end of the range here. Selecting for only the statistically significant values has selected for those with inflated estimates, and the regression to the mean problem mentioned earlier is probably also making a contribution. In a noisier simulation, or one with a smaller effect size, the tutoring estimate could possibly even come out as both negative *and* statistically significant. 
 
 ```{r}
 tutoring_effects <- replicate(10000, power_simulation(n_tutored = 50, 
