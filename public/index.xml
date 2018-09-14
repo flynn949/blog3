@@ -770,7 +770,7 @@ sum(centre_f.all &amp;lt; centre_e.all)/length(centre_f.all)&lt;/code&gt;&lt;/pr
       <pubDate>Mon, 01 Jan 2018 00:00:00 +1100</pubDate>
       
       <guid>/publication/change-points/</guid>
-      <description>&lt;p&gt;More detail can easily be written here using &lt;em&gt;Markdown&lt;/em&gt; and $\rm \LaTeX$ math code.&lt;/p&gt;
+      <description>&lt;p&gt;#More detail can easily be written here using &lt;em&gt;Markdown&lt;/em&gt; and $\rm \LaTeX$ math code.&lt;/p&gt;
 </description>
     </item>
     

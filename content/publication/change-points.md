@@ -70,4 +70,4 @@ caption = "An example of multiple change point detection"
 
 +++
 
-More detail can easily be written here using *Markdown* and $\rm \LaTeX$ math code.
+#More detail can easily be written here using *Markdown* and $\rm \LaTeX$ math code.
