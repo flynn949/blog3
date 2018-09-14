@@ -140,16 +140,20 @@ We can use this simulation to find the power for an estimated effect size, or to
 ```{r}
 
 power_simulation <- function(n_tutored = 50, n_untutored = 450, tutoring_effect, sigma_secondsession, beta0 = 58, beta1 = 0.9, marks_sd = 12){
+  #Assign aptitude scores and generate first session marks
   nstudents <- n_tutored + n_untutored 
-  aptitude <- sort(rnorm(nstudents, 0, 1))
+  aptitude <- rnorm(nstudents, 0, 1)
   students <- data.frame(aptitude)
   students$first_session <- rnorm(nstudents, students$aptitude*marks_sd + 60, 2)
   students <- students[order(students$first_session),]
+  #Randomly assign tutoring to 50% of students in the bottom n_tutored*2 of first session marks.
   tutored.indices <- sample(seq(1,n_tutored*2), n_tutored)
   tutored <- rep(0, nstudents)
   tutored[tutored.indices] <- 1
   students$tutored <- tutored
+  #Generate second session marks from aptitude, with a bump in marks for those who were tutored
   students$second_session <- rnorm(nstudents, beta0 + beta1*aptitude*marks_sd + tutoring_effect*students$tutored, sigma_secondsession)
+  #Fit  a linear regression to get the p-value on the tutoring effect estimate.
   lmod <- summary(lm(second_session ~ first_session + tutored, data = students))
   return(lmod$coefficients[3,4]) #The pvalue for the tutoring_effect estimate.
 }
@@ -162,16 +166,7 @@ mean(pvals <= 0.05)
 ```
 
 
-So, we have a calculated power of `r round(mean(pvals <= 0.05),1)` for an effect of +1 mark. It is also interesting to look at the distribution of these p-values, in the logit scale.
-
-```{r}
-
-logit <- function(x){log(x/(1-x))}
-hist(logit(pvals),breaks = 50)
-abline(v = logit(0.05), col = "red") #The vertical line is at p = 0.05
-```
-
-Why is the distribution shaped in this particular way? I don't know - I will have to read up on this.
+So, we have a calculated power of `r round(mean(pvals <= 0.05),1)` when there is an effect of +1 mark. Note that it is *possible* some of the p-values below 0.05 are actually associated with simulations where the tutoring effect was negative. Many could also be associated with simulations where the tutoring effect estimate, though statistically significant, may be very small, all it  needs to be is consistent and nonzero to get a small p-value. 
 
 \ 
 
