@@ -20,7 +20,7 @@
 &lt;p&gt;Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post.&lt;/p&gt;
 &lt;div id=&#34;simulation&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;Simulation&lt;/h3&gt;
-&lt;p&gt;Start with the basic parameters and something latent, let’s call it aptitude, which for simplicity’s sake will be the only thing (besides a bit of luck) that determines students’ marks. As a latent variable, the most appropriate scale for this is be a standard normal.&lt;/p&gt;
+&lt;p&gt;Start with the basic parameters and a latent variable we’ll call aptitude, which for simplicity’s sake will be the only thing (besides a bit of luck) that determines students’ marks. As a latent variable, the most appropriate scale for this is a standard normal, i.e. a normal distribution centred at zero with a standard deviation of one.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(42)
 n_students &amp;lt;- 500
 n_tutoring &amp;lt;- 50
