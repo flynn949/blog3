@@ -20,12 +20,11 @@
 &lt;p&gt;Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post.&lt;/p&gt;
 &lt;div id=&#34;simulation&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;Simulation&lt;/h3&gt;
-&lt;p&gt;Start with the basic parameters.&lt;/p&gt;
+&lt;p&gt;Start with the basic parameters and something latent, let’s call it aptitude, which for simplicity’s sake will be the only thing (besides a bit of luck) that determines students’ marks. As a latent variable, the most appropriate scale for this is be a standard normal.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(42)
 n_students &amp;lt;- 500
-n_tutoring &amp;lt;- 50&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Start with a latent parameter - let’s call it aptitude - which for simplicity’s sake will be the only thing (besides a bit of luck) that determines students’ marks. As a latent variable, the most appropriate scale for this would be a standard normal, but for convenience we will also put it on the same scale as marks.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;meanmark &amp;lt;- 60.0
+n_tutoring &amp;lt;- 50
+meanmark &amp;lt;- 60.0
 marks_sd &amp;lt;- 12.0
 
 
@@ -42,7 +41,7 @@ students$first_session_marks[students$first_session_marks &amp;lt; 0] &amp;lt;- 
 
 
 hist(students$first_session_marks, breaks = 15)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Now we start calling students to offer them tutoring, starting from those with the lowest first session marks. Here, the probability of a student accepting tutoring is 0.8 - first_session_mark/100, i.e. students with lower marks are more likely to accept tutoring.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;students &amp;lt;- students[order(students$first_session_marks),]
 
@@ -78,10 +77,10 @@ students$second_session_marks[students$second_session_marks &amp;lt; 0] &amp;lt;
 
 
 hist(students$second_session_marks, breaks = 15)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-5-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Plot the first and second session marks, coloured by whether tutoring was accepted.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;plot(students$first_session_marks, students$second_session_marks, col = factor(students$tutored, levels = c(0,1)))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-5-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, fit a linear regression, with a term for the tutoring effect. Students who were tutored have a value of 1 for the variable ‘tutored’, while those who weren’t tutored have a value of 0, so any coefficient on this variable is essentially an intercept term.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;regression_model &amp;lt;- lm(second_session_marks ~ first_session_marks + tutored, data = students)
 summary(regression_model)&lt;/code&gt;&lt;/pre&gt;
@@ -151,7 +150,7 @@ mean(pvals &amp;lt; 0.05)&lt;/code&gt;&lt;/pre&gt;
                                                       method = &amp;quot;coeff&amp;quot;))
 
 hist(tutoring_effects)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt; &lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;concluding-remarks&#34; class=&#34;section level3&#34;&gt;

@@ -225,7 +225,7 @@
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    9 min read
+    8 min read
   </span>
   
 
@@ -289,12 +289,11 @@
 <p>Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post.</p>
 <div id="simulation" class="section level3">
 <h3>Simulation</h3>
-<p>Start with the basic parameters.</p>
+<p>Start with the basic parameters and something latent, let’s call it aptitude, which for simplicity’s sake will be the only thing (besides a bit of luck) that determines students’ marks. As a latent variable, the most appropriate scale for this is be a standard normal.</p>
 <pre class="r"><code>set.seed(42)
 n_students &lt;- 500
-n_tutoring &lt;- 50</code></pre>
-<p>Start with a latent parameter - let’s call it aptitude - which for simplicity’s sake will be the only thing (besides a bit of luck) that determines students’ marks. As a latent variable, the most appropriate scale for this would be a standard normal, but for convenience we will also put it on the same scale as marks.</p>
-<pre class="r"><code>meanmark &lt;- 60.0
+n_tutoring &lt;- 50
+meanmark &lt;- 60.0
 marks_sd &lt;- 12.0
 
 
@@ -311,7 +310,7 @@ students$first_session_marks[students$first_session_marks &lt; 0] &lt;- 0
 
 
 hist(students$first_session_marks, breaks = 15)</code></pre>
-<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 <p>Now we start calling students to offer them tutoring, starting from those with the lowest first session marks. Here, the probability of a student accepting tutoring is 0.8 - first_session_mark/100, i.e. students with lower marks are more likely to accept tutoring.</p>
 <pre class="r"><code>students &lt;- students[order(students$first_session_marks),]
 
@@ -347,10 +346,10 @@ students$second_session_marks[students$second_session_marks &lt; 0] &lt;- 0
 
 
 hist(students$second_session_marks, breaks = 15)</code></pre>
-<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 <p>Plot the first and second session marks, coloured by whether tutoring was accepted.</p>
 <pre class="r"><code>plot(students$first_session_marks, students$second_session_marks, col = factor(students$tutored, levels = c(0,1)))</code></pre>
-<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p>Students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, fit a linear regression, with a term for the tutoring effect. Students who were tutored have a value of 1 for the variable ‘tutored’, while those who weren’t tutored have a value of 0, so any coefficient on this variable is essentially an intercept term.</p>
 <pre class="r"><code>regression_model &lt;- lm(second_session_marks ~ first_session_marks + tutored, data = students)
 summary(regression_model)</code></pre>
@@ -420,7 +419,7 @@ mean(pvals &lt; 0.05)</code></pre>
                                                       method = &quot;coeff&quot;))
 
 hist(tutoring_effects)</code></pre>
-<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p> </p>
 </div>
 <div id="concluding-remarks" class="section level3">
