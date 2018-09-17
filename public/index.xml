@@ -155,7 +155,7 @@ pvals &amp;lt;- replicate(10000, power_simulation(n_tutored = 50,
 
 mean(pvals &amp;lt; 0.05)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 0.6001&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;So, we have a calculated power of 0.6 when there is an effect of +1 mark. The histogram below shows values of the coefficent for all simulations in which the p-value was below 0.05. Surprisingly, the true value of 1 is at the lower end of the range here. Selecting for only the statistically significant values has selected for those with inflated estimates, and the regression to the mean problem mentioned earlier is probably also making a contribution. In a noisier simulation, or one with a smaller effect size, the tutoring estimate could possibly even come out as both negative &lt;em&gt;and&lt;/em&gt; statistically significant.&lt;/p&gt;
+&lt;p&gt;So, we have a calculated power of 0.6 when there is an effect of +1 mark. The histogram below shows values of the coefficent for all simulations in which the p-value was below 0.05. Surprisingly, the true value of 1 is at the lower end of the range here. Selecting for only the statistically significant values has selected for those with inflated estimates, and the regression to the mean problem mentioned earlier is probably also making a contribution.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;tutoring_effects &amp;lt;- replicate(10000, power_simulation(n_tutored = 50, 
                                                       n_untutored = 450, 
                                                       tutoring_effect = 1, 
@@ -164,11 +164,26 @@ mean(pvals &amp;lt; 0.05)&lt;/code&gt;&lt;/pre&gt;
 
 hist(tutoring_effects)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;In a noisier simulation, or one with a smaller effect size, the tutoring estimate can even come out as both negative &lt;em&gt;and&lt;/em&gt; statistically significant. Because we don’t have the power to detect this effect, only the measured effects with a large absolute value turn out to be statistically significant. If we did a study under these conditions we would end up with one of the following situations:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;No significant effect (type II error)&lt;/li&gt;
+&lt;li&gt;Significant effect of inflated magnitude and correct sign (type M error).&lt;/li&gt;
+&lt;li&gt;Significant effect of inflated magnitude and incorrect sign (type M and type S error).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You can read more about type M and type S errors &lt;a href=&#34;http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf&#34;&gt;here&lt;/a&gt; (pdf).&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;small_noisy_tutoring_effects &amp;lt;- replicate(10000, power_simulation(n_tutored = 50, 
+                                                      n_untutored = 450, 
+                                                      tutoring_effect = 0.1, 
+                                                      sigma_secondsession = 6, 
+                                                      method = &amp;quot;coeff&amp;quot;))
+
+hist(small_noisy_tutoring_effects, breaks = 50)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt; &lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;concluding-remarks&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;Concluding remarks&lt;/h3&gt;
-&lt;p&gt;Going into a power analysis it is common to have a personal bias to thinking our effect size will be greater than it really is, and that the data are less noisy than they really are. Without going too much into the whys and wherefores of power analysis and null hypothesis significance testing, &lt;a href=&#34;http://www.stat.columbia.edu/~gelman/research/published/PPS551642_REV2.pdf&#34;&gt;it is good practice&lt;/a&gt; to use a conservative estimate of the effect size based on external information (e.g. prior studies). If we wanted to make a proper attempt at doing a power analysis for an experiment like the one described above, we would need to have reasonable estimates for the distributions of marks, and a measure of how well correlated these are for students from session-to-session, to figure out the relationship to the underlying aptitude. If we go a step further and take into account that individual students’ aptitudes can be on an upward or downard trajectory, it starts to get very complicated.&lt;/p&gt;
+&lt;p&gt;Going into a power analysis it is common to have a personal bias to thinking our effect size will be greater than it really is, and that the data are less noisy than they really are. Without going too much into the whys and wherefores of power analysis and null hypothesis significance testing, &lt;a href=&#34;http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf&#34;&gt;it is good practice&lt;/a&gt; (pdf) to use a conservative estimate of the effect size based on external information (e.g. prior studies). If we wanted to make a proper attempt at doing a power analysis for an experiment like the one described above, we would need to have reasonable estimates for the distributions of marks, and a measure of how well correlated these are for students from session-to-session, to figure out the relationship to the underlying aptitude. If we go a step further and take into account that individual students’ aptitudes can be on an upward or downard trajectory, it starts to get very complicated.&lt;/p&gt;
 &lt;p&gt; &lt;/p&gt;
 &lt;/div&gt;
 </description>
