@@ -111,9 +111,21 @@ regression_model <- lm(second_session_marks ~ first_session_marks + tutored, dat
 summary(regression_model)
 ```
 
+
 \  
 
 Note that we are now regressing against first session marks as a measure of the underlying aptitude from which the marks were drawn. Nonetheless, the model has retrieved fairly reasonable estimates for the coefficients - no surprise, they are a less noisy than real data, all relevant variables have been included, and the effect size is appreciable and consistent.
+
+
+Now that we can see that the coefficient on 'tutored' is non-zero with p < 0.05, we can also do an analysis of variance to see whether the reduction in the residual sum of squares caused by including the tutored variable is significant. For the purpose of assessing whether tutoring has an effect, this is not the statistic of interest. It can be useful, however, in situations like when we want to make a predictive model, and include all the variables that will have a noticeable effect.
+
+```{r}
+anova(regression_model)
+```
+
+Indeed it is.
+
+\  
 
 An interesting point to note here is that some of the students who were offered tutoring may have received that offer because they were unlucky in first session and got marks a bit lower than what would be expected for their aptitude. In the second session, these students could be expected to get better marks regardless of being tutored - this is called [regression to the mean](https://en.wikipedia.org/wiki/Regression_toward_the_mean), and could be very problematic for a study such as this one.
 

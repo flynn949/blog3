@@ -98,6 +98,19 @@ summary(regression_model)</code></pre>
 ## F-statistic:  3421 on 2 and 497 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p> </p>
 <p>Note that we are now regressing against first session marks as a measure of the underlying aptitude from which the marks were drawn. Nonetheless, the model has retrieved fairly reasonable estimates for the coefficients - no surprise, they are a less noisy than real data, all relevant variables have been included, and the effect size is appreciable and consistent.</p>
+<p>Now that we can see that the coefficient on ‘tutored’ is non-zero with p &lt; 0.05, we can also do an analysis of variance to see whether the reduction in the residual sum of squares caused by including the tutored variable is significant. For the purpose of assessing whether tutoring has an effect, this is not the statistic of interest. It can be useful, however, in situations like when we want to make a predictive model, and include all the variables that will have a noticeable effect.</p>
+<pre class="r"><code>anova(regression_model)</code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Response: second_session_marks
+##                      Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## first_session_marks   1  50109   50109 6789.46 &lt; 2.2e-16 ***
+## tutored               1    382     382   51.72 2.367e-12 ***
+## Residuals           497   3668       7                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>Indeed it is.</p>
+<p> </p>
 <p>An interesting point to note here is that some of the students who were offered tutoring may have received that offer because they were unlucky in first session and got marks a bit lower than what would be expected for their aptitude. In the second session, these students could be expected to get better marks regardless of being tutored - this is called <a href="https://en.wikipedia.org/wiki/Regression_toward_the_mean">regression to the mean</a>, and could be very problematic for a study such as this one.</p>
 <p> </p>
 </div>
@@ -142,7 +155,7 @@ mean(pvals &lt; 0.05)</code></pre>
                                                       method = &quot;coeff&quot;))
 
 hist(tutoring_effects)</code></pre>
-<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <p> </p>
 </div>
 <div id="concluding-remarks" class="section level3">
