@@ -73,7 +73,7 @@ hist(students$second_session_marks, breaks = 15)</code></pre>
 <p>Plot the first and second session marks, coloured by whether tutoring was accepted.</p>
 <pre class="r"><code>plot(students$first_session_marks, students$second_session_marks, col = factor(students$tutored, levels = c(0,1)))</code></pre>
 <p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
-<p>Students who received tutoring have had a small but appreciable bump in their marks compared with similar students who did not receive tutoring. To make this comparison, we should limit the range of the analysis. One way we could do this would be to use propensity scores. Propensity scores quantify the probability of a study subject choosing to receive the treatment, based on a range of relevant variables. In this case, the only variable we have at hand is first session marks, but typically we would also include age, sex, etc. To get the propensity score, we do a logistic regression of ‘tutored’ on first session marks.</p>
+<p>Students who received tutoring have had a small but appreciable bump in their marks compared with similar students who did not receive tutoring. To make this comparison, we should limit the range students included in the analysis. One way this is often done for observational studies such as this is by propensity scores. These quantify the probability of a study subject choosing to receive the treatment, based on a range of relevant variables. In this case, the only variable we have at hand is first session marks, but typically we would also include age, sex, etc. To get the propensity score, we do a logistic regression of ‘tutored’ on first session marks.</p>
 <pre class="r"><code>propmod &lt;- glm(tutored ~ first_session_marks, family = &quot;binomial&quot;, data = students)
 summary(propmod)</code></pre>
 <pre><code>## 
@@ -135,7 +135,7 @@ summary(regression_model)</code></pre>
 ## F-statistic: 330.9 on 2 and 151 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p> </p>
 <p>Note that we are now regressing against first session marks as a measure of the underlying aptitude from which the marks were drawn. Nonetheless, the model has retrieved fairly reasonable estimates for the coefficients - no surprise, they are a less noisy than real data, all relevant variables have been included, and the effect size is appreciable and consistent.</p>
-<p>Now that we can see that the coefficient on ‘tutored’ is non-zero with p &lt; 0.05, we can also do an analysis of variance to see whether the reduction in the residual sum of squares caused by including the tutored variable is significant. For the purpose of assessing whether tutoring has an effect, this is not the statistic of interest. It can be useful, however, in situations like when we want to make a predictive model, and include all the variables that will have a noticeable effect.</p>
+<p>Because we can see that the coefficient on ‘tutored’ is non-zero with p &lt; 0.05, we can also do an analysis of variance to see whether the reduction in the residual sum of squares caused by including the tutored variable is significant. For the purpose of assessing whether tutoring has an effect, this is not the statistic of interest. It can be useful, however, in situations like when we want to make a predictive model, and include all the variables that will have a noticeable effect.</p>
 <pre class="r"><code>anova(regression_model)</code></pre>
 <pre><code>## Analysis of Variance Table
 ## 
@@ -146,7 +146,7 @@ summary(regression_model)</code></pre>
 ## Residuals           151 1129.7     7.5                      
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>Indeed it is.</p>
+<p>Indeed, there is a significant reduction in the RSS by including ‘tutored’.</p>
 <p> </p>
 <p>An interesting point to note here is that some of the students who were offered tutoring may have received that offer because they were unlucky in first session and got marks a bit lower than what would be expected for their aptitude. In the second session, these students could be expected to get better marks regardless of being tutored - this is called <a href="https://en.wikipedia.org/wiki/Regression_toward_the_mean">regression to the mean</a>, and could be very problematic for a study such as this one.</p>
 <p> </p>

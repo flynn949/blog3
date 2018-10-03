@@ -104,7 +104,7 @@ plot(students$first_session_marks, students$second_session_marks, col = factor(s
 
 ```
 
-Students who received tutoring have had a small but appreciable bump in their marks compared with similar students who did not receive tutoring. To make this comparison, we should limit the range of the analysis. One way we could do this would be to use propensity scores. Propensity scores quantify the probability of a study subject choosing to receive the treatment, based on a range of relevant variables. In this case, the only variable we have at hand is first session marks, but typically we would also include age, sex, etc. To get the propensity score, we do a logistic regression of 'tutored' on first session marks.
+Students who received tutoring have had a small but appreciable bump in their marks compared with similar students who did not receive tutoring. To make this comparison, we should limit the range students included in the analysis. One way this is often done for observational studies such as this is by propensity scores. These quantify the probability of a study subject choosing to receive the treatment, based on a range of relevant variables. In this case, the only variable we have at hand is first session marks, but typically we would also include age, sex, etc. To get the propensity score, we do a logistic regression of 'tutored' on first session marks.
 
 
 ```{r}
@@ -151,13 +151,13 @@ summary(regression_model)
 Note that we are now regressing against first session marks as a measure of the underlying aptitude from which the marks were drawn. Nonetheless, the model has retrieved fairly reasonable estimates for the coefficients - no surprise, they are a less noisy than real data, all relevant variables have been included, and the effect size is appreciable and consistent.
 
 
-Now that we can see that the coefficient on 'tutored' is non-zero with p < 0.05, we can also do an analysis of variance to see whether the reduction in the residual sum of squares caused by including the tutored variable is significant. For the purpose of assessing whether tutoring has an effect, this is not the statistic of interest. It can be useful, however, in situations like when we want to make a predictive model, and include all the variables that will have a noticeable effect.
+Because we can see that the coefficient on 'tutored' is non-zero with p < 0.05, we can also do an analysis of variance to see whether the reduction in the residual sum of squares caused by including the tutored variable is significant. For the purpose of assessing whether tutoring has an effect, this is not the statistic of interest. It can be useful, however, in situations like when we want to make a predictive model, and include all the variables that will have a noticeable effect.
 
 ```{r}
 anova(regression_model)
 ```
 
-Indeed it is.
+Indeed, there is a significant reduction in the RSS by including 'tutored'.
 
 \  
 
