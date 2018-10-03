@@ -16,7 +16,7 @@
       <pubDate>Thu, 13 Sep 2018 00:00:00 +0000</pubDate>
       
       <guid>/post/outcomespost/</guid>
-      <description>&lt;p&gt;In this post, I will run through a simple experiment simulation using only base R, and demonstrate a way to do power analysis by using this simulation. Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!&lt;/p&gt;
+      <description>&lt;p&gt;In this post, I will run through a simple simulation using only base R, and demonstrate a way to do power analysis by using this simulation. Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!&lt;/p&gt;
 &lt;p&gt;Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post.&lt;/p&gt;
 &lt;div id=&#34;simulation&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;Simulation&lt;/h3&gt;
@@ -81,29 +81,66 @@ hist(students$second_session_marks, breaks = 15)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Plot the first and second session marks, coloured by whether tutoring was accepted.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;plot(students$first_session_marks, students$second_session_marks, col = factor(students$tutored, levels = c(0,1)))&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-5-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
-&lt;p&gt;Students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, fit a linear regression, with a term for the tutoring effect. Students who were tutored have a value of 1 for the variable ‘tutored’, while those who weren’t tutored have a value of 0, so any coefficient on this variable is essentially an intercept term.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;regression_model &amp;lt;- lm(second_session_marks ~ first_session_marks + tutored, data = students)
+&lt;p&gt;Students who received tutoring have had a small but appreciable bump in their marks compared with similar students who did not receive tutoring. To make this comparison, we should limit the range of the analysis. One way we could do this would be to use propensity scores. Propensity scores quantify the probability of a study subject choosing to receive the treatment, based on a range of relevant variables. In this case, the only variable we have at hand is first session marks, but typically we would also include age, sex, etc. To get the propensity score, we do a logistic regression of ‘tutored’ on first session marks.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;propmod &amp;lt;- glm(tutored ~ first_session_marks, family = &amp;quot;binomial&amp;quot;, data = students)
+summary(propmod)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## 
+## Call:
+## glm(formula = tutored ~ first_session_marks, family = &amp;quot;binomial&amp;quot;, 
+##     data = students)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.1293  -0.3683  -0.2233  -0.1008   2.2517  
+## 
+## Coefficients:
+##                     Estimate Std. Error z value Pr(&amp;gt;|z|)    
+## (Intercept)          6.30506    1.01662   6.202 5.58e-10 ***
+## first_session_marks -0.16147    0.02074  -7.785 6.96e-15 ***
+## ---
+## Signif. codes:  0 &amp;#39;***&amp;#39; 0.001 &amp;#39;**&amp;#39; 0.01 &amp;#39;*&amp;#39; 0.05 &amp;#39;.&amp;#39; 0.1 &amp;#39; &amp;#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 325.08  on 499  degrees of freedom
+## Residual deviance: 225.80  on 498  degrees of freedom
+## AIC: 229.8
+## 
+## Number of Fisher Scoring iterations: 6&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;As expected, lower first session marks equates to a greater probability of receiving tutoring. What was the lowest propensity score for a student who received tutoring?&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;students$propensity &amp;lt;- predict(propmod, newdata = students, type = &amp;quot;response&amp;quot;)
+
+
+(lowestpropensity &amp;lt;- min(students$propensity[students$tutored==1]))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 0.07925736&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We should include all non-tutored students with a propensity score of 0.079 or greater in the ‘control’ group. (Of course, given that the only predictor of propensity is first session mark, we could simply use that as the cut off, but here I want to demonstrate the basic process).&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;students.subset &amp;lt;- students[students$propensity &amp;gt;= lowestpropensity,]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;plot(students.subset$first_session_marks, students.subset$second_session_marks, 
+     col = factor(students.subset$tutored, levels = c(0,1)))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;To measure the bump in marks, fit a linear regression, with a term for the tutoring effect. Students who were tutored have a value of 1 for the variable ‘tutored’, while those who weren’t tutored have a value of 0, so any coefficient on this variable is essentially an intercept term.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;regression_model &amp;lt;- lm(second_session_marks ~ first_session_marks + tutored, data = students.subset)
 summary(regression_model)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## 
 ## Call:
 ## lm(formula = second_session_marks ~ first_session_marks + tutored, 
-##     data = students)
+##     data = students.subset)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -9.6009 -1.8214 -0.0217  1.9152  6.8597 
+## -9.7814 -1.8846  0.1392  2.0084  6.3410 
 ## 
 ## Coefficients:
 ##                     Estimate Std. Error t value Pr(&amp;gt;|t|)    
-## (Intercept)          5.12799    0.70304   7.294 1.20e-12 ***
-## first_session_marks  0.88062    0.01129  77.996  &amp;lt; 2e-16 ***
-## tutored              3.19887    0.44480   7.192 2.37e-12 ***
+## (Intercept)          2.69305    1.73438   1.553    0.123    
+## first_session_marks  0.93452    0.03659  25.543  &amp;lt; 2e-16 ***
+## tutored              3.21221    0.47583   6.751 2.96e-10 ***
 ## ---
 ## Signif. codes:  0 &amp;#39;***&amp;#39; 0.001 &amp;#39;**&amp;#39; 0.01 &amp;#39;*&amp;#39; 0.05 &amp;#39;.&amp;#39; 0.1 &amp;#39; &amp;#39; 1
 ## 
-## Residual standard error: 2.717 on 497 degrees of freedom
-## Multiple R-squared:  0.9323, Adjusted R-squared:  0.932 
-## F-statistic:  3421 on 2 and 497 DF,  p-value: &amp;lt; 2.2e-16&lt;/code&gt;&lt;/pre&gt;
+## Residual standard error: 2.735 on 151 degrees of freedom
+## Multiple R-squared:  0.8142, Adjusted R-squared:  0.8117 
+## F-statistic: 330.9 on 2 and 151 DF,  p-value: &amp;lt; 2.2e-16&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt; &lt;/p&gt;
 &lt;p&gt;Note that we are now regressing against first session marks as a measure of the underlying aptitude from which the marks were drawn. Nonetheless, the model has retrieved fairly reasonable estimates for the coefficients - no surprise, they are a less noisy than real data, all relevant variables have been included, and the effect size is appreciable and consistent.&lt;/p&gt;
 &lt;p&gt;Now that we can see that the coefficient on ‘tutored’ is non-zero with p &amp;lt; 0.05, we can also do an analysis of variance to see whether the reduction in the residual sum of squares caused by including the tutored variable is significant. For the purpose of assessing whether tutoring has an effect, this is not the statistic of interest. It can be useful, however, in situations like when we want to make a predictive model, and include all the variables that will have a noticeable effect.&lt;/p&gt;
@@ -112,9 +149,9 @@ summary(regression_model)&lt;/code&gt;&lt;/pre&gt;
 ## 
 ## Response: second_session_marks
 ##                      Df Sum Sq Mean Sq F value    Pr(&amp;gt;F)    
-## first_session_marks   1  50109   50109 6789.46 &amp;lt; 2.2e-16 ***
-## tutored               1    382     382   51.72 2.367e-12 ***
-## Residuals           497   3668       7                      
+## first_session_marks   1 4609.8  4609.8 616.157 &amp;lt; 2.2e-16 ***
+## tutored               1  341.0   341.0  45.573 2.964e-10 ***
+## Residuals           151 1129.7     7.5                      
 ## ---
 ## Signif. codes:  0 &amp;#39;***&amp;#39; 0.001 &amp;#39;**&amp;#39; 0.01 &amp;#39;*&amp;#39; 0.05 &amp;#39;.&amp;#39; 0.1 &amp;#39; &amp;#39; 1&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Indeed it is.&lt;/p&gt;
@@ -140,8 +177,11 @@ summary(regression_model)&lt;/code&gt;&lt;/pre&gt;
   students$tutored &amp;lt;- tutored
   #Generate second session marks from aptitude, with a bump in marks for those who were tutored
   students$second_session &amp;lt;- rnorm(nstudents, beta0 + beta1*students$aptitude*marks_sd + tutoring_effect*students$tutored, sigma_secondsession)
+  #Subset to include only students in the range where tutoring was offered
+  maxtutoredmark &amp;lt;- max(students$first_session[students$tutored==1])
+  students.subset &amp;lt;- students[students$first_session &amp;lt;= maxtutoredmark,]
   #Fit  a linear regression to get the p-value on the tutoring effect estimate.
-  lmod &amp;lt;- summary(lm(second_session ~ first_session + tutored, data = students))
+  lmod &amp;lt;- summary(lm(second_session ~ first_session + tutored, data = students.subset))
   if (method == &amp;quot;pval&amp;quot;){return(lmod$coefficients[3,4]) #The pvalue for the tutoring_effect estimate.
     #An option to return the coefficient value only if it is significant.
   } else if (method == &amp;quot;coeff&amp;quot; &amp;amp; lmod$coefficients[3,4] &amp;lt; 0.05){return(lmod$coefficients[3,1])
@@ -154,8 +194,8 @@ pvals &amp;lt;- replicate(10000, power_simulation(n_tutored = 50,
                                            sigma_secondsession = 2))
 
 mean(pvals &amp;lt; 0.05)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] 0.6001&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;So, we have a calculated power of 0.6 when there is an effect of +1 mark. The histogram below shows values of the coefficent for all simulations in which the p-value was below 0.05. Surprisingly, the true value of 1 is at the lower end of the range here. Selecting for only the statistically significant values has selected for those with inflated estimates, and the regression to the mean problem mentioned earlier is probably also making a contribution.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 0.4513&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;So, we have a calculated power of 0.5 when there is an effect of +1 mark. The histogram below shows values of the coefficent for all simulations in which the p-value was below 0.05. Surprisingly, the true value of 1 is at the lower end of the range here. Selecting for only the statistically significant values has selected for those with inflated estimates, and the regression to the mean problem mentioned earlier is probably also making a contribution.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;tutoring_effects &amp;lt;- replicate(10000, power_simulation(n_tutored = 50, 
                                                       n_untutored = 450, 
                                                       tutoring_effect = 1, 
@@ -163,7 +203,7 @@ mean(pvals &amp;lt; 0.05)&lt;/code&gt;&lt;/pre&gt;
                                                       method = &amp;quot;coeff&amp;quot;))
 
 hist(tutoring_effects)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-13-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;In a noisier simulation, or one with a smaller effect size, the tutoring estimate can even come out as both negative &lt;em&gt;and&lt;/em&gt; statistically significant. Because we don’t have the power to detect this effect, only the measured effects with a large absolute value turn out to be statistically significant. If we did a study under these conditions we would end up with one of the following situations:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;No significant effect (type II error)&lt;/li&gt;
@@ -178,12 +218,12 @@ hist(tutoring_effects)&lt;/code&gt;&lt;/pre&gt;
                                                       method = &amp;quot;coeff&amp;quot;))
 
 hist(small_noisy_tutoring_effects, breaks = 50)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-14-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt; &lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;concluding-remarks&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;Concluding remarks&lt;/h3&gt;
-&lt;p&gt;Going into a power analysis it is common to have a personal bias to thinking our effect size will be greater than it really is, and that the data are less noisy than they really are. Without going too much into the whys and wherefores of power analysis and null hypothesis significance testing, &lt;a href=&#34;http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf&#34;&gt;it is good practice&lt;/a&gt; (pdf) to use a conservative estimate of the effect size based on external information (e.g. prior studies). If we wanted to make a proper attempt at doing a power analysis for an experiment like the one described above, we would need to have reasonable estimates for the distributions of marks, and a measure of how well correlated these are for students from session-to-session, to figure out the relationship to the underlying aptitude. If we go a step further and take into account that individual students’ aptitudes can be on an upward or downard trajectory, it starts to get very complicated.&lt;/p&gt;
+&lt;p&gt;Going into a power analysis it is common to have a personal bias to thinking our effect size will be greater than it really is, and that the data are less noisy than they really are. Without going too much into the whys and wherefores of power analysis and null hypothesis significance testing, &lt;a href=&#34;http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf&#34;&gt;it is good practice&lt;/a&gt; (pdf) to use a conservative estimate of the effect size based on external information (e.g. prior studies). If we wanted to make a proper attempt at doing a power analysis for an experiment (observational study) like the one described above, we would need to have reasonable estimates for the distributions of marks, and a measure of how well correlated these are for students from session-to-session, to figure out the relationship to the underlying aptitude. If we go a step further and take into account that individual students’ aptitudes can be on an upward or downard trajectory, it starts to get very complicated.&lt;/p&gt;
 &lt;p&gt; &lt;/p&gt;
 &lt;/div&gt;
 </description>

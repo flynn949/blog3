@@ -10,7 +10,7 @@ tags: ["regression", "statistics", "power analysis"]
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-In this post, I will run through a simple experiment simulation using only base R, and demonstrate a way to do power analysis by using this simulation. Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!
+In this post, I will run through a simple simulation using only base R, and demonstrate a way to do power analysis by using this simulation. Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!
 
 Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post.
 
@@ -104,10 +104,44 @@ plot(students$first_session_marks, students$second_session_marks, col = factor(s
 
 ```
 
-Students who received tutoring have had a small but appreciable bump in their marks. To measure the bump in marks, fit a linear regression, with a term for the tutoring effect. Students who were tutored have a value of 1 for the variable 'tutored', while those who weren't tutored have a value of 0, so any coefficient on this variable is essentially an intercept term.
+Students who received tutoring have had a small but appreciable bump in their marks compared with similar students who did not receive tutoring. To make this comparison, we should limit the range of the analysis. One way we could do this would be to use propensity scores. Propensity scores quantify the probability of a study subject choosing to receive the treatment, based on a range of relevant variables. In this case, the only variable we have at hand is first session marks, but typically we would also include age, sex, etc. To get the propensity score, we do a logistic regression of 'tutored' on first session marks.
+
 
 ```{r}
-regression_model <- lm(second_session_marks ~ first_session_marks + tutored, data = students)
+
+propmod <- glm(tutored ~ first_session_marks, family = "binomial", data = students)
+summary(propmod)
+```
+
+As expected, lower first session marks equates to a greater probability of receiving tutoring. What was the lowest propensity score for a student who received tutoring?
+
+```{r}
+
+students$propensity <- predict(propmod, newdata = students, type = "response")
+
+
+(lowestpropensity <- min(students$propensity[students$tutored==1]))
+
+```
+
+We should include all non-tutored students with a propensity score of 0.079 or greater in the 'control' group. (Of course, given that the only predictor of propensity is first session mark, we could simply use that as the cut off, but here I want to demonstrate the basic process).
+
+```{r}
+
+students.subset <- students[students$propensity >= lowestpropensity,]
+```
+
+```{r}
+
+plot(students.subset$first_session_marks, students.subset$second_session_marks, 
+     col = factor(students.subset$tutored, levels = c(0,1)))
+
+```
+
+To measure the bump in marks, fit a linear regression, with a term for the tutoring effect. Students who were tutored have a value of 1 for the variable 'tutored', while those who weren't tutored have a value of 0, so any coefficient on this variable is essentially an intercept term.
+
+```{r}
+regression_model <- lm(second_session_marks ~ first_session_marks + tutored, data = students.subset)
 summary(regression_model)
 ```
 
@@ -158,8 +192,11 @@ power_simulation <- function(n_tutored = 50, n_untutored = 450, tutoring_effect,
   students$tutored <- tutored
   #Generate second session marks from aptitude, with a bump in marks for those who were tutored
   students$second_session <- rnorm(nstudents, beta0 + beta1*students$aptitude*marks_sd + tutoring_effect*students$tutored, sigma_secondsession)
+  #Subset to include only students in the range where tutoring was offered
+  maxtutoredmark <- max(students$first_session[students$tutored==1])
+  students.subset <- students[students$first_session <= maxtutoredmark,]
   #Fit  a linear regression to get the p-value on the tutoring effect estimate.
-  lmod <- summary(lm(second_session ~ first_session + tutored, data = students))
+  lmod <- summary(lm(second_session ~ first_session + tutored, data = students.subset))
   if (method == "pval"){return(lmod$coefficients[3,4]) #The pvalue for the tutoring_effect estimate.
     #An option to return the coefficient value only if it is significant.
   } else if (method == "coeff" & lmod$coefficients[3,4] < 0.05){return(lmod$coefficients[3,1])
@@ -215,7 +252,7 @@ hist(small_noisy_tutoring_effects, breaks = 50)
 ### Concluding remarks
 
 
-Going into a power analysis it is common to have a personal bias to thinking our effect size will be greater than it really is, and that the data are less noisy than they really are. Without going too much into the whys and wherefores of power analysis and null hypothesis significance testing, [it is good practice](http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf) (pdf) to use a conservative estimate of the effect size based on external information (e.g. prior studies). If we wanted to make a proper attempt at doing a power analysis for an experiment like the one described above, we would need to have reasonable estimates for the distributions of marks, and a measure of how well correlated these are for students from session-to-session, to figure out the relationship to the underlying aptitude. If we go a step further and take into account that individual students' aptitudes can be on an upward or downard trajectory, it starts to get very complicated.
+Going into a power analysis it is common to have a personal bias to thinking our effect size will be greater than it really is, and that the data are less noisy than they really are. Without going too much into the whys and wherefores of power analysis and null hypothesis significance testing, [it is good practice](http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf) (pdf) to use a conservative estimate of the effect size based on external information (e.g. prior studies). If we wanted to make a proper attempt at doing a power analysis for an experiment (observational study) like the one described above, we would need to have reasonable estimates for the distributions of marks, and a measure of how well correlated these are for students from session-to-session, to figure out the relationship to the underlying aptitude. If we go a step further and take into account that individual students' aptitudes can be on an upward or downard trajectory, it starts to get very complicated.
 
 
 
