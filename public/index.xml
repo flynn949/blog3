@@ -223,7 +223,6 @@ hist(tutoring_effects)&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;Significant effect of inflated magnitude and correct sign (type M error).&lt;/li&gt;
 &lt;li&gt;Significant effect of inflated magnitude and incorrect sign (type M and type S error).&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;You can read more about type M and type S errors &lt;a href=&#34;http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf&#34;&gt;here&lt;/a&gt; (pdf).&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;small_noisy_tutoring_effects &amp;lt;- replicate(10000, power_simulation(n_tutored = 50, 
                                                       n_untutored = 450, 
                                                       tutoring_effect = 0.1, 

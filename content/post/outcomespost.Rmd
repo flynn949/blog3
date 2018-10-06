@@ -243,8 +243,6 @@ In a noisier simulation, or one with a smaller effect size, the tutoring estimat
 * Significant effect of inflated magnitude and correct sign (type M error).
 * Significant effect of inflated magnitude and incorrect sign (type M and type S error).
 
-You can read more about type M and type S errors [here](http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf) (pdf).
-
 
 
 ```{r}
