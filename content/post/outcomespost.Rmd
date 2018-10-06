@@ -131,7 +131,7 @@ students$propensity <- predict(propmod, newdata = students, type = "response")
 
 ```
 
-We should include all non-tutored students with a propensity score of 0.079 or greater in the 'control' group. (Of course, given that the only predictor of propensity is first session mark, we could simply use that as the cut off, but here I want to demonstrate the basic process).
+One approach is to do propensity score matching, in which each study subject who received the treatment is matched with one (or more) subjects with an equal (or very similar) propensity score. Another approach is to simply use the propensity scores to define the range of study subjects to be included. Here, we will take the latter approach and  include all non-tutored students with a propensity score of 0.079 or greater in the 'control' group. (Of course, given that the only predictor of propensity is first session mark, we could simply use that as the cut off, but here I want to demonstrate the basic process).
 
 ```{r}
 
