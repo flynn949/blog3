@@ -79,8 +79,8 @@ hist(students$second_session_marks, breaks = 15)</code></pre>
 <pre class="r"><code>plot(students$first_session_marks, students$second_session_marks, col = factor(students$tutored, levels = c(0,1)))</code></pre>
 <p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 </div>
-<div id="comparing-tutored-and-non-tutored-students" class="section level3">
-<h3>Comparing tutored and non-tutored students</h3>
+<div id="propensity-scores" class="section level3">
+<h3>Propensity scores</h3>
 <p>Students who received tutoring have had a small but appreciable bump in their marks compared with similar students who did not receive tutoring. To make this comparison, we should limit the range students included in the analysis. One way this is often done for observational studies such as this is by propensity scores. These quantify the probability of a study subject choosing to receive the treatment, based on a range of relevant variables. In this case, the only variable we have at hand is first session marks, but typically we would also include age, sex, etc. To get the propensity score, we do a logistic regression of ‘tutored’ on first session marks.</p>
 <pre class="r"><code>propmod &lt;- glm(tutored ~ first_session_marks, family = &quot;binomial&quot;, data = students)
 summary(propmod)</code></pre>
@@ -118,6 +118,9 @@ summary(propmod)</code></pre>
 <pre class="r"><code>plot(students.subset$first_session_marks, students.subset$second_session_marks, 
      col = factor(students.subset$tutored, levels = c(0,1)))</code></pre>
 <p><img src="/post/outcomespost_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+</div>
+<div id="measuring-the-tutoring-effect" class="section level3">
+<h3>Measuring the tutoring effect</h3>
 <p>To measure the bump in marks, fit a linear regression, with a term for the tutoring effect. Students who were tutored have a value of 1 for the variable ‘tutored’, while those who weren’t tutored have a value of 0, so any coefficient on this variable is essentially an intercept term.</p>
 <p><span class="math display">\[\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{first_session_mark}_i + \beta_2\text{Tutored}_i \]</span></p>
 <pre class="r"><code>regression_model &lt;- lm(second_session_marks ~ first_session_marks + tutored, data = students.subset)
