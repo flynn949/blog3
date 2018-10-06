@@ -14,7 +14,8 @@ In this post, I will run through a simple simulation using only base R, and demo
 
 Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post.
 
-### Simulation
+## Simulation
+
 Start with the basic parameters and a latent variable we'll call aptitude, which for simplicity's sake will be the only thing (besides a bit of luck) that determines students' marks. As a latent variable, the most appropriate scale for this is a standard normal, i.e. a normal distribution centred at zero with a standard deviation of one.
 
 ```{r}
@@ -49,6 +50,8 @@ hist(students$first_session_marks, breaks = 15)
 
 ```
 
+### Tutoring offer
+
 Now we start calling students to offer them tutoring, starting from those with the lowest first session marks. Here, the probability of a student accepting tutoring is 0.8 - first_session_mark/100, i.e. students with lower marks are more likely to accept tutoring.
 
 ```{r}
@@ -72,6 +75,8 @@ students$tutored <- tutored
 sum(tutored)
 
 ```
+
+### Outcomes
 
 Now simulate second session marks. These will also be based on students' underlying aptitude, and will be similar to the first session marks, but because the courses have changed there may be a different overall mean and scaling of marks with respect to to aptitude. To keep things simple (and unrealistic), students' underlying aptitude has not changed. In this model, there is an intercept term that gives the average (untutored) mark, a slope term that scales the mark with respect to aptitude, and another interept term for the effect associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student $i$ we have:
 
@@ -103,6 +108,8 @@ Plot the first and second session marks, coloured by whether tutoring was accept
 plot(students$first_session_marks, students$second_session_marks, col = factor(students$tutored, levels = c(0,1)))
 
 ```
+
+### Comparing tutored and non-tutored students
 
 Students who received tutoring have had a small but appreciable bump in their marks compared with similar students who did not receive tutoring. To make this comparison, we should limit the range students included in the analysis. One way this is often done for observational studies such as this is by propensity scores. These quantify the probability of a study subject choosing to receive the treatment, based on a range of relevant variables. In this case, the only variable we have at hand is first session marks, but typically we would also include age, sex, etc. To get the propensity score, we do a logistic regression of 'tutored' on first session marks.
 
@@ -140,6 +147,8 @@ plot(students.subset$first_session_marks, students.subset$second_session_marks,
 
 To measure the bump in marks, fit a linear regression, with a term for the tutoring effect. Students who were tutored have a value of 1 for the variable 'tutored', while those who weren't tutored have a value of 0, so any coefficient on this variable is essentially an intercept term.
 
+$$\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{first_session_mark}_i + \beta_2\text{Tutored}_i $$
+
 ```{r}
 regression_model <- lm(second_session_marks ~ first_session_marks + tutored, data = students.subset)
 summary(regression_model)
@@ -166,7 +175,7 @@ An interesting point to note here is that some of the students who were offered 
 
 \  
 
-### Power analysis by simulation
+## Power analysis by simulation
 
 A good idea before doing a study like this is to calculate its power - the probability of rejecting the null hypothesis when the null hypothesis is false (at a given significance level). This calculation can either help us to decide how many study subjects are needed to reach a desired power level, or if we are unable to increase the number of study subjects it can at least give us a realistic appreciation for the power of our study. There is a nice illustration of the concept of power in [this post](http://rpsychologist.com/d3/NHST/) by Kristoffer Magnusson.
 

@@ -18,8 +18,8 @@
       <guid>/post/outcomespost/</guid>
       <description>&lt;p&gt;In this post, I will run through a simple simulation using only base R, and demonstrate a way to do power analysis by using this simulation. Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!&lt;/p&gt;
 &lt;p&gt;Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post.&lt;/p&gt;
-&lt;div id=&#34;simulation&#34; class=&#34;section level3&#34;&gt;
-&lt;h3&gt;Simulation&lt;/h3&gt;
+&lt;div id=&#34;simulation&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Simulation&lt;/h2&gt;
 &lt;p&gt;Start with the basic parameters and a latent variable we’ll call aptitude, which for simplicity’s sake will be the only thing (besides a bit of luck) that determines students’ marks. As a latent variable, the most appropriate scale for this is a standard normal, i.e. a normal distribution centred at zero with a standard deviation of one.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(42)
 n_students &amp;lt;- 500
@@ -42,6 +42,8 @@ students$first_session_marks[students$first_session_marks &amp;lt; 0] &amp;lt;- 
 
 hist(students$first_session_marks, breaks = 15)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;div id=&#34;tutoring-offer&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Tutoring offer&lt;/h3&gt;
 &lt;p&gt;Now we start calling students to offer them tutoring, starting from those with the lowest first session marks. Here, the probability of a student accepting tutoring is 0.8 - first_session_mark/100, i.e. students with lower marks are more likely to accept tutoring.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;students &amp;lt;- students[order(students$first_session_marks),]
 
@@ -61,6 +63,9 @@ students$tutored &amp;lt;- tutored
 
 sum(tutored)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 50&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;outcomes&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Outcomes&lt;/h3&gt;
 &lt;p&gt;Now simulate second session marks. These will also be based on students’ underlying aptitude, and will be similar to the first session marks, but because the courses have changed there may be a different overall mean and scaling of marks with respect to to aptitude. To keep things simple (and unrealistic), students’ underlying aptitude has not changed. In this model, there is an intercept term that gives the average (untutored) mark, a slope term that scales the mark with respect to aptitude, and another interept term for the effect associated with tutoring. Realised values of the second session mark are then drawn from Gaussian distributions centred at these calculated mark values, with a defined standard deviation that is the same for all students. Thus, for student &lt;span class=&#34;math inline&#34;&gt;\(i\)&lt;/span&gt; we have:&lt;/p&gt;
 &lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{aptitude}_i + \beta_2\text{Tutored}_i \]&lt;/span&gt; Define the parameters, and generate the second session marks according to the model. Here, we have very ambitiously assumed that tutoring increases students marks (to say nothing of whether it changes their aptitude) by 3 points.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;beta_0 &amp;lt;- 58 #This is the mean mark in second session for untutored students
@@ -81,6 +86,9 @@ hist(students$second_session_marks, breaks = 15)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Plot the first and second session marks, coloured by whether tutoring was accepted.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;plot(students$first_session_marks, students$second_session_marks, col = factor(students$tutored, levels = c(0,1)))&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-5-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;comparing-tutored-and-non-tutored-students&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Comparing tutored and non-tutored students&lt;/h3&gt;
 &lt;p&gt;Students who received tutoring have had a small but appreciable bump in their marks compared with similar students who did not receive tutoring. To make this comparison, we should limit the range students included in the analysis. One way this is often done for observational studies such as this is by propensity scores. These quantify the probability of a study subject choosing to receive the treatment, based on a range of relevant variables. In this case, the only variable we have at hand is first session marks, but typically we would also include age, sex, etc. To get the propensity score, we do a logistic regression of ‘tutored’ on first session marks.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;propmod &amp;lt;- glm(tutored ~ first_session_marks, family = &amp;quot;binomial&amp;quot;, data = students)
 summary(propmod)&lt;/code&gt;&lt;/pre&gt;
@@ -119,6 +127,7 @@ summary(propmod)&lt;/code&gt;&lt;/pre&gt;
      col = factor(students.subset$tutored, levels = c(0,1)))&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;To measure the bump in marks, fit a linear regression, with a term for the tutoring effect. Students who were tutored have a value of 1 for the variable ‘tutored’, while those who weren’t tutored have a value of 0, so any coefficient on this variable is essentially an intercept term.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\text{Second session mark}_i \sim \text{Normal}(\mu_i,\sigma)\\ \mu_i = \beta_0 + \beta_1\text{first_session_mark}_i + \beta_2\text{Tutored}_i \]&lt;/span&gt;&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;regression_model &amp;lt;- lm(second_session_marks ~ first_session_marks + tutored, data = students.subset)
 summary(regression_model)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## 
@@ -159,8 +168,9 @@ summary(regression_model)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;An interesting point to note here is that some of the students who were offered tutoring may have received that offer because they were unlucky in first session and got marks a bit lower than what would be expected for their aptitude. In the second session, these students could be expected to get better marks regardless of being tutored - this is called &lt;a href=&#34;https://en.wikipedia.org/wiki/Regression_toward_the_mean&#34;&gt;regression to the mean&lt;/a&gt;, and could be very problematic for a study such as this one.&lt;/p&gt;
 &lt;p&gt; &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id=&#34;power-analysis-by-simulation&#34; class=&#34;section level3&#34;&gt;
-&lt;h3&gt;Power analysis by simulation&lt;/h3&gt;
+&lt;/div&gt;
+&lt;div id=&#34;power-analysis-by-simulation&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Power analysis by simulation&lt;/h2&gt;
 &lt;p&gt;A good idea before doing a study like this is to calculate its power - the probability of rejecting the null hypothesis when the null hypothesis is false (at a given significance level). This calculation can either help us to decide how many study subjects are needed to reach a desired power level, or if we are unable to increase the number of study subjects it can at least give us a realistic appreciation for the power of our study. There is a nice illustration of the concept of power in &lt;a href=&#34;http://rpsychologist.com/d3/NHST/&#34;&gt;this post&lt;/a&gt; by Kristoffer Magnusson.&lt;/p&gt;
 &lt;p&gt;We can use this simulation to find the power for an estimated effect size, or to find the minimum effect size needed to achieve a given power. By replicating the above simulation thousands of times, we can quantify the fraction for which the p-value of the tutoring effect coefficient was below the significance level. It is important to note that the effect size here is measured in units of marks, whereas effect sizes are often put into standard units by dividing by the standard deviation. The power simulation uses a simpler model to decide which students receive tutoring - for the bottom 100 students, a random 50 % accept tutoring. This mimics a situation in which we have no model for who is more likely to accept tutoring. The results of this power analysis could therefore mislead us.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;power_simulation &amp;lt;- function(n_tutored = 50, n_untutored = 450, tutoring_effect, sigma_secondsession, beta0 = 58, beta1 = 0.9, marks_sd = 12, method = &amp;quot;pval&amp;quot;){
@@ -220,11 +230,11 @@ hist(tutoring_effects)&lt;/code&gt;&lt;/pre&gt;
 hist(small_noisy_tutoring_effects, breaks = 50)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;/post/outcomespost_files/figure-html/unnamed-chunk-14-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt; &lt;/p&gt;
-&lt;/div&gt;
 &lt;div id=&#34;concluding-remarks&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;Concluding remarks&lt;/h3&gt;
 &lt;p&gt;Going into a power analysis it is common to have a personal bias to thinking our effect size will be greater than it really is, and that the data are less noisy than they really are. Without going too much into the whys and wherefores of power analysis and null hypothesis significance testing, &lt;a href=&#34;http://www.stat.columbia.edu/~gelman/research/published/retropower_final.pdf&#34;&gt;it is good practice&lt;/a&gt; (pdf) to use a conservative estimate of the effect size based on external information (e.g. prior studies). If we wanted to make a proper attempt at doing a power analysis for an experiment (observational study) like the one described above, we would need to have reasonable estimates for the distributions of marks, and a measure of how well correlated these are for students from session-to-session, to figure out the relationship to the underlying aptitude. If we go a step further and take into account that individual students’ aptitudes can be on an upward or downard trajectory, it starts to get very complicated.&lt;/p&gt;
 &lt;p&gt; &lt;/p&gt;
+&lt;/div&gt;
 &lt;/div&gt;
 </description>
     </item>
