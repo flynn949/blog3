@@ -109,7 +109,7 @@ plot(students$first_session_marks, students$second_session_marks, col = factor(s
 
 ```
 
-### Comparing tutored and non-tutored students
+### Propensity scores
 
 Students who received tutoring have had a small but appreciable bump in their marks compared with similar students who did not receive tutoring. To make this comparison, we should limit the range students included in the analysis. One way this is often done for observational studies such as this is by propensity scores. These quantify the probability of a study subject choosing to receive the treatment, based on a range of relevant variables. In this case, the only variable we have at hand is first session marks, but typically we would also include age, sex, etc. To get the propensity score, we do a logistic regression of 'tutored' on first session marks.
 
@@ -144,6 +144,8 @@ plot(students.subset$first_session_marks, students.subset$second_session_marks,
      col = factor(students.subset$tutored, levels = c(0,1)))
 
 ```
+
+### Measuring the tutoring effect
 
 To measure the bump in marks, fit a linear regression, with a term for the tutoring effect. Students who were tutored have a value of 1 for the variable 'tutored', while those who weren't tutored have a value of 0, so any coefficient on this variable is essentially an intercept term.
 
