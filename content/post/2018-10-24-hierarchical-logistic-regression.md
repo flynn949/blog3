@@ -59,11 +59,10 @@ mu <- rnorm(D, 0, 1)
 sigma <- seq(0.2,2,length.out = D)
 #Matrix of coefficients for each predictor in each level.
 beta <- matrix(NA, nrow = L, ncol = D)
-for (l in seq(1:L)){
-  for (d in seq(1:D)){
-    beta[l,d] <- rnorm(1, mu[d], sigma[d])
-  }
+for (d in seq(1:D)){
+    beta[,d] <- rnorm(L, mu[d], sigma[d])
 }
+
 #vector of observations, in linear scale, prior to noise being added.
 ypred_linear <- rep(NA, N)
 for (n in seq(1:N)){
