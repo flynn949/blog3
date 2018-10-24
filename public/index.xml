@@ -92,7 +92,7 @@ fit &amp;lt;- stan(&amp;quot;hierarchical_logistic.stan&amp;quot;,
 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;As the widths of the underlying distributions from which the coefficients beta were drawn increase (sequentially, from first to last), so to does the uncertainty surrounding the estimated centre positions mu, and the widths themselves, sigma.&lt;/p&gt;
+&lt;p&gt;As the widths of the underlying distributions from which the coefficients beta were drawn increase (sequentially, from first to last), so to does the uncertainty surrounding the estimated centre positions mu, and the estimates of the widths, sigma.&lt;/p&gt;
 
 &lt;p&gt;Here are the estimated centre positions of these underlying distributions.&lt;/p&gt;
 

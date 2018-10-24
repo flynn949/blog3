@@ -90,7 +90,7 @@ fit <- stan("hierarchical_logistic.stan",
 
 ```
 
-As the widths of the underlying distributions from which the coefficients beta were drawn increase (sequentially, from first to last), so to does the uncertainty surrounding the estimated centre positions mu, and the widths themselves, sigma.
+As the widths of the underlying distributions from which the coefficients beta were drawn increase (sequentially, from first to last), so to does the uncertainty surrounding the estimated centre positions mu, and the estimates of the widths, sigma.
 
 Here are the estimated centre positions of these underlying distributions.
 ```r
