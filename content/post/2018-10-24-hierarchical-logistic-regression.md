@@ -53,7 +53,8 @@ x <- matrix(rnorm(N*D,0,1), nrow = N, ncol = D)
 L <- 15
 #Vector indicating level membership for each observation
 ll <- sample(seq(1,L), N, replace = TRUE)
-#centre of distribution for each predictor, from which individual predictors are drawn for each level
+#centre of distribution for each predictor, 
+#from which individual predictors are drawn for each level
 mu <- rnorm(D, 0, 1)
 #the sigma values progressively increase for each predictor in D.
 sigma <- seq(0.2,2,length.out = D)
