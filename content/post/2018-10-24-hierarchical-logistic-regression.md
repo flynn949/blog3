@@ -62,16 +62,15 @@ beta <- matrix(NA, nrow = L, ncol = D)
 for (d in seq(1:D)){
     beta[,d] <- rnorm(L, mu[d], sigma[d])
 }
-
-#vector of observations, in linear scale, prior to noise being added.
+#vector of ypred, in linear scale, prior to noise being added.
 ypred_linear <- rep(NA, N)
 for (n in seq(1:N)){
   ypred_linear[n] <- x[n,] %*% beta[ll[n],]
 }
-#Observations in logistic scale
+#ypred in logistic scale
 invlogit <- function(x){exp(x)/(1+exp(x))}
 ypred <- invlogit(ypred_linear)
-#Bernoulli trial outcomes
+#Bernoulli trial outcomes - these are our observed data
 y <- rbinom(N, 1, ypred)
 ```
 
@@ -122,4 +121,4 @@ plot(fit, pars = paste0("beta[", seq(1:L), ",", D, "]"))
 
 ![Beta 10 plot](/img/beta10plot.png)
 
-Note the wider distribution of beta[,10] coefficients.
+Note the wider distribution of beta[,10] coefficients, arising from the greater size of sigma[10]. Also note that the credibility intervals on the more extreme values in beta[,10] are wider.
