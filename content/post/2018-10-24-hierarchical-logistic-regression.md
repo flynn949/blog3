@@ -109,21 +109,16 @@ plot(fit, pars = "sigma")
 
 ![Sigma plot](/img/sigma_plot.png)
 
-Because there are D * L = 150 indivudal coefficients in beta, I won't plot them all. Here, I will plot the estimates across all levels for the first and last coefficients. To do this, I will use Bayesplot.
+Because there are 150 indivudal coefficients in beta, I won't plot them all. Here, I will plot the estimates across all levels for the first and last coefficients.
 
 ```r
-library(bayesplot)
-
-posterior  <- as.array(fit)
-
-mcmc_intervals(posterior, pars = paste0("beta[", seq(1:L), ",1]"))
-
+plot(fit, pars = paste0("beta[", seq(1:L), ",1]"))
 ```
 ![Beta 1 plot](/img/beta1plot.png)
 
 
 ```r
-mcmc_intervals(posterior, pars = paste0("beta[", seq(1:L), ",", D, "]"))
+plot(fit, pars = paste0("beta[", seq(1:L), ",", D, "]"))
 ```
 
 ![Beta 10 plot](/img/beta10plot.png)
