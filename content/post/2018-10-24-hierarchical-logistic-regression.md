@@ -109,7 +109,7 @@ plot(fit, pars = "sigma")
 
 ![Sigma plot](/img/sigma_plot.png)
 
-Because there are D * L = 150 indivudal coeffients in beta, I won't plot them all. Here, I will plot the estimates across all levels for the first and last coefficients. To do this, I will use Bayesplot.
+Because there are D * L = 150 indivudal coefficients in beta, I won't plot them all. Here, I will plot the estimates across all levels for the first and last coefficients. To do this, I will use Bayesplot.
 
 ```r
 library(bayesplot)
