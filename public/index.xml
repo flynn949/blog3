@@ -11,6 +11,126 @@
     <atom:link href="/" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Hierarchical Logistic Regression</title>
+      <link>/post/hierarchical-logistic-regression/</link>
+      <pubDate>Wed, 24 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/hierarchical-logistic-regression/</guid>
+      <description>&lt;p&gt;This one is just a snippet. I was reading through the Stan manual (version 2.17.0), and it has some nice examples of Stan models in chapter III, however, only the Stan model code is given for these. I decided to make a data simulation to try one out, specifically, the model in section 9.9: Hierarchical Logistic Regression.&lt;/p&gt;
+
+&lt;p&gt;The Stan  code from the manual looks like this (after substituting the suggested improvements on pages 140-141).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;data {
+int&amp;lt;lower=1&amp;gt; D;
+int&amp;lt;lower=0&amp;gt; N;
+int&amp;lt;lower=1&amp;gt; L;
+int&amp;lt;lower=0,upper=1&amp;gt; y[N];
+int&amp;lt;lower=1,upper=L&amp;gt; ll[N];
+row_vector[D] x[N];
+}
+parameters {
+real mu[D];
+real&amp;lt;lower=0&amp;gt; sigma[D];
+vector[D] beta[L];
+}
+model {
+mu ~ normal(0, 100);
+for (l in 1:L)
+  beta[l] ~ normal(mu, sigma);
+
+for (n in 1:N)
+  y[n] ~ bernoulli_logit(x[n] * beta[ll[n]]);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I came up with the following R code to simulate some example data. I have annotated what each variable represents. To make it interesting, the widths of the population distributions from which the coefficients in beta have been drawn range from narrow to wide.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-r&#34;&gt;set.seed(42)
+#number of predictors
+D &amp;lt;- 10
+#number of observations
+N &amp;lt;- 10000
+#matrix of predictors for each observation
+x &amp;lt;- matrix(rnorm(N*D,0,1), nrow = N, ncol = D)
+#number of categorical levels
+L &amp;lt;- 15
+#Vector indicating level membership for each observation
+ll &amp;lt;- sample(seq(1,L), N, replace = TRUE)
+#centre of distribution for each predictor, from which individual predictors are drawn for each level
+mu &amp;lt;- rnorm(D, 0, 1)
+#the sigma values progressively increase for each predictor in D.
+sigma &amp;lt;- seq(0.2,2,length.out = D)
+#Matrix of coefficients for each predictor in each level.
+beta &amp;lt;- matrix(NA, nrow = L, ncol = D)
+for (l in seq(1:L)){
+  for (d in seq(1:D)){
+    beta[l,d] &amp;lt;- rnorm(1, mu[d], sigma[d])
+  }
+}
+#vector of observations, in linear scale, prior to noise being added.
+ypred_linear &amp;lt;- rep(NA, N)
+for (n in seq(1:N)){
+  ypred_linear[n] &amp;lt;- x[n,] %*% beta[ll[n],]
+}
+#Observations in logistic scale
+invlogit &amp;lt;- function(x){exp(x)/(1+exp(x))}
+ypred &amp;lt;- invlogit(ypred_linear)
+#Bernoulli trial outcomes
+y &amp;lt;- rbinom(N, 1, ypred)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The model is run by executing the following code. It is interesting to play around with the number of iterations. For a relatively simple regression model like this, a huge number of iterations is not necessary. It is also interesting to play around with the number of predictors D, levels L and observations N.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-r&#34;&gt;library(&amp;quot;rstan&amp;quot;)
+
+fit &amp;lt;- stan(&amp;quot;hierarchical_logistic.stan&amp;quot;, 
+            data = list(D = D, N = N, x = x, L = L, y = y, ll = ll),
+            chains = 4, 
+            cores = 4, 
+            iter = 1000, 
+            warmup = 200, 
+            control = list(adapt_delta = 0.99))
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As the widths of the underlying distributions from which the coefficients beta were drawn increase (sequentially, from first to last), so to does the uncertainty surrounding the estimated centre positions mu, and the widths themselves, sigma.&lt;/p&gt;
+
+&lt;p&gt;Here are the estimated centre positions of these underlying distributions.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-r&#34;&gt;plot(fit, pars = &amp;quot;mu&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;/img/mu_plot.png&#34; alt=&#34;Mu plot&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;And here are the estimates of the corresponding widths.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-r&#34;&gt;plot(fit, pars = &amp;quot;sigma&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;/img/sigma_plot.png&#34; alt=&#34;Sigma plot&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Because there are D * L = 150 indivudal coeffients in beta, I won&amp;rsquo;t plot them all. Here, I will plot the estimates across all levels for the first and last coefficients. To do this, I will use Bayesplot.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-r&#34;&gt;library(bayesplot)
+
+posterior  &amp;lt;- as.array(fit)
+
+mcmc_intervals(posterior, pars = paste0(&amp;quot;beta[&amp;quot;, seq(1:L), &amp;quot;,1]&amp;quot;))
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;/img/beta1plot.png&#34; alt=&#34;Beta 1 plot&#34; /&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-r&#34;&gt;mcmc_intervals(posterior, pars = paste0(&amp;quot;beta[&amp;quot;, seq(1:L), &amp;quot;,&amp;quot;, D, &amp;quot;]&amp;quot;))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;/img/beta10plot.png&#34; alt=&#34;Beta 10 plot&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Note the wider distribution of beta[,10] coefficients.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Quantifying an educational effect</title>
       <link>/post/outcomespost/</link>
       <pubDate>Thu, 13 Sep 2018 00:00:00 +0000</pubDate>

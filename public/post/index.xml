@@ -13,6 +13,16 @@
     
     
     <item>
+      <title>Hierarchical Logistic Regression</title>
+      <link>/post/hierarchical-logistic-regression/</link>
+      <pubDate>Wed, 24 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/hierarchical-logistic-regression/</guid>
+      <description>This one is just a snippet. I was reading through the Stan manual (version 2.17.0), and it has some nice examples of Stan models in chapter III, however, only the Stan model code is given for these. I decided to make a data simulation to try one out, specifically, the model in section 9.9: Hierarchical Logistic Regression.
+The Stan code from the manual looks like this (after substituting the suggested improvements on pages 140-141).</description>
+    </item>
+    
+    <item>
       <title>Quantifying an educational effect</title>
       <link>/post/outcomespost/</link>
       <pubDate>Thu, 13 Sep 2018 00:00:00 +0000</pubDate>
