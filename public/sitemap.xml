@@ -78,6 +78,33 @@
     
     <url>
     
+      <loc>/publication_types/</loc>
+      <lastmod>2018-01-01T00:00:00+11:00</lastmod>
+      <priority>0</priority>
+    </url>
+    
+  
+    
+    <url>
+    
+      <loc>/tags/stan/</loc>
+      <lastmod>2018-08-27T00:00:00+00:00</lastmod>
+      <priority>0</priority>
+    </url>
+    
+  
+    
+    <url>
+    
+      <loc>/tags/</loc>
+      <lastmod>2018-08-27T00:00:00+00:00</lastmod>
+      <priority>0</priority>
+    </url>
+    
+  
+    
+    <url>
+    
       <loc>/tags/logistic-regression/</loc>
       <lastmod>2018-10-24T00:00:00+00:00</lastmod>
       <priority>0</priority>
@@ -89,15 +116,6 @@
     
       <loc>/tags/power-analysis/</loc>
       <lastmod>2018-09-13T00:00:00+00:00</lastmod>
-      <priority>0</priority>
-    </url>
-    
-  
-    
-    <url>
-    
-      <loc>/publication_types/</loc>
-      <lastmod>2018-01-01T00:00:00+11:00</lastmod>
       <priority>0</priority>
     </url>
     
@@ -123,26 +141,8 @@
     
     <url>
     
-      <loc>/tags/stan/</loc>
-      <lastmod>2018-08-27T00:00:00+00:00</lastmod>
-      <priority>0</priority>
-    </url>
-    
-  
-    
-    <url>
-    
       <loc>/tags/statistics/</loc>
       <lastmod>2018-09-13T00:00:00+00:00</lastmod>
-      <priority>0</priority>
-    </url>
-    
-  
-    
-    <url>
-    
-      <loc>/tags/</loc>
-      <lastmod>2018-10-24T00:00:00+00:00</lastmod>
       <priority>0</priority>
     </url>
     
