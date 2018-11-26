@@ -1,0 +1,158 @@
+---
+title: Multilevel logistic regression
+author: Flynn Hill
+date: '2018-11-26'
+output: blogdown::html_page
+slug: multilevel-logistic-regression
+categories: []
+tags:
+  - multilevel modelling
+  - logistic regression
+  - variance
+header:
+  caption: ''
+  image: ''
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(lme4)
+```
+
+
+I recently attended a whole-day workshop on multilevel modelling organised by [NIASRA](https://niasra.uow.edu.au/index.html) and taught by Professor [Mark Tranmer](https://www.gla.ac.uk/schools/socialpolitical/staff/marktranmer/), who is an expert in the field from the University of Glasgow. 
+
+
+## Multilevel logistic regression
+
+One part of the workshop that I realised I didn't have any familiarity with was the idea of how variance works in logistic regression, and in particular in a multilevel logistic regression.
+
+Here is one way of looking at logistic regression, in a formulation that reflects how a glm works:
+
+$$ y_{pred} = \text{logit}^{-1}(X\beta) \\ y_{obs} \sim \text{Bernoulli}(y_{pred}) $$
+
+Where $logit^{-1}$ is the inverse logit function: $exp(X\beta)/(exp(X\beta) + 1)$ which transforms the linear predictor $X\beta$ from log-odds to probabilities $y_{pred}$. These then give the observed outcomes $y_{obs}$ according to a Bernoulli distribution - a binomial distribution with two possible outcomes.
+
+In multilevel logistic regression, it turns out that adding group (random) effects increases the residual variance. This presents a challenge when we are trying to decide whether it is worth including a group effect. What can we say about how much of the total variance is explained by the group effect?
+
+To explore this issue, the latent variable model is helpful. Although mathematically equivalent to the glm formulation above, this conceptualisation offers an easier way to look at the variance.
+
+In the latent variable model, there is an underlying linear variable $y^*$, which produces a $y_{obs}$ value of 1 when it is above 0 and 0 when it is below 0. $y^*$ is given by a predictor with standard logistic distribution, centred at a value given by a linear predictor, with a scale of 1. This distribution has a variance of (pi^2)/3 = 3.29.
+
+
+$$ y_{pred}=X\beta \\ y^* \sim \text{logistic}(y_{pred}, 1) \\ y_{obs}=y^*\geq0\;?\; 1 : 0 $$
+
+
+The logistic distribution has a cumulative distribution function given by 
+
+$$ \frac{1}{2} + \frac{1}{2}\text{tanh}(\frac{x-\mu}{2s})$$
+
+The CDF of a logistic distribution (black) with scale parameter $s=1$ is almost identical to a normal distribution with a variance of 3.29 (red).
+
+
+```{r}
+
+x <- seq(-10,10,0.01)
+pl <- plogis(x, location = 0, scale = 1)
+nl<- pnorm(x, mean = 0, sd = sqrt(pi*pi/3))
+plot(x,pl,t="l")
+lines(x, nl, col="red")
+
+```
+
+How does this apply to multilevel models?  We can put all population effects into $y_{pred}$ and calculate $y^*$ from a logistic distribution centred on $y_{pred}$, plus an additional intercept term $u_j$ for the group effect, which stretches out $y^*$:
+
+$$ y_{pred}=X\beta \\ y^* \sim \text{logistic}(y_{pred}, 1)+u_j \\ y_{obs}=y^*\geq0\;?\; 1 : 0 $$
+
+Thus, the population effects are set to contribute a variance of 3.29, while any group effects are added on top of this variance. If we subtract 3.29 from the total residual variance, we can find the variance attributable to the group effect, and take this as a proportion of the total variance.
+
+
+## Simulation
+
+```{r}
+set.seed(42)
+```
+
+
+Here, I simulate a dataset by way of the latent variable formulation above. This allows us to know the true proportion of variance explained by the group effect.
+
+Setup:
+* Binary outcome yobs
+* One continuous predictor x1
+* One binary predictor x2
+* A group level effect with varying intercepts uj.
+
+
+```{r}
+
+multibin <- function(n, J, beta1, beta2, jstd){
+  x1 <- rnorm(n,0,1) #standardised continuous predictor variable
+  x2 <- sample(c(0,1),n,replace=TRUE) #binary predictor variable
+  group <- sample(J, n, replace=TRUE) #group membership indicator
+  uj <- rnorm(J,0,jstd) #Group intercepts, normally distributed with standard deviation jstd
+  ypred <- rep(NA,n)
+  for (i in 1:n){
+    ypred[i] <- x1[i]*beta1 + x2[i]*beta2 #calculate ypred including only the population (fixed) effects.
+  }
+  ystar <- rlogis(n,ypred,1) # var(ystar - ypred) = 3.29
+  for (i in 1:n){
+    ystar[i] <- ystar[i] + uj[group[i]] #Add the group effect to ystar
+  }
+  yobs <- ifelse(ystar >= 0, 1, 0) #Get the binary outcome using the threshold test
+  return(data.frame(x1, x2, group, ypred, ystar, yobs))
+}
+
+```
+
+
+```{r}
+mdata <- multibin(n = 5000, 
+                  J = 20, 
+                  beta1 = 3.2,
+                  beta2 = -2.4,
+                  jstd = 2.5)
+```
+
+
+```{r}
+head(mdata)
+```
+
+The variance of the residuals should be approximately 3.29 + some variance attributable to the group-level effect. We can calculate the true variance from our simulation.
+
+```{r}
+var(mdata$ystar - mdata$ypred)
+```
+
+How much variance did the group level effect add?
+```{r}
+var(mdata$ystar - mdata$ypred) - (pi*pi)/3
+
+```
+
+What proportion of the total variance does this represent? I.e. what is the variance partition coefficient (VPC)?
+
+$$ VPC = \frac{\sigma^{2}_{u}}{\sigma^{2}_{e*}+\sigma^{2}_{u}}$$
+
+
+```{r}
+(var(mdata$ystar - mdata$ypred) - (pi*pi)/3)/var(mdata$ystar - mdata$ypred)
+```
+
+About 60%.
+
+
+Now that we know the true variance values to expect from the simulation, we can fit a multilevel logistic regression model and see how close it gets. Here, I use the function glmer from the package lme4, which uses a maximum likelihood estimator. One point Prof Tranmer made in his talk was that Bayesian Markov Chain Monte Carlo estimators may do a better job for this particular problem, however, I have simulated a lot of observations so it shouldn't really make a difference. If I wanted to use MCMC, the package brms can accept a formula in the same syntax as lme4.
+
+
+```{r}
+mmod1 <- glmer(yobs ~ x1 + x2 + (1 | group), 
+              data = mdata, 
+              family = "binomial")
+
+summary(mmod1)
+```
+
+Looking at the summary, the variance attributable to the group (random effect) is 5.576, pretty close to the true value of 5.560. If this were a real model, the VPC of 0.6 would mean we would be certain to include the group effect.
+
