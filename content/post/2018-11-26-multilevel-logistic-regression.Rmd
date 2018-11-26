@@ -30,9 +30,9 @@ One part of the workshop that I realised I didn't have any familiarity with was 
 
 Here is one way of looking at logistic regression, in a formulation that reflects how a glm works:
 
-$$ y_{pred} = \text{logit}^{-1}(X\beta) \\ y_{obs} \sim \text{Bernoulli}(y_{pred}) $$
+$$ y_{prob} = \text{logit}^{-1}(X\beta) \\ y_{obs} \sim \text{Bernoulli}(y_{prob}) $$
 
-Where $\text{logit}^{-1}$ is the inverse logit function: $exp(X\beta)/(exp(X\beta) + 1)$ which transforms the linear predictor $X\beta$ from log-odds to probabilities $y_{pred}$. These then give the observed outcomes $y_{obs}$ according to a Bernoulli distribution - a binomial distribution with two possible outcomes.
+Where $\text{logit}^{-1}$ is the inverse logit function: $exp(X\beta)/(exp(X\beta) + 1)$ which transforms the linear predictor $X\beta$ from log-odds to probabilities $y_{prob}$. These then give the observed outcomes $y_{obs}$ according to a Bernoulli distribution - a binomial distribution with two possible outcomes.
 
 In multilevel logistic regression, it turns out that adding group (random) effects increases the residual variance. This presents a challenge when we are trying to decide whether it is worth including a group effect. What can we say about how much of the total variance is explained by the group effect?
 
@@ -41,7 +41,7 @@ To explore this issue, the latent variable model is helpful. Although mathematic
 In the latent variable model, there is an underlying linear variable $y^*$, which produces a $y_{obs}$ value of 1 when it is above 0 and 0 when it is below 0. $y^*$ is given by a predictor with standard logistic distribution, centred at a value given by a linear predictor, with a scale of 1. This distribution has a variance of (pi^2)/3 = 3.29.
 
 
-$$ y_{pred}=X\beta \\ y^* \sim \text{logistic}(y_{pred}, 1) \\ y_{obs}=y^*\geq0\;?\; 1 : 0 $$
+$$ y_{prob}=X\beta \\ y^* \sim \text{logistic}(y_{prob}, 1) \\ y_{obs}=y^*\geq0\;?\; 1 : 0 $$
 
 
 The logistic distribution has a cumulative distribution function given by 
@@ -61,9 +61,9 @@ lines(x, nl, col="red")
 
 ```
 
-How does this apply to multilevel models?  We can put all population effects into $y_{pred}$ and calculate $y^*$ from a logistic distribution centred on $y_{pred}$, plus an additional intercept term $u_j$ for the group effect, which stretches out $y^*$:
+How does this apply to multilevel models?  We can put all population effects into $y_{prob}$ and calculate $y^*$ from a logistic distribution centred on $y_{prob}$, plus an additional intercept term $u_j$ for the group effect, which stretches out $y^*$:
 
-$$ y_{pred}=X\beta \\ y^* \sim \text{logistic}(y_{pred}, 1)+u_j \\ y_{obs}=y^*\geq0\;?\; 1 : 0 $$
+$$ y_{prob}=X\beta \\ y^* \sim \text{logistic}(y_{prob}, 1)+u_j \\ y_{obs}=y^*\geq0\;?\; 1 : 0 $$
 
 Thus, the population effects are set to contribute a variance of 3.29, while any group effects are added on top of this variance. If we subtract 3.29 from the total residual variance, we can find the variance attributable to the group effect, and take this as a proportion of the total variance.
 
@@ -92,16 +92,16 @@ multibin <- function(n, J, beta1, beta2, jstd){
   x2 <- sample(c(0,1),n,replace=TRUE) #binary predictor variable
   group <- sample(J, n, replace=TRUE) #group membership indicator
   uj <- rnorm(J,0,jstd) #Group intercepts, normally distributed with standard deviation jstd
-  ypred <- rep(NA,n)
+  yprob <- rep(NA,n)
   for (i in 1:n){
-    ypred[i] <- x1[i]*beta1 + x2[i]*beta2 #calculate ypred including only the population (fixed) effects.
+    yprob[i] <- x1[i]*beta1 + x2[i]*beta2 #calculate yprob including only the population (fixed) effects.
   }
-  ystar <- rlogis(n,ypred,1) # var(ystar - ypred) = 3.29
+  ystar <- rlogis(n,yprob,1) # var(ystar - yprob) = 3.29
   for (i in 1:n){
     ystar[i] <- ystar[i] + uj[group[i]] #Add the group effect to ystar
   }
   yobs <- ifelse(ystar >= 0, 1, 0) #Get the binary outcome using the threshold test
-  return(data.frame(x1, x2, group, ypred, ystar, yobs))
+  return(data.frame(x1, x2, group, yprob, ystar, yobs))
 }
 
 ```
@@ -122,10 +122,10 @@ head(mdata)
 
 The variance of the residuals should be approximately 3.29 + some variance attributable to the group-level effect. We can calculate the true variance from our simulation.
 
-$$\sigma^{2}_{\text{total}}=\text{var}(y^*-y_{pred})$$
+$$\sigma^{2}_{\text{total}}=\text{var}(y^*-y_{prob})$$
 
 ```{r}
-var(mdata$ystar - mdata$ypred)
+var(mdata$ystar - mdata$yprob)
 ```
 
 How much variance did the group level effect add?
@@ -136,7 +136,7 @@ Where $\sigma^{2}_{e*}$ is the variance attributable to the population (fixed) e
 
 
 ```{r}
-var(mdata$ystar - mdata$ypred) - (pi*pi)/3
+var(mdata$ystar - mdata$yprob) - (pi*pi)/3
 
 ```
 
@@ -147,7 +147,7 @@ $$ VPC = \frac{\sigma^{2}_{u}}{\sigma^{2}_{e*}+\sigma^{2}_{u}}$$
 
 
 ```{r}
-(var(mdata$ystar - mdata$ypred) - (pi*pi)/3)/var(mdata$ystar - mdata$ypred)
+(var(mdata$ystar - mdata$yprob) - (pi*pi)/3)/var(mdata$ystar - mdata$yprob)
 ```
 
 About 60%.

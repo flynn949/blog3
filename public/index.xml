@@ -21,12 +21,12 @@
 &lt;h2&gt;Multilevel logistic regression&lt;/h2&gt;
 &lt;p&gt;One part of the workshop that I realised I didn’t have any familiarity with was the idea of how variance works in logistic regression, and in particular in a multilevel logistic regression.&lt;/p&gt;
 &lt;p&gt;Here is one way of looking at logistic regression, in a formulation that reflects how a glm works:&lt;/p&gt;
-&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ y_{pred} = \text{logit}^{-1}(X\beta) \\ y_{obs} \sim \text{Bernoulli}(y_{pred}) \]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Where &lt;span class=&#34;math inline&#34;&gt;\(\text{logit}^{-1}\)&lt;/span&gt; is the inverse logit function: &lt;span class=&#34;math inline&#34;&gt;\(exp(X\beta)/(exp(X\beta) + 1)\)&lt;/span&gt; which transforms the linear predictor &lt;span class=&#34;math inline&#34;&gt;\(X\beta\)&lt;/span&gt; from log-odds to probabilities &lt;span class=&#34;math inline&#34;&gt;\(y_{pred}\)&lt;/span&gt;. These then give the observed outcomes &lt;span class=&#34;math inline&#34;&gt;\(y_{obs}\)&lt;/span&gt; according to a Bernoulli distribution - a binomial distribution with two possible outcomes.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ y_{prob} = \text{logit}^{-1}(X\beta) \\ y_{obs} \sim \text{Bernoulli}(y_{prob}) \]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Where &lt;span class=&#34;math inline&#34;&gt;\(\text{logit}^{-1}\)&lt;/span&gt; is the inverse logit function: &lt;span class=&#34;math inline&#34;&gt;\(exp(X\beta)/(exp(X\beta) + 1)\)&lt;/span&gt; which transforms the linear predictor &lt;span class=&#34;math inline&#34;&gt;\(X\beta\)&lt;/span&gt; from log-odds to probabilities &lt;span class=&#34;math inline&#34;&gt;\(y_{prob}\)&lt;/span&gt;. These then give the observed outcomes &lt;span class=&#34;math inline&#34;&gt;\(y_{obs}\)&lt;/span&gt; according to a Bernoulli distribution - a binomial distribution with two possible outcomes.&lt;/p&gt;
 &lt;p&gt;In multilevel logistic regression, it turns out that adding group (random) effects increases the residual variance. This presents a challenge when we are trying to decide whether it is worth including a group effect. What can we say about how much of the total variance is explained by the group effect?&lt;/p&gt;
 &lt;p&gt;To explore this issue, the latent variable model is helpful. Although mathematically equivalent to the glm formulation above, this conceptualisation offers an easier way to look at the variance.&lt;/p&gt;
 &lt;p&gt;In the latent variable model, there is an underlying linear variable &lt;span class=&#34;math inline&#34;&gt;\(y^*\)&lt;/span&gt;, which produces a &lt;span class=&#34;math inline&#34;&gt;\(y_{obs}\)&lt;/span&gt; value of 1 when it is above 0 and 0 when it is below 0. &lt;span class=&#34;math inline&#34;&gt;\(y^*\)&lt;/span&gt; is given by a predictor with standard logistic distribution, centred at a value given by a linear predictor, with a scale of 1. This distribution has a variance of (pi^2)/3 = 3.29.&lt;/p&gt;
-&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ y_{pred}=X\beta \\ y^* \sim \text{logistic}(y_{pred}, 1) \\ y_{obs}=y^*\geq0\;?\; 1 : 0 \]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ y_{prob}=X\beta \\ y^* \sim \text{logistic}(y_{prob}, 1) \\ y_{obs}=y^*\geq0\;?\; 1 : 0 \]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;The logistic distribution has a cumulative distribution function given by&lt;/p&gt;
 &lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ \frac{1}{2} + \frac{1}{2}\text{tanh}(\frac{x-\mu}{2s})\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;The CDF of a logistic distribution (black) with scale parameter &lt;span class=&#34;math inline&#34;&gt;\(s=1\)&lt;/span&gt; is almost identical to a normal distribution with a variance of 3.29 (red).&lt;/p&gt;
@@ -36,8 +36,8 @@ nl&amp;lt;- pnorm(x, mean = 0, sd = sqrt(pi*pi/3))
 plot(x,pl,t=&amp;quot;l&amp;quot;)
 lines(x, nl, col=&amp;quot;red&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;/post/2018-11-26-multilevel-logistic-regression_files/figure-html/unnamed-chunk-1-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
-&lt;p&gt;How does this apply to multilevel models? We can put all population effects into &lt;span class=&#34;math inline&#34;&gt;\(y_{pred}\)&lt;/span&gt; and calculate &lt;span class=&#34;math inline&#34;&gt;\(y^*\)&lt;/span&gt; from a logistic distribution centred on &lt;span class=&#34;math inline&#34;&gt;\(y_{pred}\)&lt;/span&gt;, plus an additional intercept term &lt;span class=&#34;math inline&#34;&gt;\(u_j\)&lt;/span&gt; for the group effect, which stretches out &lt;span class=&#34;math inline&#34;&gt;\(y^*\)&lt;/span&gt;:&lt;/p&gt;
-&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ y_{pred}=X\beta \\ y^* \sim \text{logistic}(y_{pred}, 1)+u_j \\ y_{obs}=y^*\geq0\;?\; 1 : 0 \]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;How does this apply to multilevel models? We can put all population effects into &lt;span class=&#34;math inline&#34;&gt;\(y_{prob}\)&lt;/span&gt; and calculate &lt;span class=&#34;math inline&#34;&gt;\(y^*\)&lt;/span&gt; from a logistic distribution centred on &lt;span class=&#34;math inline&#34;&gt;\(y_{prob}\)&lt;/span&gt;, plus an additional intercept term &lt;span class=&#34;math inline&#34;&gt;\(u_j\)&lt;/span&gt; for the group effect, which stretches out &lt;span class=&#34;math inline&#34;&gt;\(y^*\)&lt;/span&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ y_{prob}=X\beta \\ y^* \sim \text{logistic}(y_{prob}, 1)+u_j \\ y_{obs}=y^*\geq0\;?\; 1 : 0 \]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;Thus, the population effects are set to contribute a variance of 3.29, while any group effects are added on top of this variance. If we subtract 3.29 from the total residual variance, we can find the variance attributable to the group effect, and take this as a proportion of the total variance.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;simulation&#34; class=&#34;section level2&#34;&gt;
@@ -56,16 +56,16 @@ lines(x, nl, col=&amp;quot;red&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
   x2 &amp;lt;- sample(c(0,1),n,replace=TRUE) #binary predictor variable
   group &amp;lt;- sample(J, n, replace=TRUE) #group membership indicator
   uj &amp;lt;- rnorm(J,0,jstd) #Group intercepts, normally distributed with standard deviation jstd
-  ypred &amp;lt;- rep(NA,n)
+  yprob &amp;lt;- rep(NA,n)
   for (i in 1:n){
-    ypred[i] &amp;lt;- x1[i]*beta1 + x2[i]*beta2 #calculate ypred including only the population (fixed) effects.
+    yprob[i] &amp;lt;- x1[i]*beta1 + x2[i]*beta2 #calculate yprob including only the population (fixed) effects.
   }
-  ystar &amp;lt;- rlogis(n,ypred,1) # var(ystar - ypred) = 3.29
+  ystar &amp;lt;- rlogis(n,yprob,1) # var(ystar - yprob) = 3.29
   for (i in 1:n){
     ystar[i] &amp;lt;- ystar[i] + uj[group[i]] #Add the group effect to ystar
   }
   yobs &amp;lt;- ifelse(ystar &amp;gt;= 0, 1, 0) #Get the binary outcome using the threshold test
-  return(data.frame(x1, x2, group, ypred, ystar, yobs))
+  return(data.frame(x1, x2, group, yprob, ystar, yobs))
 }&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;mdata &amp;lt;- multibin(n = 5000, 
                   J = 20, 
@@ -73,7 +73,7 @@ lines(x, nl, col=&amp;quot;red&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
                   beta2 = -2.4,
                   jstd = 2.5)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;head(mdata)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;##           x1 x2 group     ypred      ystar yobs
+&lt;pre&gt;&lt;code&gt;##           x1 x2 group     yprob      ystar yobs
 ## 1  1.3709584  1    13  1.987067  1.3326743    1
 ## 2 -0.5646982  1    17 -4.207034 -5.6295675    0
 ## 3  0.3631284  1     7 -1.237989  2.5604840    1
@@ -81,17 +81,17 @@ lines(x, nl, col=&amp;quot;red&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 ## 5  0.4042683  1     1 -1.106341  2.0869090    1
 ## 6 -0.1061245  1     4 -2.739598 -5.9598435    0&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;The variance of the residuals should be approximately 3.29 + some variance attributable to the group-level effect. We can calculate the true variance from our simulation.&lt;/p&gt;
-&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\sigma^{2}_{\text{total}}=\text{var}(y^*-y_{pred})\]&lt;/span&gt;&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;var(mdata$ystar - mdata$ypred)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\sigma^{2}_{\text{total}}=\text{var}(y^*-y_{prob})\]&lt;/span&gt;&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;var(mdata$ystar - mdata$yprob)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 8.849834&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;How much variance did the group level effect add?&lt;/p&gt;
 &lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\sigma^{2}_{\text{total}} = \sigma^{2}_{e*} + \sigma^{2}_{u}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;Where &lt;span class=&#34;math inline&#34;&gt;\(\sigma^{2}_{e*}\)&lt;/span&gt; is the variance attributable to the population (fixed) effects and &lt;span class=&#34;math inline&#34;&gt;\(\sigma^{2}_{u}\)&lt;/span&gt; is the variance attributable to the group (random) effects.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;var(mdata$ystar - mdata$ypred) - (pi*pi)/3&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;var(mdata$ystar - mdata$yprob) - (pi*pi)/3&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 5.559966&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;What proportion of the total variance does this represent? I.e. what is the variance partition coefficient (VPC)?&lt;/p&gt;
 &lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ VPC = \frac{\sigma^{2}_{u}}{\sigma^{2}_{e*}+\sigma^{2}_{u}}\]&lt;/span&gt;&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;(var(mdata$ystar - mdata$ypred) - (pi*pi)/3)/var(mdata$ystar - mdata$ypred)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;(var(mdata$ystar - mdata$yprob) - (pi*pi)/3)/var(mdata$ystar - mdata$yprob)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 0.6282565&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;About 60%.&lt;/p&gt;
 &lt;p&gt;Now that we know the true variance values to expect from the simulation, we can fit a multilevel logistic regression model and see how close it gets. Here, I use the function glmer from the package lme4, which uses a maximum likelihood estimator. One point Prof Tranmer made in his talk was that Bayesian Markov Chain Monte Carlo estimators may do a better job for this particular problem, however, I have simulated a lot of observations so it shouldn’t really make a difference. If I wanted to use MCMC, the package brms can accept a formula in the same syntax as lme4.&lt;/p&gt;
