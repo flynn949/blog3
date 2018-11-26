@@ -11,7 +11,7 @@
     <atom:link href="/" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>Multilevel logistic regression</title>
+      <title>Multilevel logistic regression (again)</title>
       <link>/post/multilevel-logistic-regression/</link>
       <pubDate>Mon, 26 Nov 2018 00:00:00 +0000</pubDate>
       
@@ -22,7 +22,7 @@
 &lt;p&gt;One part of the workshop that I realised I didn’t have any familiarity with was the idea of how variance works in logistic regression, and in particular in a multilevel logistic regression.&lt;/p&gt;
 &lt;p&gt;Here is one way of looking at logistic regression, in a formulation that reflects how a glm works:&lt;/p&gt;
 &lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ y_{pred} = \text{logit}^{-1}(X\beta) \\ y_{obs} \sim \text{Bernoulli}(y_{pred}) \]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Where &lt;span class=&#34;math inline&#34;&gt;\(logit^{-1}\)&lt;/span&gt; is the inverse logit function: &lt;span class=&#34;math inline&#34;&gt;\(exp(X\beta)/(exp(X\beta) + 1)\)&lt;/span&gt; which transforms the linear predictor &lt;span class=&#34;math inline&#34;&gt;\(X\beta\)&lt;/span&gt; from log-odds to probabilities &lt;span class=&#34;math inline&#34;&gt;\(y_{pred}\)&lt;/span&gt;. These then give the observed outcomes &lt;span class=&#34;math inline&#34;&gt;\(y_{obs}\)&lt;/span&gt; according to a Bernoulli distribution - a binomial distribution with two possible outcomes.&lt;/p&gt;
+&lt;p&gt;Where &lt;span class=&#34;math inline&#34;&gt;\(\text{logit}^{-1}\)&lt;/span&gt; is the inverse logit function: &lt;span class=&#34;math inline&#34;&gt;\(exp(X\beta)/(exp(X\beta) + 1)\)&lt;/span&gt; which transforms the linear predictor &lt;span class=&#34;math inline&#34;&gt;\(X\beta\)&lt;/span&gt; from log-odds to probabilities &lt;span class=&#34;math inline&#34;&gt;\(y_{pred}\)&lt;/span&gt;. These then give the observed outcomes &lt;span class=&#34;math inline&#34;&gt;\(y_{obs}\)&lt;/span&gt; according to a Bernoulli distribution - a binomial distribution with two possible outcomes.&lt;/p&gt;
 &lt;p&gt;In multilevel logistic regression, it turns out that adding group (random) effects increases the residual variance. This presents a challenge when we are trying to decide whether it is worth including a group effect. What can we say about how much of the total variance is explained by the group effect?&lt;/p&gt;
 &lt;p&gt;To explore this issue, the latent variable model is helpful. Although mathematically equivalent to the glm formulation above, this conceptualisation offers an easier way to look at the variance.&lt;/p&gt;
 &lt;p&gt;In the latent variable model, there is an underlying linear variable &lt;span class=&#34;math inline&#34;&gt;\(y^*\)&lt;/span&gt;, which produces a &lt;span class=&#34;math inline&#34;&gt;\(y_{obs}\)&lt;/span&gt; value of 1 when it is above 0 and 0 when it is below 0. &lt;span class=&#34;math inline&#34;&gt;\(y^*\)&lt;/span&gt; is given by a predictor with standard logistic distribution, centred at a value given by a linear predictor, with a scale of 1. This distribution has a variance of (pi^2)/3 = 3.29.&lt;/p&gt;
@@ -44,7 +44,13 @@ lines(x, nl, col=&amp;quot;red&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;h2&gt;Simulation&lt;/h2&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(42)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Here, I simulate a dataset by way of the latent variable formulation above. This allows us to know the true proportion of variance explained by the group effect.&lt;/p&gt;
-&lt;p&gt;Setup: * Binary outcome yobs * One continuous predictor x1 * One binary predictor x2 * A group level effect with varying intercepts uj.&lt;/p&gt;
+&lt;p&gt;Setup:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Binary outcome yobs&lt;/li&gt;
+&lt;li&gt;One continuous predictor x1&lt;/li&gt;
+&lt;li&gt;One binary predictor x2&lt;/li&gt;
+&lt;li&gt;A group level effect with varying intercepts uj.&lt;/li&gt;
+&lt;/ul&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;multibin &amp;lt;- function(n, J, beta1, beta2, jstd){
   x1 &amp;lt;- rnorm(n,0,1) #standardised continuous predictor variable
   x2 &amp;lt;- sample(c(0,1),n,replace=TRUE) #binary predictor variable
@@ -75,9 +81,12 @@ lines(x, nl, col=&amp;quot;red&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 ## 5  0.4042683  1     1 -1.106341  2.0869090    1
 ## 6 -0.1061245  1     4 -2.739598 -5.9598435    0&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;The variance of the residuals should be approximately 3.29 + some variance attributable to the group-level effect. We can calculate the true variance from our simulation.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\sigma^{2}_{\text{total}}=\text{var}(y^*-y_{pred})\]&lt;/span&gt;&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;var(mdata$ystar - mdata$ypred)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 8.849834&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;How much variance did the group level effect add?&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\sigma^{2}_{\text{total}} = \sigma^{2}_{e*} + \sigma^{2}_{u}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Where &lt;span class=&#34;math inline&#34;&gt;\(\sigma^{2}_{e*}\)&lt;/span&gt; is the variance attributable to the population (fixed) effects and &lt;span class=&#34;math inline&#34;&gt;\(\sigma^{2}_{u}\)&lt;/span&gt; is the variance attributable to the group (random) effects.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;var(mdata$ystar - mdata$ypred) - (pi*pi)/3&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 5.559966&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;What proportion of the total variance does this represent? I.e. what is the variance partition coefficient (VPC)?&lt;/p&gt;
