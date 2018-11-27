@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="generator" content="Source Themes Academic 2.4.0">
-  <meta name="generator" content="Hugo 0.51" />
+  <meta name="generator" content="Hugo 0.48" />
   <meta name="author" content="Flynn Hill">
 
   
@@ -292,14 +292,11 @@ Here is one way of looking at logistic regression, in a formulation that reflect
 
 
     <div class="article-style" itemprop="articleBody">
-      
-
-
-<p>I recently attended a whole-day workshop on multilevel modelling organised by <a href="https://niasra.uow.edu.au/index.html">NIASRA</a> and taught by Professor <a href="https://www.gla.ac.uk/schools/socialpolitical/staff/marktranmer/">Mark Tranmer</a>, who is an expert in the field from the University of Glasgow.</p>
+      <p>I recently attended a whole-day workshop on multilevel modelling organised by <a href="https://niasra.uow.edu.au/index.html">NIASRA</a> and taught by Professor <a href="https://www.gla.ac.uk/schools/socialpolitical/staff/marktranmer/">Mark Tranmer</a>, who is an expert in the field from the University of Glasgow.</p>
 <p>One part of the workshop that I realised I didn’t have any familiarity with was the idea of how variance works in logistic regression, and in particular in a multilevel logistic regression.</p>
 <p>Here is one way of looking at logistic regression, in a formulation that reflects how a glm works:</p>
-<p><span class="math display">\[ y_{prob} = \text{logit}^{-1}(X\beta) \\ y_{obs} \sim \text{Bernoulli}(y_{prob}) \]</span></p>
-<p>Where <span class="math inline">\(\text{logit}^{-1}\)</span> is the inverse logit function: <span class="math inline">\(exp(X\beta)/(exp(X\beta) + 1)\)</span> which transforms the linear predictor <span class="math inline">\(X\beta\)</span> from log-odds to probabilities <span class="math inline">\(y_{prob}\)</span>. These then give the observed outcomes <span class="math inline">\(y_{obs}\)</span> according to a Bernoulli distribution - a binomial distribution with two possible outcomes.</p>
+<p><span class="math display">\[ y_{prob} = \text{logit}^{-1}(X\beta) \\ y_{obs} \sim \text{Binomial}(y_{prob}) \]</span></p>
+<p>Where <span class="math inline">\(\text{logit}^{-1}\)</span> is the inverse logit function: <span class="math inline">\(exp(X\beta)/(exp(X\beta) + 1)\)</span> which transforms the linear predictor <span class="math inline">\(X\beta\)</span> from log-odds to probabilities <span class="math inline">\(y_{prob}\)</span>. These then give the observed outcomes <span class="math inline">\(y_{obs}\)</span> according to a binomial distribution.</p>
 <p>In multilevel logistic regression, it turns out that adding group (random) effects increases the residual variance. This presents a challenge when we are trying to decide whether it is worth including a group effect. What can we say about how much of the total variance is explained by the group effect?</p>
 <p>To explore this issue, the latent variable model is helpful. Although mathematically equivalent to the glm formulation above, this conceptualisation offers an easier way to look at the variance.</p>
 <p>In the latent variable model, there is an underlying linear variable <span class="math inline">\(y^*\)</span>, which produces a <span class="math inline">\(y_{obs}\)</span> value of 1 when it is above 0 and 0 when it is below 0. <span class="math inline">\(y^*\)</span> is given by a predictor with standard logistic distribution, centred at a value given by a linear predictor, with a scale of 1. This distribution has a variance of (pi^2)/3 = 3.29.</p>
@@ -397,7 +394,7 @@ summary(mmod1)</code></pre>
 ## Fixed effects:
 ##             Estimate Std. Error z value Pr(&gt;|z|)    
 ## (Intercept)  -0.3761     0.5326  -0.706     0.48    
-## x1            3.1139     0.1009  30.869   &lt;2e-16 ***
+## x1            3.1139     0.1009  30.870   &lt;2e-16 ***
 ## x2           -2.3601     0.1158 -20.388   &lt;2e-16 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1

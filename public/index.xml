@@ -16,14 +16,11 @@
       <pubDate>Mon, 26 Nov 2018 00:00:00 +0000</pubDate>
       
       <guid>/post/multilevel-logistic-regression/</guid>
-      <description>
-
-
-&lt;p&gt;I recently attended a whole-day workshop on multilevel modelling organised by &lt;a href=&#34;https://niasra.uow.edu.au/index.html&#34;&gt;NIASRA&lt;/a&gt; and taught by Professor &lt;a href=&#34;https://www.gla.ac.uk/schools/socialpolitical/staff/marktranmer/&#34;&gt;Mark Tranmer&lt;/a&gt;, who is an expert in the field from the University of Glasgow.&lt;/p&gt;
+      <description>&lt;p&gt;I recently attended a whole-day workshop on multilevel modelling organised by &lt;a href=&#34;https://niasra.uow.edu.au/index.html&#34;&gt;NIASRA&lt;/a&gt; and taught by Professor &lt;a href=&#34;https://www.gla.ac.uk/schools/socialpolitical/staff/marktranmer/&#34;&gt;Mark Tranmer&lt;/a&gt;, who is an expert in the field from the University of Glasgow.&lt;/p&gt;
 &lt;p&gt;One part of the workshop that I realised I didn’t have any familiarity with was the idea of how variance works in logistic regression, and in particular in a multilevel logistic regression.&lt;/p&gt;
 &lt;p&gt;Here is one way of looking at logistic regression, in a formulation that reflects how a glm works:&lt;/p&gt;
-&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ y_{prob} = \text{logit}^{-1}(X\beta) \\ y_{obs} \sim \text{Bernoulli}(y_{prob}) \]&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Where &lt;span class=&#34;math inline&#34;&gt;\(\text{logit}^{-1}\)&lt;/span&gt; is the inverse logit function: &lt;span class=&#34;math inline&#34;&gt;\(exp(X\beta)/(exp(X\beta) + 1)\)&lt;/span&gt; which transforms the linear predictor &lt;span class=&#34;math inline&#34;&gt;\(X\beta\)&lt;/span&gt; from log-odds to probabilities &lt;span class=&#34;math inline&#34;&gt;\(y_{prob}\)&lt;/span&gt;. These then give the observed outcomes &lt;span class=&#34;math inline&#34;&gt;\(y_{obs}\)&lt;/span&gt; according to a Bernoulli distribution - a binomial distribution with two possible outcomes.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ y_{prob} = \text{logit}^{-1}(X\beta) \\ y_{obs} \sim \text{Binomial}(y_{prob}) \]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Where &lt;span class=&#34;math inline&#34;&gt;\(\text{logit}^{-1}\)&lt;/span&gt; is the inverse logit function: &lt;span class=&#34;math inline&#34;&gt;\(exp(X\beta)/(exp(X\beta) + 1)\)&lt;/span&gt; which transforms the linear predictor &lt;span class=&#34;math inline&#34;&gt;\(X\beta\)&lt;/span&gt; from log-odds to probabilities &lt;span class=&#34;math inline&#34;&gt;\(y_{prob}\)&lt;/span&gt;. These then give the observed outcomes &lt;span class=&#34;math inline&#34;&gt;\(y_{obs}\)&lt;/span&gt; according to a binomial distribution.&lt;/p&gt;
 &lt;p&gt;In multilevel logistic regression, it turns out that adding group (random) effects increases the residual variance. This presents a challenge when we are trying to decide whether it is worth including a group effect. What can we say about how much of the total variance is explained by the group effect?&lt;/p&gt;
 &lt;p&gt;To explore this issue, the latent variable model is helpful. Although mathematically equivalent to the glm formulation above, this conceptualisation offers an easier way to look at the variance.&lt;/p&gt;
 &lt;p&gt;In the latent variable model, there is an underlying linear variable &lt;span class=&#34;math inline&#34;&gt;\(y^*\)&lt;/span&gt;, which produces a &lt;span class=&#34;math inline&#34;&gt;\(y_{obs}\)&lt;/span&gt; value of 1 when it is above 0 and 0 when it is below 0. &lt;span class=&#34;math inline&#34;&gt;\(y^*\)&lt;/span&gt; is given by a predictor with standard logistic distribution, centred at a value given by a linear predictor, with a scale of 1. This distribution has a variance of (pi^2)/3 = 3.29.&lt;/p&gt;
@@ -121,7 +118,7 @@ summary(mmod1)&lt;/code&gt;&lt;/pre&gt;
 ## Fixed effects:
 ##             Estimate Std. Error z value Pr(&amp;gt;|z|)    
 ## (Intercept)  -0.3761     0.5326  -0.706     0.48    
-## x1            3.1139     0.1009  30.869   &amp;lt;2e-16 ***
+## x1            3.1139     0.1009  30.870   &amp;lt;2e-16 ***
 ## x2           -2.3601     0.1158 -20.388   &amp;lt;2e-16 ***
 ## ---
 ## Signif. codes:  0 &amp;#39;***&amp;#39; 0.001 &amp;#39;**&amp;#39; 0.01 &amp;#39;*&amp;#39; 0.05 &amp;#39;.&amp;#39; 0.1 &amp;#39; &amp;#39; 1
@@ -259,10 +256,7 @@ fit &amp;lt;- stan(&amp;quot;hierarchical_logistic.stan&amp;quot;,
       <pubDate>Thu, 13 Sep 2018 00:00:00 +0000</pubDate>
       
       <guid>/post/outcomespost/</guid>
-      <description>
-
-
-&lt;p&gt;In this post, I will run through a simple simulation using only base R, and demonstrate a way to do power analysis by using this simulation. Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!&lt;/p&gt;
+      <description>&lt;p&gt;In this post, I will run through a simple simulation using only base R, and demonstrate a way to do power analysis by using this simulation. Say we have a cohort of 500 first-year students commencing their second session of study. We decide to offer a special tutoring service to some of the students who did not go well in their first session. To do this, we arrange students in ascending order of their averaged first session final marks, and go down the list calling students and offering tutoring services until 50 students have taken up the offer. At the end of the second session, we want to see if this made a difference. Here we will consider a simple situation where all relevant variables have been taken into account, and the effect is therefore consistent for all students - if only real life were so simple!&lt;/p&gt;
 &lt;p&gt;Although I am usually a devotee of the tidyverse, to keep things simple and focus on the procedure, I have used only base R in this post.&lt;/p&gt;
 &lt;div id=&#34;simulation&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Simulation&lt;/h2&gt;
@@ -493,8 +487,7 @@ hist(small_noisy_tutoring_effects, breaks = 50)&lt;/code&gt;&lt;/pre&gt;
       <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
       
       <guid>/post/post_1/</guid>
-      <description>
-&lt;script src=&#34;/rmarkdown-libs/kePrint/kePrint.js&#34;&gt;&lt;/script&gt;
+      <description>&lt;script src=&#34;/rmarkdown-libs/kePrint/kePrint.js&#34;&gt;&lt;/script&gt;
 
 
 &lt;p&gt;In this post, I simulate an example experiment in which there is a non-linear relationship with underlying parameters that vary by group membership, before fitting the data using Bayesian regression in Stan. In this example, inspired by a real-world problem (with details changed to protect future Nobel prize winners, so try not to read too much into it), several mutant strains of a species of bacteria have been exposed to a range of concentrations of Chemical X. Individual bacteria are exposed, and their response is to either turn green (success) or not. Intriguingly, if a lot of trials are measured of a range of concentrations for a single strain (mutant A, below), there is a bell curve-shaped rise and fall in successes as a function of concentration. Resources are insufficient to measure this many trials for each mutant, so 20 trials at each concentration for each mutant instead. However, some of these trials failed due to a technical glitch and the number of trials ranges from 10-20. Of particular interest is position of the centre of each strain’s Gaussian-shaped response curve.&lt;/p&gt;
