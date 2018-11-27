@@ -164,3 +164,6 @@ summary(mmod1)
 
 Looking at the summary, the variance attributable to the group (random effect) is 5.576, pretty close to the true value of 5.560. If this were a real model, the VPC of 0.6 would mean we would be certain to include the group effect.
 
+## Reference
+ Goldstein H, Browne W, Rasbash J. Partitioning variation in generalised linear multilevel models. Understanding Statistics 2002; 1:223–232
+

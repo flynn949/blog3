@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="generator" content="Source Themes Academic 2.4.0">
-  <meta name="generator" content="Hugo 0.48" />
+  <meta name="generator" content="Hugo 0.51" />
   <meta name="author" content="Flynn Hill">
 
   
@@ -16,7 +16,7 @@
     
   
   <meta name="description" content="I recently attended a whole-day workshop on multilevel modelling organised by NIASRA and taught by Professor Mark Tranmer, who is an expert in the field from the University of Glasgow.
-Multilevel logistic regressionOne part of the workshop that I realised I didn’t have any familiarity with was the idea of how variance works in logistic regression, and in particular in a multilevel logistic regression.
+One part of the workshop that I realised I didn’t have any familiarity with was the idea of how variance works in logistic regression, and in particular in a multilevel logistic regression.
 Here is one way of looking at logistic regression, in a formulation that reflects how a glm works:">
 
   
@@ -92,7 +92,7 @@ Here is one way of looking at logistic regression, in a formulation that reflect
   <meta property="og:url" content="/post/multilevel-logistic-regression/">
   <meta property="og:title" content="Multilevel logistic regression (again) | Flynn R Hill">
   <meta property="og:description" content="I recently attended a whole-day workshop on multilevel modelling organised by NIASRA and taught by Professor Mark Tranmer, who is an expert in the field from the University of Glasgow.
-Multilevel logistic regressionOne part of the workshop that I realised I didn’t have any familiarity with was the idea of how variance works in logistic regression, and in particular in a multilevel logistic regression.
+One part of the workshop that I realised I didn’t have any familiarity with was the idea of how variance works in logistic regression, and in particular in a multilevel logistic regression.
 Here is one way of looking at logistic regression, in a formulation that reflects how a glm works:">
   <meta property="og:locale" content="en-us">
   
@@ -292,9 +292,10 @@ Here is one way of looking at logistic regression, in a formulation that reflect
 
 
     <div class="article-style" itemprop="articleBody">
-      <p>I recently attended a whole-day workshop on multilevel modelling organised by <a href="https://niasra.uow.edu.au/index.html">NIASRA</a> and taught by Professor <a href="https://www.gla.ac.uk/schools/socialpolitical/staff/marktranmer/">Mark Tranmer</a>, who is an expert in the field from the University of Glasgow.</p>
-<div id="multilevel-logistic-regression" class="section level2">
-<h2>Multilevel logistic regression</h2>
+      
+
+
+<p>I recently attended a whole-day workshop on multilevel modelling organised by <a href="https://niasra.uow.edu.au/index.html">NIASRA</a> and taught by Professor <a href="https://www.gla.ac.uk/schools/socialpolitical/staff/marktranmer/">Mark Tranmer</a>, who is an expert in the field from the University of Glasgow.</p>
 <p>One part of the workshop that I realised I didn’t have any familiarity with was the idea of how variance works in logistic regression, and in particular in a multilevel logistic regression.</p>
 <p>Here is one way of looking at logistic regression, in a formulation that reflects how a glm works:</p>
 <p><span class="math display">\[ y_{prob} = \text{logit}^{-1}(X\beta) \\ y_{obs} \sim \text{Bernoulli}(y_{prob}) \]</span></p>
@@ -315,7 +316,6 @@ lines(x, nl, col=&quot;red&quot;)</code></pre>
 <p>How does this apply to multilevel models? We can put all population effects into <span class="math inline">\(y_{prob}\)</span> and calculate <span class="math inline">\(y^*\)</span> from a logistic distribution centred on <span class="math inline">\(y_{prob}\)</span>, plus an additional intercept term <span class="math inline">\(u_j\)</span> for the group effect, which stretches out <span class="math inline">\(y^*\)</span>:</p>
 <p><span class="math display">\[ y_{prob}=X\beta \\ y^* \sim \text{logistic}(y_{prob}, 1)+u_j \\ y_{obs}=y^*\geq0\;?\; 1 : 0 \]</span></p>
 <p>Thus, the population effects are set to contribute a variance of 3.29, while any group effects are added on top of this variance. If we subtract 3.29 from the total residual variance, we can find the variance attributable to the group effect, and take this as a proportion of the total variance.</p>
-</div>
 <div id="simulation" class="section level2">
 <h2>Simulation</h2>
 <pre class="r"><code>set.seed(42)</code></pre>
@@ -397,7 +397,7 @@ summary(mmod1)</code></pre>
 ## Fixed effects:
 ##             Estimate Std. Error z value Pr(&gt;|z|)    
 ## (Intercept)  -0.3761     0.5326  -0.706     0.48    
-## x1            3.1139     0.1009  30.870   &lt;2e-16 ***
+## x1            3.1139     0.1009  30.869   &lt;2e-16 ***
 ## x2           -2.3601     0.1158 -20.388   &lt;2e-16 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
@@ -407,6 +407,10 @@ summary(mmod1)</code></pre>
 ## x1 -0.017       
 ## x2 -0.065 -0.488</code></pre>
 <p>Looking at the summary, the variance attributable to the group (random effect) is 5.576, pretty close to the true value of 5.560. If this were a real model, the VPC of 0.6 would mean we would be certain to include the group effect.</p>
+</div>
+<div id="reference" class="section level2">
+<h2>Reference</h2>
+<p>Goldstein H, Browne W, Rasbash J. Partitioning variation in generalised linear multilevel models. Understanding Statistics 2002; 1:223–232</p>
 </div>
 
     </div>
