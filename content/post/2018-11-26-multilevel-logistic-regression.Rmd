@@ -24,8 +24,6 @@ library(lme4)
 I recently attended a whole-day workshop on multilevel modelling organised by [NIASRA](https://niasra.uow.edu.au/index.html) and taught by Professor [Mark Tranmer](https://www.gla.ac.uk/schools/socialpolitical/staff/marktranmer/), who is an expert in the field from the University of Glasgow. 
 
 
-## Multilevel logistic regression
-
 One part of the workshop that I realised I didn't have any familiarity with was the idea of how variance works in logistic regression, and in particular in a multilevel logistic regression.
 
 Here is one way of looking at logistic regression, in a formulation that reflects how a glm works:
