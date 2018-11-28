@@ -18,6 +18,7 @@ header:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(lme4)
+library(tidyverse)
 ```
 
 
@@ -105,18 +106,41 @@ multibin <- function(n, J, beta1, beta2, jstd){
 ```
 
 
+Now a dataset is generated, note the value of 1.5 for jstd, the standard deviation of the group intercepts. This corresponds to a variance of 2.25.
+
 ```{r}
 mdata <- multibin(n = 5000, 
                   J = 20, 
-                  beta1 = 3.2,
-                  beta2 = -2.4,
-                  jstd = 2.5)
+                  beta1 = 1.6, #3.2
+                  beta2 = -0.7,
+                  jstd = 1.5)
 ```
 
 
 ```{r}
 head(mdata)
 ```
+
+Now let's plot the data, for a small subset of the groups (and a subsample within each group).
+
+```{r}
+mdata %>%
+  filter(group %in% seq(1,4)) %>%
+  mutate(Group = paste0("Group ", group)) %>%
+  group_by(Group) %>%
+  sample_n(100) %>%
+  ggplot()+
+  aes(x = x1, y = ystar, col = factor(Group), shape = factor(x2))+
+  geom_hline(yintercept = 0, col = "grey", linetype = "dashed")+
+  geom_point(alpha = 0.3)+
+  geom_point(aes(x = x1, y = yobs), size = 1.5)+
+  scale_colour_discrete(guide = FALSE)+
+  scale_shape_discrete(name = "x2")+
+  theme_bw(14)+
+  facet_wrap(~Group)
+  
+```
+
 
 The variance of the residuals should be approximately 3.29 + some variance attributable to the group-level effect. We can calculate the true variance from our simulation.
 
@@ -162,7 +186,34 @@ mmod1 <- glmer(yobs ~ x1 + x2 + (1 | group),
 summary(mmod1)
 ```
 
-Looking at the summary, the variance attributable to the group (random effect) is 5.576, pretty close to the true value of 5.560. If this were a real model, the VPC of 0.6 would mean we would be certain to include the group effect.
+Looking at the summary, the variance attributable to the group (random effect) is pretty close to the true value. If this were a real model, the VPC of 0.6 would mean we would be certain to include the group effect. Now we can plot the varying interecepts model for $y^*$ (for the same subset of data as above). Each group has two lines, one for each value of the predictor x2.
+
+```{r}
+mdata$predicted <- predict(mmod1, mdata)
+
+```
+
+
+```{r}
+mdata %>%
+  filter(group %in% seq(1,4)) %>%
+  mutate(Group = paste0("Group ", group)) %>%
+  group_by(Group) %>%
+  sample_n(100) %>%
+  ggplot()+
+  aes(x = x1, y = ystar, col = factor(Group), shape = factor(x2))+
+  geom_hline(yintercept = 0, col = "grey", linetype = "dashed")+
+  geom_point(alpha = 0.3)+
+  geom_point(aes(x = x1, y = yobs), size = 1.5)+
+  geom_line(aes(x = x1, y = predicted, group = interaction(x2,group)))+
+  scale_colour_discrete(guide = FALSE)+
+  scale_shape_discrete(name = "x2")+
+  scale_x_continuous(limits = c(-2,2))+
+  theme_bw(14)+
+  facet_wrap(~Group)
+```
+
+
 
 ## Reference
  Goldstein H, Browne W, Rasbash J. Partitioning variation in generalised linear multilevel models. Understanding Statistics 2002; 1:223–232

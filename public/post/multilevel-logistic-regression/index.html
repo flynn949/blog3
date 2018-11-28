@@ -229,7 +229,7 @@ Here is one way of looking at logistic regression, in a formulation that reflect
   
   <span class="middot-divider"></span>
   <span class="article-reading-time">
-    6 min read
+    7 min read
   </span>
   
 
@@ -340,32 +340,49 @@ lines(x, nl, col=&quot;red&quot;)</code></pre>
   yobs &lt;- ifelse(ystar &gt;= 0, 1, 0) #Get the binary outcome using the threshold test
   return(data.frame(x1, x2, group, yprob, ystar, yobs))
 }</code></pre>
+<p>Now a dataset is generated, note the value of 1.5 for jstd, the standard deviation of the group intercepts. This corresponds to a variance of 2.25.</p>
 <pre class="r"><code>mdata &lt;- multibin(n = 5000, 
                   J = 20, 
-                  beta1 = 3.2,
-                  beta2 = -2.4,
-                  jstd = 2.5)</code></pre>
+                  beta1 = 1.6, #3.2
+                  beta2 = -0.7,
+                  jstd = 1.5)</code></pre>
 <pre class="r"><code>head(mdata)</code></pre>
-<pre><code>##           x1 x2 group     yprob      ystar yobs
-## 1  1.3709584  1    13  1.987067  1.3326743    1
-## 2 -0.5646982  1    17 -4.207034 -5.6295675    0
-## 3  0.3631284  1     7 -1.237989  2.5604840    1
-## 4  0.6328626  0     8  2.025160  0.4128716    1
-## 5  0.4042683  1     1 -1.106341  2.0869090    1
-## 6 -0.1061245  1     4 -2.739598 -5.9598435    0</code></pre>
+<pre><code>##           x1 x2 group       yprob      ystar yobs
+## 1  1.3709584  1    13  1.49353352  1.3347024    1
+## 2 -0.5646982  1    17 -1.60351707 -2.9394443    0
+## 3  0.3631284  1     7 -0.11899454  2.9076940    1
+## 4  0.6328626  0     8  1.01258017  0.6882657    1
+## 5  0.4042683  1     1 -0.05317068  1.9769707    1
+## 6 -0.1061245  1     4 -0.86979923 -3.6911985    0</code></pre>
+<p>Now let’s plot the data, for a small subset of the groups (and a subsample within each group).</p>
+<pre class="r"><code>mdata %&gt;%
+  filter(group %in% seq(1,4)) %&gt;%
+  mutate(Group = paste0(&quot;Group &quot;, group)) %&gt;%
+  group_by(Group) %&gt;%
+  sample_n(100) %&gt;%
+  ggplot()+
+  aes(x = x1, y = ystar, col = factor(Group), shape = factor(x2))+
+  geom_hline(yintercept = 0, col = &quot;grey&quot;, linetype = &quot;dashed&quot;)+
+  geom_point(alpha = 0.3)+
+  geom_point(aes(x = x1, y = yobs), size = 1.5)+
+  scale_colour_discrete(guide = FALSE)+
+  scale_shape_discrete(name = &quot;x2&quot;)+
+  theme_bw(14)+
+  facet_wrap(~Group)</code></pre>
+<p><img src="/post/2018-11-26-multilevel-logistic-regression_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p>The variance of the residuals should be approximately 3.29 + some variance attributable to the group-level effect. We can calculate the true variance from our simulation.</p>
 <p><span class="math display">\[\sigma^{2}_{\text{total}}=\text{var}(y^*-y_{prob})\]</span></p>
 <pre class="r"><code>var(mdata$ystar - mdata$yprob)</code></pre>
-<pre><code>## [1] 8.849834</code></pre>
+<pre><code>## [1] 5.380638</code></pre>
 <p>How much variance did the group level effect add?</p>
 <p><span class="math display">\[\sigma^{2}_{\text{total}} = \sigma^{2}_{e*} + \sigma^{2}_{u}\]</span></p>
 <p>Where <span class="math inline">\(\sigma^{2}_{e*}\)</span> is the variance attributable to the population (fixed) effects and <span class="math inline">\(\sigma^{2}_{u}\)</span> is the variance attributable to the group (random) effects.</p>
 <pre class="r"><code>var(mdata$ystar - mdata$yprob) - (pi*pi)/3</code></pre>
-<pre><code>## [1] 5.559966</code></pre>
+<pre><code>## [1] 2.09077</code></pre>
 <p>What proportion of the total variance does this represent? I.e. what is the variance partition coefficient (VPC)?</p>
 <p><span class="math display">\[ VPC = \frac{\sigma^{2}_{u}}{\sigma^{2}_{e*}+\sigma^{2}_{u}}\]</span></p>
 <pre class="r"><code>(var(mdata$ystar - mdata$yprob) - (pi*pi)/3)/var(mdata$ystar - mdata$yprob)</code></pre>
-<pre><code>## [1] 0.6282565</code></pre>
+<pre><code>## [1] 0.3885728</code></pre>
 <p>About 60%.</p>
 <p>Now that we know the true variance values to expect from the simulation, we can fit a multilevel logistic regression model and see how close it gets. Here, I use the function glmer from the package lme4, which uses a maximum likelihood estimator. One point Prof Tranmer made in his talk was that Bayesian Markov Chain Monte Carlo estimators may do a better job for this particular problem, however, I have simulated a lot of observations so it shouldn’t really make a difference. If I wanted to use MCMC, the package brms can accept a formula in the same syntax as lme4.</p>
 <pre class="r"><code>mmod1 &lt;- glmer(yobs ~ x1 + x2 + (1 | group), 
@@ -380,30 +397,48 @@ summary(mmod1)</code></pre>
 ##    Data: mdata
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
-##   2754.5   2780.6  -1373.3   2746.5     4996 
+##   4343.1   4369.2  -2167.6   4335.1     4996 
 ## 
 ## Scaled residuals: 
 ##      Min       1Q   Median       3Q      Max 
-## -25.4599  -0.2570  -0.0499   0.1761  18.2928 
+## -14.2165  -0.4928  -0.1588   0.4875  12.4820 
 ## 
 ## Random effects:
 ##  Groups Name        Variance Std.Dev.
-##  group  (Intercept) 5.576    2.361   
+##  group  (Intercept) 2.064    1.437   
 ## Number of obs: 5000, groups:  group, 20
 ## 
 ## Fixed effects:
 ##             Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)  -0.3761     0.5326  -0.706     0.48    
-## x1            3.1139     0.1009  30.870   &lt;2e-16 ***
-## x2           -2.3601     0.1158 -20.388   &lt;2e-16 ***
+## (Intercept) -0.25247    0.32597  -0.775    0.439    
+## x1           1.64242    0.05400  30.417  &lt; 2e-16 ***
+## x2          -0.63296    0.07725  -8.194 2.53e-16 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
 ## Correlation of Fixed Effects:
 ##    (Intr) x1    
-## x1 -0.017       
-## x2 -0.065 -0.488</code></pre>
-<p>Looking at the summary, the variance attributable to the group (random effect) is 5.576, pretty close to the true value of 5.560. If this were a real model, the VPC of 0.6 would mean we would be certain to include the group effect.</p>
+## x1 -0.012       
+## x2 -0.114 -0.117</code></pre>
+<p>Looking at the summary, the variance attributable to the group (random effect) is pretty close to the true value. If this were a real model, the VPC of 0.6 would mean we would be certain to include the group effect. Now we can plot the varying interecepts model for <span class="math inline">\(y^*\)</span> (for the same subset of data as above). Each group has two lines, one for each value of the predictor x2.</p>
+<pre class="r"><code>mdata$predicted &lt;- predict(mmod1, mdata)</code></pre>
+<pre class="r"><code>mdata %&gt;%
+  filter(group %in% seq(1,4)) %&gt;%
+  mutate(Group = paste0(&quot;Group &quot;, group)) %&gt;%
+  group_by(Group) %&gt;%
+  sample_n(100) %&gt;%
+  ggplot()+
+  aes(x = x1, y = ystar, col = factor(Group), shape = factor(x2))+
+  geom_hline(yintercept = 0, col = &quot;grey&quot;, linetype = &quot;dashed&quot;)+
+  geom_point(alpha = 0.3)+
+  geom_point(aes(x = x1, y = yobs), size = 1.5)+
+  geom_line(aes(x = x1, y = predicted, group = interaction(x2,group)))+
+  scale_colour_discrete(guide = FALSE)+
+  scale_shape_discrete(name = &quot;x2&quot;)+
+  scale_x_continuous(limits = c(-2,2))+
+  theme_bw(14)+
+  facet_wrap(~Group)</code></pre>
+<p><img src="/post/2018-11-26-multilevel-logistic-regression_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 </div>
 <div id="reference" class="section level2">
 <h2>Reference</h2>
