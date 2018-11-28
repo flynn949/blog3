@@ -78,7 +78,7 @@ lines(x, nl, col=&amp;quot;red&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 ## 4  0.6328626  0     8  1.01258017  0.6882657    1
 ## 5  0.4042683  1     1 -0.05317068  1.9769707    1
 ## 6 -0.1061245  1     4 -0.86979923 -3.6911985    0&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Now let’s plot the data, for a small subset of the groups (and a subsample within each group).&lt;/p&gt;
+&lt;p&gt;Now let’s plot the data, for a small subset of the groups (and a subsample within each group). Keep in mind that in a real study, ystar, being a latent variable, is invisible.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;mdata %&amp;gt;%
   filter(group %in% seq(1,4)) %&amp;gt;%
   mutate(Group = paste0(&amp;quot;Group &amp;quot;, group)) %&amp;gt;%
@@ -107,7 +107,7 @@ lines(x, nl, col=&amp;quot;red&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ VPC = \frac{\sigma^{2}_{u}}{\sigma^{2}_{e*}+\sigma^{2}_{u}}\]&lt;/span&gt;&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;(var(mdata$ystar - mdata$yprob) - (pi*pi)/3)/var(mdata$ystar - mdata$yprob)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 0.3885728&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;About 60%.&lt;/p&gt;
+&lt;p&gt;About 39%.&lt;/p&gt;
 &lt;p&gt;Now that we know the true variance values to expect from the simulation, we can fit a multilevel logistic regression model and see how close it gets. Here, I use the function glmer from the package lme4, which uses a maximum likelihood estimator. One point Prof Tranmer made in his talk was that Bayesian Markov Chain Monte Carlo estimators may do a better job for this particular problem, however, I have simulated a lot of observations so it shouldn’t really make a difference. If I wanted to use MCMC, the package brms can accept a formula in the same syntax as lme4.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;mmod1 &amp;lt;- glmer(yobs ~ x1 + x2 + (1 | group), 
               data = mdata, 
@@ -144,7 +144,7 @@ summary(mmod1)&lt;/code&gt;&lt;/pre&gt;
 ##    (Intr) x1    
 ## x1 -0.012       
 ## x2 -0.114 -0.117&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Looking at the summary, the variance attributable to the group (random effect) is pretty close to the true value. If this were a real model, the VPC of 0.6 would mean we would be certain to include the group effect. Now we can plot the varying interecepts model for &lt;span class=&#34;math inline&#34;&gt;\(y^*\)&lt;/span&gt; (for the same subset of data as above). Each group has two lines, one for each value of the predictor x2.&lt;/p&gt;
+&lt;p&gt;Looking at the summary, the variance attributable to the group (random effect) is pretty close to the true value. If this were a real model, the VPC of 39% would mean we would be certain to include the group effect. Now we can plot the varying interecepts model for &lt;span class=&#34;math inline&#34;&gt;\(y^*\)&lt;/span&gt; (for the same subset of data as above). Each group has two lines, one for each value of the predictor x2.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;mdata$predicted &amp;lt;- predict(mmod1, mdata)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;mdata %&amp;gt;%
   filter(group %in% seq(1,4)) %&amp;gt;%

@@ -121,7 +121,7 @@ mdata <- multibin(n = 5000,
 head(mdata)
 ```
 
-Now let's plot the data, for a small subset of the groups (and a subsample within each group).
+Now let's plot the data, for a small subset of the groups (and a subsample within each group). Keep in mind that in a real study, ystar, being a latent variable, is invisible.
 
 ```{r}
 mdata %>%
@@ -172,7 +172,7 @@ $$ VPC = \frac{\sigma^{2}_{u}}{\sigma^{2}_{e*}+\sigma^{2}_{u}}$$
 (var(mdata$ystar - mdata$yprob) - (pi*pi)/3)/var(mdata$ystar - mdata$yprob)
 ```
 
-About 60%.
+About `r round(100*(var(mdata$ystar - mdata$yprob) - (pi*pi)/3)/var(mdata$ystar - mdata$yprob),0)`%.
 
 
 Now that we know the true variance values to expect from the simulation, we can fit a multilevel logistic regression model and see how close it gets. Here, I use the function glmer from the package lme4, which uses a maximum likelihood estimator. One point Prof Tranmer made in his talk was that Bayesian Markov Chain Monte Carlo estimators may do a better job for this particular problem, however, I have simulated a lot of observations so it shouldn't really make a difference. If I wanted to use MCMC, the package brms can accept a formula in the same syntax as lme4.
@@ -186,7 +186,7 @@ mmod1 <- glmer(yobs ~ x1 + x2 + (1 | group),
 summary(mmod1)
 ```
 
-Looking at the summary, the variance attributable to the group (random effect) is pretty close to the true value. If this were a real model, the VPC of 0.6 would mean we would be certain to include the group effect. Now we can plot the varying interecepts model for $y^*$ (for the same subset of data as above). Each group has two lines, one for each value of the predictor x2.
+Looking at the summary, the variance attributable to the group (random effect) is pretty close to the true value. If this were a real model, the VPC of `r round(100*(var(mdata$ystar - mdata$yprob) - (pi*pi)/3)/var(mdata$ystar - mdata$yprob),0)`% would mean we would be certain to include the group effect. Now we can plot the varying interecepts model for $y^*$ (for the same subset of data as above). Each group has two lines, one for each value of the predictor x2.
 
 ```{r}
 mdata$predicted <- predict(mmod1, mdata)
