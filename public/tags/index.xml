@@ -7,13 +7,22 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2018</copyright>
-    <lastBuildDate>Mon, 26 Nov 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 27 Aug 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Logistic regression</title>
+      <title>Stan</title>
+      <link>/tags/stan/</link>
+      <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/stan/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>logistic regression</title>
       <link>/tags/logistic-regression/</link>
       <pubDate>Mon, 26 Nov 2018 00:00:00 +0000</pubDate>
       
@@ -22,7 +31,7 @@
     </item>
     
     <item>
-      <title>Multilevel modelling</title>
+      <title>multilevel modelling</title>
       <link>/tags/multilevel-modelling/</link>
       <pubDate>Mon, 26 Nov 2018 00:00:00 +0000</pubDate>
       
@@ -31,7 +40,7 @@
     </item>
     
     <item>
-      <title>Power analysis</title>
+      <title>power analysis</title>
       <link>/tags/power-analysis/</link>
       <pubDate>Thu, 13 Sep 2018 00:00:00 +0000</pubDate>
       
@@ -40,7 +49,7 @@
     </item>
     
     <item>
-      <title>Regression</title>
+      <title>regression</title>
       <link>/tags/regression/</link>
       <pubDate>Thu, 13 Sep 2018 00:00:00 +0000</pubDate>
       
@@ -49,7 +58,7 @@
     </item>
     
     <item>
-      <title>Stan</title>
+      <title>stan</title>
       <link>/tags/stan/</link>
       <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
       
@@ -58,16 +67,7 @@
     </item>
     
     <item>
-      <title>Stan</title>
-      <link>/tags/stan/</link>
-      <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
-      
-      <guid>/tags/stan/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Statistics</title>
+      <title>statistics</title>
       <link>/tags/statistics/</link>
       <pubDate>Thu, 13 Sep 2018 00:00:00 +0000</pubDate>
       
@@ -76,7 +76,7 @@
     </item>
     
     <item>
-      <title>Variance</title>
+      <title>variance</title>
       <link>/tags/variance/</link>
       <pubDate>Mon, 26 Nov 2018 00:00:00 +0000</pubDate>
       
