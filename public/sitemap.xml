@@ -77,50 +77,6 @@
     
     <url>
     
-      <loc>/categories/</loc>
-      <priority>0</priority>
-    </url>
-    
-  
-    
-    <url>
-    
-      <loc>/</loc>
-      <lastmod>2017-10-15T00:00:00+11:00</lastmod>
-      <priority>0</priority>
-    </url>
-    
-  
-    
-    <url>
-    
-      <loc>/publication_types/</loc>
-      <lastmod>2018-01-01T00:00:00+11:00</lastmod>
-      <priority>0</priority>
-    </url>
-    
-  
-    
-    <url>
-    
-      <loc>/tags/stan/</loc>
-      <lastmod>2018-08-27T00:00:00+00:00</lastmod>
-      <priority>0</priority>
-    </url>
-    
-  
-    
-    <url>
-    
-      <loc>/tags/</loc>
-      <lastmod>2018-08-27T00:00:00+00:00</lastmod>
-      <priority>0</priority>
-    </url>
-    
-  
-    
-    <url>
-    
       <loc>/tags/bimodal/</loc>
       <lastmod>2018-12-12T00:00:00+00:00</lastmod>
       <priority>0</priority>
@@ -130,8 +86,25 @@
     
     <url>
     
+      <loc>/categories/</loc>
+      <priority>0</priority>
+    </url>
+    
+  
+    
+    <url>
+    
       <loc>/tags/fitting/</loc>
       <lastmod>2018-12-12T00:00:00+00:00</lastmod>
+      <priority>0</priority>
+    </url>
+    
+  
+    
+    <url>
+    
+      <loc>/</loc>
+      <lastmod>2017-10-15T00:00:00+11:00</lastmod>
       <priority>0</priority>
     </url>
     
@@ -166,6 +139,15 @@
     
     <url>
     
+      <loc>/publication_types/</loc>
+      <lastmod>2018-01-01T00:00:00+11:00</lastmod>
+      <priority>0</priority>
+    </url>
+    
+  
+    
+    <url>
+    
       <loc>/tags/regression/</loc>
       <lastmod>2018-09-13T00:00:00+00:00</lastmod>
       <priority>0</priority>
@@ -184,8 +166,26 @@
     
     <url>
     
+      <loc>/tags/stan/</loc>
+      <lastmod>2018-08-27T00:00:00+00:00</lastmod>
+      <priority>0</priority>
+    </url>
+    
+  
+    
+    <url>
+    
       <loc>/tags/statistics/</loc>
       <lastmod>2018-09-13T00:00:00+00:00</lastmod>
+      <priority>0</priority>
+    </url>
+    
+  
+    
+    <url>
+    
+      <loc>/tags/</loc>
+      <lastmod>2018-12-12T00:00:00+00:00</lastmod>
       <priority>0</priority>
     </url>
     
