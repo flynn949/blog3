@@ -1,0 +1,118 @@
+---
+title: Fitting a Bimodal Distribution
+author: ''
+date: '2018-12-12'
+slug: fitting-a-bimodal-distribution
+categories: []
+tags:
+  - stan
+  - bimodal
+  - fitting
+header:
+  caption: ''
+  image: ''
+---
+
+
+As a biophysicist, I occasionally found myself fitting Gaussian curves to apparently bimodal distributions. For example, in one experiment I mixed the relatively slow T7 bacteriophage polymerase with the fast *E. coli* polymerase, and measured rates of DNA replication at the single molecule level for hundreds of the molecules in this mixture. It was clear to see that the result was a bimodal distribution, but I didn't have a great method for fitting this - I used graphing software (Origin) that spat out its best estimate, but I did not know what was going on under the hood, and had no feel for how good the fit was, or the range of fits that would be consistent with the data.
+
+I think the Bayesian method used below is much nicer. It might be a bit more involved and slower, but I think if you have put all the effort in to get the data, it is worth doing the analysis well.
+
+```{r}
+#Simulate data
+set.seed(42)
+mu <- c(300,460)
+sigma <- c(50,100)
+lambda <- 0.57
+xgroup <- sample(c(1,2), 10000, prob = c(lambda, 1 - lambda), replace = TRUE)
+x <- rnorm(500, mu[xgroup], sigma[xgroup])
+```
+
+```{r}
+hist(x, breaks = 25)
+```
+
+Here is the Stan code, this is actually stored in a separate file, 'bimodal.stan'. I struggled to get this to work. My initial strategy was to have separate priors for each of the two mu values, with one higher than the other. Even so, the chains would still flip-flop from mu[1] being higher to mu[2] being higher. Then I came across [this](http://mc-stan.org/users/documentation/case-studies/identifying_mixture_models.html) extremely detailed and helpful post by Michael Betancourt that provides the solution. If mu is set to be of the type 'ordered', then it ensures mu[1] is always the smaller value. Simple!
+
+```{c++, eval = FALSE}
+data {
+  int<lower=0> N;
+  vector[N] x;
+}
+transformed data {
+  vector[N] x_std;
+  x_std = (x - mean(x))/sd(x);
+}
+parameters {
+  ordered[2] mu_std;
+  vector<lower=0>[2] sd_std;
+  real<lower=0,upper=1> lambda;
+}
+model {
+  mu_std ~ normal(0,4);
+  sd_std ~ cauchy(0,5);
+  lambda ~ beta(5,5);
+  for (n in 1:N){
+    target += log_mix(lambda,
+    normal_lpdf(x_std[n] | mu_std[1], sd_std[1]),
+    normal_lpdf(x_std[n] | mu_std[2], sd_std[2]));
+  }
+}
+generated quantities {
+  vector[2] mu;
+  vector[2] std;
+  mu = (sd(x)  * mu_std) + mean(x);
+  std = sd(x)*sd_std;
+}
+
+```
+
+The Stan model is run with four chains. My laptop is 7 years old so I only run it on one core, but it still goes OK.
+
+```{r,results = "hide", message = FALSE, warning=FALSE}
+#Fit the model, as specified in the file 'bimodal.stan'.
+library(rstan)
+mod <- stan(file = "bimodal.stan",data = list(N = length(x), x = x),
+            chains = 4, cores = 1, warmup = 300, iter = 1000,verbose = FALSE, refresh = -1)
+```
+
+```{r}
+plot(mod, pars = "mu")
+```
+
+```{r}
+plot(mod, pars = "std")
+```
+
+```{r}
+plot(mod, pars="lambda")
+```
+
+
+Below, the median fit has been plotted in the two thick lines, with a random selection of 100 draws plotted in dotted lines to give a feel for what the posterior density looks like in relation to the data. In other situations, a posterior predictive distribution might be plotted instead, but here there are no predictor variables, so I prefer this.
+
+```{r}
+draws <- extract(mod)
+xrange <- seq(0,1000)
+
+x1.line <- dnorm(xrange, median(draws$mu[,1]), median(draws$std[,1]))*(median(draws$lambda))
+x2.line <- dnorm(xrange, median(draws$mu[,2]), median(draws$std[,2]))*median(1 - draws$lambda)
+
+drawsamples <- sample(seq(1:length(draws$mu[,1])), 100)
+
+hist(x, freq = FALSE, xlim = c(0,1000), ylim = c(0,0.007), breaks = 25)
+for (i in seq(1:100)){
+  for (j in c(1,2)){
+    lbda <- ifelse(j == 2, 1 - draws$lambda[drawsamples[i]], draws$lambda[drawsamples[i]])
+    line <- dnorm(xrange, draws$mu[,j][drawsamples[i]], draws$std[,j][drawsamples[i]])*lbda
+    lines(xrange, line, col = j, cex = 0.8, lty = 3)
+  }
+}
+lines(xrange,x1.line, lwd = 3, col = "lightblue")
+lines(xrange,x2.line, lwd = 3, col = "orange")
+
+```
+
+
+
+

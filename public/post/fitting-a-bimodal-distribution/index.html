@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 2.4.0">
+  <meta name="generator" content="Hugo 0.51" />
+  <meta name="author" content="Flynn Hill">
+
+  
+  
+  
+  
+    
+  
+  <meta name="description" content="As a biophysicist, I occasionally found myself fitting Gaussian curves to apparently bimodal distributions. For example, in one experiment I mixed the relatively slow T7 bacteriophage polymerase with the fast E. coli polymerase, and measured rates of DNA replication at the single molecule level for hundreds of the molecules in this mixture. It was clear to see that the result was a bimodal distribution, but I didn’t have a great method for fitting this - I used graphing software (Origin) that spat out its best estimate, but I did not know what was going on under the hood, and had no feel for how good the fit was, or the range of fits that would be consistent with the data.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="/post/fitting-a-bimodal-distribution/">
+
+  
+
+
+  
+
+  
+  
+  
+  <meta name="theme-color" content="#0095eb">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" crossorigin="anonymous">
+        
+      
+    
+
+    
+
+    
+
+  
+
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:400,700%7cRoboto:400,400italic,700%7cRoboto&#43;Mono">
+  
+
+  <link rel="stylesheet" href="/styles.css">
+  
+
+  
+  
+  
+
+  
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Flynn R Hill">
+  <link rel="feed" href="/index.xml" type="application/rss+xml" title="Flynn R Hill">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="/post/fitting-a-bimodal-distribution/">
+
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="Flynn R Hill">
+  <meta property="og:url" content="/post/fitting-a-bimodal-distribution/">
+  <meta property="og:title" content="Fitting a Bimodal Distribution | Flynn R Hill">
+  <meta property="og:description" content="As a biophysicist, I occasionally found myself fitting Gaussian curves to apparently bimodal distributions. For example, in one experiment I mixed the relatively slow T7 bacteriophage polymerase with the fast E. coli polymerase, and measured rates of DNA replication at the single molecule level for hundreds of the molecules in this mixture. It was clear to see that the result was a bimodal distribution, but I didn’t have a great method for fitting this - I used graphing software (Origin) that spat out its best estimate, but I did not know what was going on under the hood, and had no feel for how good the fit was, or the range of fits that would be consistent with the data.">
+  <meta property="og:locale" content="en-us">
+  
+  <meta property="article:published_time" content="2018-12-12T00:00:00&#43;00:00">
+  
+  <meta property="article:modified_time" content="2018-12-12T00:00:00&#43;00:00">
+  
+
+  
+
+  
+
+  <title>Fitting a Bimodal Distribution | Flynn R Hill</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#toc" data-offset="71" >
+
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Flynn R Hill</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav ml-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#about">
+            
+            <span>Home</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#posts">
+            
+            <span>Posts</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link" href="/#publications_selected">
+            
+            <span>Publications</span>
+            
+          </a>
+        </li>
+
+        
+        
+      
+
+      
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+
+
+  <div class="article-container">
+    <h1 itemprop="name">Fitting a Bimodal Distribution</h1>
+
+    
+
+<div class="article-metadata">
+
+  
+  
+  <span itemscope itemprop="author" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Flynn Hill">
+  </span>
+  
+
+  <span class="article-date">
+    
+    <meta content="2018-12-12 00:00:00 &#43;0000 UTC" itemprop="datePublished">
+    <time datetime="2018-12-12 00:00:00 &#43;0000 UTC" itemprop="dateModified">
+      2018-12-12
+    </time>
+  </span>
+  <span itemscope itemprop="publisher" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Flynn Hill">
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    3 min read
+  </span>
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <a href="/post/fitting-a-bimodal-distribution/#disqus_thread"></a>
+  
+
+  
+  
+  
+  
+
+  
+  
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=Fitting%20a%20Bimodal%20Distribution&amp;url=%2fpost%2ffitting-a-bimodal-distribution%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=%2fpost%2ffitting-a-bimodal-distribution%2f"
+         target="_blank" rel="noopener">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fpost%2ffitting-a-bimodal-distribution%2f&amp;title=Fitting%20a%20Bimodal%20Distribution"
+         target="_blank" rel="noopener">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=%2fpost%2ffitting-a-bimodal-distribution%2f&amp;title=Fitting%20a%20Bimodal%20Distribution"
+         target="_blank" rel="noopener">
+        <i class="fab fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=Fitting%20a%20Bimodal%20Distribution&amp;body=%2fpost%2ffitting-a-bimodal-distribution%2f">
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+
+    <div class="article-style" itemprop="articleBody">
+      
+
+
+<p>As a biophysicist, I occasionally found myself fitting Gaussian curves to apparently bimodal distributions. For example, in one experiment I mixed the relatively slow T7 bacteriophage polymerase with the fast <em>E. coli</em> polymerase, and measured rates of DNA replication at the single molecule level for hundreds of the molecules in this mixture. It was clear to see that the result was a bimodal distribution, but I didn’t have a great method for fitting this - I used graphing software (Origin) that spat out its best estimate, but I did not know what was going on under the hood, and had no feel for how good the fit was, or the range of fits that would be consistent with the data.</p>
+<p>I think the Bayesian method used below is much nicer. It might be a bit more involved and slower, but I think if you have put all the effort in to get the data, it is worth doing the analysis well.</p>
+<pre class="r"><code>#Simulate data
+set.seed(42)
+mu &lt;- c(300,460)
+sigma &lt;- c(50,100)
+lambda &lt;- 0.57
+xgroup &lt;- sample(c(1,2), 10000, prob = c(lambda, 1 - lambda), replace = TRUE)
+x &lt;- rnorm(500, mu[xgroup], sigma[xgroup])</code></pre>
+<pre class="r"><code>hist(x, breaks = 25)</code></pre>
+<p><img src="/post/2018-12-12-fitting-a-bimodal-distribution_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Here is the Stan code, this is actually stored in a separate file, ‘bimodal.stan’. I struggled to get this to work. My initial strategy was to have separate priors for each of the two mu values, with one higher than the other. Even so, the chains would still flip-flop from mu[1] being higher to mu[2] being higher. Then I came across <a href="http://mc-stan.org/users/documentation/case-studies/identifying_mixture_models.html">this</a> extremely detailed and helpful post by Michael Betancourt that provides the solution. If mu is set to be of the type ‘ordered’, then it ensures mu[1] is always the smaller value. Simple!</p>
+<pre class="c"><code>data {
+  int&lt;lower=0&gt; N;
+  vector[N] x;
+}
+transformed data {
+  vector[N] x_std;
+  x_std = (x - mean(x))/sd(x);
+}
+parameters {
+  ordered[2] mu_std;
+  vector&lt;lower=0&gt;[2] sd_std;
+  real&lt;lower=0,upper=1&gt; lambda;
+}
+model {
+  mu_std ~ normal(0,4);
+  sd_std ~ cauchy(0,5);
+  lambda ~ beta(5,5);
+  for (n in 1:N){
+    target += log_mix(lambda,
+    normal_lpdf(x_std[n] | mu_std[1], sd_std[1]),
+    normal_lpdf(x_std[n] | mu_std[2], sd_std[2]));
+  }
+}
+generated quantities {
+  vector[2] mu;
+  vector[2] std;
+  mu = (sd(x)  * mu_std) + mean(x);
+  std = sd(x)*sd_std;
+}
+</code></pre>
+<p>The Stan model is run with four chains. My laptop is 7 years old so I only run it on one core, but it still goes OK.</p>
+<pre class="r"><code>#Fit the model, as specified in the file &#39;bimodal.stan&#39;.
+library(rstan)
+mod &lt;- stan(file = &quot;bimodal.stan&quot;,data = list(N = length(x), x = x),
+            chains = 4, cores = 1, warmup = 300, iter = 1000,verbose = FALSE, refresh = -1)</code></pre>
+<pre class="r"><code>plot(mod, pars = &quot;mu&quot;)</code></pre>
+<pre><code>## ci_level: 0.8 (80% intervals)</code></pre>
+<pre><code>## outer_level: 0.95 (95% intervals)</code></pre>
+<p><img src="/post/2018-12-12-fitting-a-bimodal-distribution_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>plot(mod, pars = &quot;std&quot;)</code></pre>
+<pre><code>## ci_level: 0.8 (80% intervals)</code></pre>
+<pre><code>## outer_level: 0.95 (95% intervals)</code></pre>
+<p><img src="/post/2018-12-12-fitting-a-bimodal-distribution_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>plot(mod, pars=&quot;lambda&quot;)</code></pre>
+<pre><code>## ci_level: 0.8 (80% intervals)</code></pre>
+<pre><code>## outer_level: 0.95 (95% intervals)</code></pre>
+<p><img src="/post/2018-12-12-fitting-a-bimodal-distribution_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Below, the median fit has been plotted in the two thick lines, with a random selection of 100 draws plotted in dotted lines to give a feel for what the posterior density looks like in relation to the data. In other situations, a posterior predictive distribution might be plotted instead, but here there are no predictor variables, so I prefer this.</p>
+<pre class="r"><code>draws &lt;- extract(mod)
+xrange &lt;- seq(0,1000)
+
+x1.line &lt;- dnorm(xrange, median(draws$mu[,1]), median(draws$std[,1]))*(median(draws$lambda))
+x2.line &lt;- dnorm(xrange, median(draws$mu[,2]), median(draws$std[,2]))*median(1 - draws$lambda)
+
+drawsamples &lt;- sample(seq(1:length(draws$mu[,1])), 100)
+
+hist(x, freq = FALSE, xlim = c(0,1000), ylim = c(0,0.007), breaks = 25)
+for (i in seq(1:100)){
+  for (j in c(1,2)){
+    lbda &lt;- ifelse(j == 2, 1 - draws$lambda[drawsamples[i]], draws$lambda[drawsamples[i]])
+    line &lt;- dnorm(xrange, draws$mu[,j][drawsamples[i]], draws$std[,j][drawsamples[i]])*lbda
+    lines(xrange, line, col = j, cex = 0.8, lty = 3)
+  }
+}
+lines(xrange,x1.line, lwd = 3, col = &quot;lightblue&quot;)
+lines(xrange,x2.line, lwd = 3, col = &quot;orange&quot;)</code></pre>
+<p><img src="/post/2018-12-12-fitting-a-bimodal-distribution_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/stan/">stan</a>
+  
+  <a class="badge badge-light" href="/tags/bimodal/">bimodal</a>
+  
+  <a class="badge badge-light" href="/tags/fitting/">fitting</a>
+  
+</div>
+
+
+
+
+    
+    
+    <div class="article-widget">
+      <div class="hr-light"></div>
+      <h3>Related</h3>
+      <ul>
+        
+        <li><a href="/post/hierarchical-logistic-regression/">Hierarchical Logistic Regression</a></li>
+        
+      </ul>
+    </div>
+    
+
+    
+
+    <div id="disqus_thread"></div>
+<script>
+(function() {
+var d = document, s = d.createElement('script');
+s.src = 'https://frhill.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+</article>
+
+<div class="container">
+  <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    &copy; 2018 &middot; 
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" id="back_to_top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+</div>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        CommonHTML: { linebreaks: { automatic: true } },
+        tex2jax: { inlineMath: [ ['$', '$'], ['\\(','\\)'] ], displayMath: [ ['$$','$$'], ['\\[', '\\]'] ], processEscapes: false },
+        TeX: { noUndefined: { attributes: { mathcolor: 'red', mathbackground: '#FFEEEE', mathsize: '90%' } } },
+        messageStyle: 'none'
+      });
+    </script>
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha256-VsEqElsCHSGmnmHXGQzvoWjWwoznFSZc6hs7ARLRacQ=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/tex.min.js"></script>
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/c&#43;&#43;.min.js"></script>
+        
+      
+
+      
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous" async></script>
+      
+    
+
+    <script src="/js/hugo-academic.js"></script>
+    
+
+    
+    
+
+    
+    
+    
+    <script id="dsq-count-scr" src="//frhill.disqus.com/count.js" async></script>
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+
+  </body>
+</html>
+

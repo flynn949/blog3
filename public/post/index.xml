@@ -13,6 +13,15 @@
     
     
     <item>
+      <title>Fitting a Bimodal Distribution</title>
+      <link>/post/fitting-a-bimodal-distribution/</link>
+      <pubDate>Wed, 12 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/fitting-a-bimodal-distribution/</guid>
+      <description>As a biophysicist, I occasionally found myself fitting Gaussian curves to apparently bimodal distributions. For example, in one experiment I mixed the relatively slow T7 bacteriophage polymerase with the fast E. coli polymerase, and measured rates of DNA replication at the single molecule level for hundreds of the molecules in this mixture. It was clear to see that the result was a bimodal distribution, but I didn’t have a great method for fitting this - I used graphing software (Origin) that spat out its best estimate, but I did not know what was going on under the hood, and had no feel for how good the fit was, or the range of fits that would be consistent with the data.</description>
+    </item>
+    
+    <item>
       <title>Multilevel logistic regression (again)</title>
       <link>/post/multilevel-logistic-regression/</link>
       <pubDate>Mon, 26 Nov 2018 00:00:00 +0000</pubDate>

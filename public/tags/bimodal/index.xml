@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>bimodal on Flynn R Hill</title>
+    <link>/tags/bimodal/</link>
+    <description>Recent content in bimodal on Flynn R Hill</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Wed, 12 Dec 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/bimodal/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Fitting a Bimodal Distribution</title>
+      <link>/post/fitting-a-bimodal-distribution/</link>
+      <pubDate>Wed, 12 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/fitting-a-bimodal-distribution/</guid>
+      <description>As a biophysicist, I occasionally found myself fitting Gaussian curves to apparently bimodal distributions. For example, in one experiment I mixed the relatively slow T7 bacteriophage polymerase with the fast E. coli polymerase, and measured rates of DNA replication at the single molecule level for hundreds of the molecules in this mixture. It was clear to see that the result was a bimodal distribution, but I didn’t have a great method for fitting this - I used graphing software (Origin) that spat out its best estimate, but I did not know what was going on under the hood, and had no feel for how good the fit was, or the range of fits that would be consistent with the data.</description>
+    </item>
+    
+  </channel>
+</rss>
