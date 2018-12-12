@@ -76,15 +76,15 @@ mod <- stan(file = "bimodal.stan",data = list(N = length(x), x = x),
             chains = 4, cores = 1, warmup = 300, iter = 1000,verbose = FALSE, refresh = -1)
 ```
 
-```{r}
+```{r,fig.height = 2}
 plot(mod, pars = "mu")
 ```
 
-```{r}
+```{r, fig.height = 2}
 plot(mod, pars = "std")
 ```
 
-```{r}
+```{r, fig.height = 1}
 plot(mod, pars="lambda")
 ```
 
